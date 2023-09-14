@@ -1,0 +1,92 @@
+.tilted-svg {
+    perspective: 10000px; /* Adjust the perspective as per your preference */
+    position: relative;
+    width: 450px;
+    height: 200px;
+    /* border: 1px solid red; */
+}
+
+.tilted-svg svg {
+    transform: rotateX(10deg) translateZ(-200px); /* Adjust the angles as per your preference */
+    transform-style: preserve-3d;
+    position: absolute;
+    top: -40px;
+    left: 0px;
+    /* border: none; */
+    filter: drop-shadow(
+        0 10px 10px rgba(0, 0, 0, 0.8)
+    ); /* Apply a drop shadow for depth */
+}
+.tilted-svg .rect-box {
+    fill: #263024; /* Adjust the fill color of the rectangle */
+    opacity: 0.7; /* Adjust the opacity of the rectangle*/
+    stroke-width: 100; /* Adjust the border width of the box */
+    transform-style: preserve-3d;
+    transform: rotateX(10deg) translateZ(-200px); /* Adjust the angles as per your preference */
+}
+.tilted-svg .myRect {
+    position: absolute;
+    fill: #49c527; /* Adjust the fill color of the rectangle */
+    opacity: 0.7; /* Adjust the opacity of the rectangle */
+    transform-style: preserve-3d;
+    transform: rotateX(1deg) rotateY(0deg) rotateZ(0deg) translateZ(-100px); /* Adjust the angles and depth of the box */
+    transition: transform 0.3s ease; /* Add smooth transition */
+}
+.tilted-svg .myRect:hover {
+    fill: #455a2c;
+    transform: translateZ(-100px) scale(1); /* Apply the hover effect */
+}
+.tilted-svg .myRect.active-rect {
+    fill: #455a2c;
+    transform: translateZ(-100px) scale(1);
+    animation: pulseAnimation 1s infinite alternate;
+}
+@keyframes pulseAnimation {
+    0% {
+        transform: translateZ(-100px) scale(1);
+    }
+    100% {
+        /* transform: translateZ(100px) scale(9); */
+        fill: #cbd1c3;
+    }
+}
+
+.tooltip-container {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+    animation: zoomOut 2s infinite alternate;
+}
+/* .tooltip-container.show {
+opacity: 1;
+transform: scale(1);
+transition-delay: 1s;
+} */
+.tooltip-content {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #fff;
+    background-color: #333;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.tooltip-tail {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px;
+    border-color: transparent transparent #333 transparent;
+    bottom: -15px;
+    left: calc(50% - 8);
+    transform: rotate(180deg);
+}
+@keyframes zoomOut {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(0.9);
+    }
+}

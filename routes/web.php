@@ -3,6 +3,7 @@
 use App\Models\Frequently;
 use App\Http\Controllers\Navi;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\FloorplanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\ProfileController;
@@ -44,6 +45,11 @@ Route::middleware('auth')->group(function () {
     // dynamic table content
     Route::get('/tables', [TableController::class, 'tables'])->name('admin.table');
 
+    // building layout
+    Route::get('/building-layouts',[FloorplanController::class, 'floorPlanLayout'])->name('admin.building.layouts');
+    // send coordinates to server
+    Route::post('/building-layouts/coordinates',[FloorplanController::class, 'floorPlanLayoutSave'])->name('admin.building.layouts.save');
+    Route::get('/coordinates',[FloorplanController::class, 'floorPlanLayoutGet'])->name('admin.building.layouts.get');
 });
 
 // navi route

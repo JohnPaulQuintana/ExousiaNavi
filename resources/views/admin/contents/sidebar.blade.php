@@ -67,7 +67,8 @@
                     <span>Building Layouts</span>
                 </a>
                 <ul class="sub-menu" aria-expanded="true">
-                    <li><a href="email-inbox.html">First Floor</a></li>
+                    <li><a href="{{ route('admin.building.layouts') }}">First Floor</a></li>
+                    <li><a href="{{ route('admin.building.layouts.get') }}">Test get floor</a></li>
                     <li><a href="email-inbox.html">Second Floor</a></li>
                     <li><a href="email-inbox.html">Third Floor</a></li>
                     <li><a href="email-inbox.html">Fourth Floor</a></li>

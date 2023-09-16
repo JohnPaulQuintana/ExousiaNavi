@@ -74,6 +74,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 15px;
         }
 
         /* Style for the cancel button (X) */
@@ -86,9 +87,9 @@
             font-size: 14px;
             cursor: pointer;
             position: absolute;
-            top: -20px;
-            right: -15px;
-            display: none; 
+            top: -10px;
+            right: -10px;
+            /* display: none;  */
         }
 
 
@@ -120,7 +121,7 @@
         justify-content: center;
         align-items: center;
         font-family: Arial, sans-serif; /* Specify a common font */
-        font-size: 16px; /* Adjust font size */
+        font-size: 15px; /* Adjust font size */
         color: #f3ecec; /* Text color */
         position: relative;
         transition: transform 0.3s ease-in-out; /* Add smooth transform transition */
@@ -141,6 +142,15 @@
         background-color: #999; /* Dark background color for walls */
         box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
         color: white;
+        font-size: 15px;
+      }
+
+      /* Style for the walls (starting points) */
+      .starting-point {
+        background-color: #034d07; /* Dark background color for walls */
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        color: white;
+        font-size: 15px;
       }
 
       .grid-point.block::after {
@@ -242,6 +252,22 @@
 
                                 <h6 class="font-size-13">
                                     <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                    <span class="text-secondary">Floor Selection</span>
+                                    <div class="input-group d-flex align-items-center text-success">
+                                        <select id="floor-selected" class="form-control text-white mt-2">
+                                            @php
+                                                for ($i = 1; $i <= 10; $i++) { 
+                                                    echo "<option value='floor-$i'>$i" . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))) . " Floor</option>";
+                                                }
+                                            @endphp
+                                        </select>
+                                        
+                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
+                                    </div>
+                                </h6>
+
+                                <h6 class="font-size-13">
+                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
                                     <span class="text-secondary">Row Fields</span>
                                     <div class="input-group d-flex align-items-center text-success">
                                         <input type="number" id="row-size" value="4" min="1" max="20" class="form-control text-white mt-2"
@@ -274,10 +300,16 @@
 
                             <div class="table-responsive row">
                                 {{-- all contents --}}
-                                <div class="col-sm-2 drag-container row">
+                                <div class="col-sm-2 mb-3 drag-container row">
+                                    <div class="col-sm-6 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front">
+                                        <div class="drag-content">
+                                            {{ __('front') }}
+                                        </div>
+                                    </div>
                                     @foreach ($facilities as $facility)
                                         
                                     <div class="col-sm-6 mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}">
+                                        {{-- <button class="cancel-drag-button">X</button> --}}
                                         <div class="drag-content">
                                             {{ $facility->facilities }}
                                         </div>
@@ -358,7 +390,6 @@
                 gridPointWidth = width;
                 gridPointHeight = height;
                 gridContainer.empty(); // Clear the existing grid using jQuery
-
                 // change it if you have same level like 10x10 you change it to y first loop as height
                 for (let x = 0; x < width; x++) {
                     for (let y = 0; y < height; y++) {
@@ -380,10 +411,10 @@
             function applyGridSize() {
                 const gridSizeRow = $("#row-size");
                 const gridSizeColumn = $("#column-size");
-                
+                const h = $("#grid-container").height();
                 const gridSize = parseInt(gridSizeRow.val(), 10);//row
                 const gridColumn = parseInt(gridSizeColumn.val(), 10);//row
-
+                $('.drag-container').css("height", `${h}`)
                 if (!isNaN(gridSize) && gridSize >= 1 && gridSize <= 20) {
                     // Calculate the width and height based on grid size and gap
                     const containerWidth = gridSize * (gridPointWidth + 5) + 2 * 10;
@@ -398,7 +429,10 @@
                     $("#grid-container").css("grid-template-columns", `repeat(${gridColumn}, 1fr)`);
                     $("#grid-container").css("grid-template-rows", `repeat(${gridSize}, 1fr)`);
 
-                    createGridPoints(gridColumn,gridSize);
+                    
+                    // $(".drag-container").css("width",)
+                    createGridPoints(gridSize,gridColumn);
+
                     details = collectGridDetails();
                     console.log(details)
                 } else {
@@ -427,7 +461,7 @@
                     const label = gridPoint.getAttribute("data-label");
 
                     // static for now
-                    floor = 'first-floor';
+                    floor = $('#floor-selected').val();
                     gridDetails.push({
                         x,
                         y,
@@ -492,10 +526,20 @@
                         
                         gridPoint.innerText = '';
                         gridPoint.setAttribute("data-label", label); // Set the data-label attribute
+                        // Create a close button
+                        const closeButton = document.createElement("button");
+                        closeButton.className = "cancel-drag-button";
+                        closeButton.innerText = "X";
+                        closeButton.addEventListener("click", () => {
+                            gridPoint.classList.remove("block");
+                            gridPoint.removeAttribute("data-label");
+                            gridPoint.removeChild(closeButton);
+                        });
+                         // Append the close button to the grid point
+                         gridPoint.appendChild(closeButton);
                         event.target.style.transform = "translate(0px, 0px)";
                         event.target.setAttribute("data-x", 0);
                         event.target.setAttribute("data-y", 0);
-                        console.log();
                         return; // Exit the loop when a match is found
                     }
                     }

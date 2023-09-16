@@ -101,6 +101,8 @@
             /* Dark background color for walls */
             box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
             color: white;
+            transform: translateZ(20px);
+            cursor: pointer;
         }
 
         .grid-point.block::after {
@@ -120,6 +122,8 @@
         /* starting point */
         .starting-point {
             background-color: #4434db;
+            border: 1px solid green;
+            transform: translateZ(20px);
             /* Dark background color for walls */
             box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
             color: white;
@@ -128,9 +132,12 @@
         /* starting point */
         .targetFacilities {
             background-color: #044214;
+            border: 1px solid green;
             /* Dark background color for walls */
             box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
             color: white;
+            transform: translateZ(20px);
+            cursor: pointer;
         }
 
         /* Define the animation */
@@ -223,13 +230,27 @@
                             <h4 class="card-title mb-4">Target Facilities</h4>
 
                             <div class="table-responsive">
+                                {{-- {{ $details->floor }} --}}
+                               
+                                <h6 class="font-size-13">
+                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                    <span class="text-secondary">Available Floor</span>
+                                    <div class="input-group d-flex align-items-center text-success">
+                                        <select id="target-floor" class="form-control text-white mt-2">
+                                            @foreach ($details as $key => $floor)
+                                            <option value="{{ $key }}">{{ $floor->floor }}</option>
+                                        @endforeach
+                                        </select>
+                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
+                                    </div>
+                                </h6>
 
                                 <h6 class="font-size-13">
                                     <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
                                     <span class="text-secondary">Available Facilities</span>
                                     <div class="input-group d-flex align-items-center text-success">
                                         <select id="target-selection" class="form-control text-white mt-2">
-
+                                            
                                         </select>
                                         {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
                                     </div>
@@ -313,28 +334,68 @@
     <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.10/dist/interact.min.js"></script>
     {{-- custom --}}
     <script>
+        
         $(document).ready(function() {
             var detailInServer = @json($details); // Convert PHP array to JavaScript object
+            console.log(detailInServer)
             // Now you have access to the details array, you can manipulate and use it
-            var serverResponds = detailInServer[0]['gridDetails'];
+            var serverResponds = detailInServer;
             const gridContainer = $("#grid-container");
             let gridPoints = [];
             let startingPoint;
+            let highestX = -Infinity; // Start with negative infinity as the initial value
+            let highestY = -Infinity;
             // Function to create and append points to the grid
             // width and hieght is the row and columns
             // x = horizontal, y = vertical line 
-            function createGridPoints(target) {
+            function createGridPoints(target, key) {
+                console.log(target, key)
                 var targetFacilities = target;
                 var targetSelection = '';
-                var targetX = 0;
-                var targetY = 0;
+                var targetX;
+                var targetY;
                 // default starting point
-                var startingX = 2;
-                var startingY = 9;
+                var startingX;
+                var startingY;
 
                 gridContainer.empty(); // Clear the existing grid using jQuery
-                serverResponds.forEach(coordinates => {
-                    console.log(coordinates)
+               
+                serverResponds[key]['gridDetails'].forEach(coordinates => {
+
+                    if (!isNaN(parseInt(coordinates.x)) && parseInt(coordinates.x) > highestX) {
+                        highestX = parseInt(coordinates.x);
+                       
+                    }
+
+                    if (!isNaN(parseInt(coordinates.y)) && parseInt(coordinates.y) > highestY) {
+                        highestY = parseInt(coordinates.y);
+                    }
+
+                    // $("#grid-container").css({
+                    //         'width': "fit-content",
+                    //         'height': "fit-content",
+                    //         'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                    //         'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                    //     });
+                   if(highestX < highestY){
+                        // Set the width and height of gridContainer to fit-content
+                        $("#grid-container").css({
+                            'width': "fit-content",
+                            'height': "fit-content",
+                            'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                            'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                        });
+                   }else{
+                        // Set the width and height of gridContainer to fit-content
+                    $("#grid-container").css({
+                        'width': "fit-content",
+                        'height': "fit-content",
+                        'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                        'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                    });
+                   }
+
+                    // console.log(coordinates)
                     const point = $("<div></div>"); // Create a new div element using jQuery
                     point.addClass("grid-point");
                     point.attr("data-x", parseInt(coordinates.x)); // Set x-coordinate as a data attribute
@@ -344,7 +405,7 @@
                     point.text(coordinates.label !== null ? coordinates.label : '');
                     gridContainer.append(point); // Append the point to the grid container using jQuery
                     // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
-                    if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities) {
+                    if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front') {
                         point.addClass('blocked');
                         targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
                     } else if (coordinates.label === targetFacilities) {
@@ -352,10 +413,9 @@
                         targetX = parseInt(coordinates.x);
                         targetY = parseInt(coordinates.y);
                         targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
-                    }
-
-                    // add default css
-                    if(startingX === parseInt(coordinates.x) && startingY === parseInt(coordinates.y)){
+                    } else if (coordinates.label === 'front'){
+                        startingX = parseInt(coordinates.x);
+                        startingY = parseInt(coordinates.y);
                         point.addClass('starting-point');
                         point.text('Your here.')
                     }
@@ -369,10 +429,10 @@
             }
 
             // Call the function to create a 10x10 grid of points
-            createGridPoints('epas');
-
+            createGridPoints('epas', 3);
+            console.log(highestX, highestY)
             // Dijkstra's Algorithm
-            async function dijkstra(startX, startY, endX, endY, width2, height2) {
+            async function dijkstra(startX, startY, endX, endY) {
                 try {
                     const startNode = document.querySelector(
                         `[data-x="${startX}"][data-y="${startY}"]`
@@ -381,8 +441,8 @@
                         `[data-x="${endX}"][data-y="${endY}"]`
                     );
 
-                    const width = 4; // Adjust to match the width of the grid
-                    const height = 10; // Adjust to match the height of the grid
+                    const width = highestX+1; // Adjust to match the width of the grid
+                    const height = highestY+1; // Adjust to match the height of the grid
 
                     // Create a 2D array to represent the grid
                     const grid = new Array(height);
@@ -554,7 +614,7 @@
                         await sleep(200); // Delay for visualization (adjust as needed)
                     }
                 } catch (error) {
-                    console.log(error)
+                   
                 }
             }
 
@@ -565,8 +625,45 @@
 
             $(document).on('click', '#newTarget', function(){
                 const selectedValue = $("#target-selection").val();
-                createGridPoints(selectedValue)
+                const selectedFloorKey = parseInt($("#target-floor").val());
+                const gridContainer = $("#grid-container");
+                 // Clear the grid points and reset variables
+                gridContainer.empty();
+                gridPoints = [];
+                highestX = -Infinity;
+                highestY = -Infinity;
+                // Call createGridPoints with the new selected values
+                createGridPoints(selectedValue, selectedFloorKey);
             })
+
+            // Event listener for changes in the target selection or target floor
+            // $('#target-selection, #target-floor').on('change', function() {
+            //     const selectedValue = $("#target-selection").val();
+            //     const selectedFloorKey = parseInt($("#target-floor").val());
+            //     const gridContainer = $("#grid-container");
+            //      // Clear the grid points and reset variables
+            //     gridContainer.empty();
+            //     gridPoints = [];
+            //     highestX = -Infinity;
+            //     highestY = -Infinity;
+            //     // Call createGridPoints with the new selected values
+            //     createGridPoints(selectedValue, selectedFloorKey);
+            //     // Clear the selected value by resetting the dropdown
+                
+            // });
+
+            // select all blocks and target
+            // Select all elements with class "blocked" or "targetFacilities"
+            // Use event delegation to handle clicks on elements with classes "blocked" or "targetFacilities"
+            $(document).on('click', '.blocked, .targetFacilities', function() {
+                // Inside this function, 'this' refers to the clicked element
+                var clickedElement = $(this).text();
+
+                // Your click event handler code here
+                // You can use 'clickedElement' to refer to the clicked element if needed
+                alert(clickedElement);
+            });
+
 
         })
     </script>

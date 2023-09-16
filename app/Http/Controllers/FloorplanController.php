@@ -25,7 +25,7 @@ class FloorplanController extends Controller
    }
 
    public function floorPlanLayoutGet(Request $request){
-      $floorplans = Floorplan::where('floor','first-floor')->get();
+      $floorplans = Floorplan::get();
       // dd($floorplans);
 
       return view('admin.contents.testfloor')->with(['details'=>$floorplans]);

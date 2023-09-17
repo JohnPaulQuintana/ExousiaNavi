@@ -305,7 +305,7 @@
 
 
     <!-- apexcharts -->
-    <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script> --}}
 
     <!-- jquery.vectormap map -->
     <script src="{{ asset('backend/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}">
@@ -322,7 +322,7 @@
     <script src="{{ asset('backend/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}">
     </script>
 
-    <script src="{{ asset('backend/assets/js/pages/dashboard.init.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/js/pages/dashboard.init.js') }}"></script> --}}
 
     <!-- toastr plugin -->
     <script src="{{ asset('backend/assets/libs/toastr/build/toastr.min.js') }}"></script>
@@ -337,7 +337,7 @@
         
         $(document).ready(function() {
             var detailInServer = @json($details); // Convert PHP array to JavaScript object
-            console.log(detailInServer)
+            // console.log(detailInServer)
             // Now you have access to the details array, you can manipulate and use it
             var serverResponds = detailInServer;
             const gridContainer = $("#grid-container");
@@ -429,8 +429,8 @@
             }
 
             // Call the function to create a 10x10 grid of points
-            createGridPoints('epas', 3);
-            console.log(highestX, highestY)
+            createGridPoints('epas', 0);
+            // console.log(highestX, highestY)
             // Dijkstra's Algorithm
             async function dijkstra(startX, startY, endX, endY) {
                 try {

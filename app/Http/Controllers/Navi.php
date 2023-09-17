@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EastwoodsFacilities;
-use App\Models\Frequently;
-use App\Models\Teacher;
+use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use GuzzleHttp\Client;
+use App\Models\Teacher;
+use App\Models\Floorplan;
+use App\Models\Frequently;
 use Illuminate\Http\Request;
+use App\Models\EastwoodsFacilities;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -23,13 +25,54 @@ class Navi extends Controller
     {
         $query = $request->input('query');
         $allowedPrompts = ['yes', 'just do it', 'ofcourse', 'please'];
-
         // get all user names
         $names = Teacher::pluck('name');
         $facilities = EastwoodsFacilities::pluck('facilities');
         // dd($names);
-
+        $continuation = false;
+        // for answer yes or no in facilities
         if (is_null($query) || !in_array($request->input('prompt'), $allowedPrompts)) {
+            if($request->input('prompt') === 'yes'){
+                $floor = Session::get('floor');
+                $facility = Session::get('facility');
+                $continuation = true;
+                $dataArray = [
+                    'navi' => [
+                        [
+                            'flag' => 'false',
+                            'query' => 'yes',
+                            'answer' => 'yes',
+                            'data' => '',
+                        ],
+                    ],
+                ];
+
+                Session::forget('floor');
+                Session::forget('facility');
+
+                return response()->json(['response' => $this->generateText($dataArray['navi'][0]),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>$continuation]);
+            }elseif ($request->input('prompt') === 'no') {
+                $floor = Session::get('floor');
+                $facility = Session::get('facility');
+                $continuation = false;
+                $dataArray = [
+                    'navi' => [
+                        [
+                            'flag' => 'false',
+                            'query' => 'no',
+                            'answer' => 'no',
+                            'data' => '',
+                        ],
+                    ],
+                ];
+
+                Session::forget('floor');
+                Session::forget('facility');
+
+                return response()->json(['response' => $this->generateText($dataArray['navi'][0]),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>$continuation]);
+            }
+
+
             // dd('ginagwaa');
             $client = new Client();
             $response = $client->post('http://localhost:5000/nlp', [
@@ -41,8 +84,27 @@ class Navi extends Controller
             ]);
 
             $result = json_decode($response->getBody(), true);
+            $floor = '';
+            $facility = '';
             // dd($result['navi'][0]);
-            return response()->json(['response' => $this->generateText($result['navi'][0])]);
+
+            if (
+                isset($result['navi'][0]['data']) &&
+                isset($result['navi'][0]['data']['floor'])
+            ) {
+                // 'floor' key is present in the specified structure
+                $floor = $result['navi'][0]['data']['floor'];
+                $facility = $result['navi'][0]['data']['facilities'];
+
+                // Store $floor and $facility in the session
+                session(['floor' => $floor, 'facility' => $facility]);
+            
+            } else {
+                // 'floor' key is not present in the specified structure
+                $floor = false;
+            }
+
+            return response()->json(['response' => $this->generateText($result['navi'][0]),'floor'=>$floor, 'facility'=>$facility]);
             // return response()->json(['response' => $result['navi']], 200);
         } //else {
         //     // if continuation of question
@@ -86,6 +148,12 @@ class Navi extends Controller
 
     }
 
+    // process navigation
+    public function naviProcessNavigation(Request $request){
+        // dd($request->input('floor'));
+        $floor = Floorplan::where('floor',$request->input('floor'))->first();
+        return response()->json(['details'=>$floor]);
+    }
     // generating text
     public function generateText($data)
     {
@@ -129,6 +197,7 @@ class Navi extends Controller
             'Unfortunately, I don\'t have any data on that person. Please provide more details or try a different query.',
             'It appears there are no records for that person. Can I help you with a different request?',
         ];
+
         // Person Found
         $openingForFoundPerson = [
             'Excellent news! Ive successfully retrieved comprehensive information about [name] in their role as [position].',
@@ -142,6 +211,7 @@ class Navi extends Controller
             'Ive diligently gathered extensive details for [name] in their role as [position].',
             'I possess thorough information on [name] in their capacity as [position]. How may I further assist you?',
         ];
+
         // facilities
         $openingForFalseFacility = [
             'I couldn\'t find any information about that facility. Is there anything else I can assist you with?',
@@ -155,19 +225,32 @@ class Navi extends Controller
             'Unfortunately, I don\'t have any data on that facility. Please provide more details or try a different query.',
             'It appears there are no records for that facility. Can I help you with a different request?',
         ];
+
         // facilities found
         $openingForFoundFacilityStart = [
-            'Great news! I found information about that facility. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'Good news! I located information about the facility you mentioned. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'You\'re in luck! I have information on that facility. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'I found the information you were looking for about that facility. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'I\'ve found details for the facility you mentioned. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'You\'re in the right place! I have information about that facility. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'I found the facility you were looking for! Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'You\'re in luck! I located information about that facility. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'I\'ve successfully located details for the facility you mentioned. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
-            'Good news! I have information on that facility. Here are the details where you can find it [facilities] and the operation time is [operation_time]:',
+            'Great news! I found information about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Would you like to see it on the map?',
+
+            'Good news! I located information about the facility you mentioned on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Want to see it on the map?',
+
+            'You\'re in luck! I have information on that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Interested in viewing it on the map?',
+
+            'I found the information you were looking for about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Would you like to see it on the map?',
+
+            'I\'ve found details for the facility you mentioned on [floor]!. Here are the details where you can find it [facilities]! and the operation time is [operation_time]!. Want to see it on the map?',
+
+            'You\'re in the right place! I have information about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Are you Interested in viewing it on the map?',
+
+            'I found the facility you were looking for on [floor]! Here are the details where you can find it [facilities] and the operation time is [operation_time]. Would you like to see it on the map?',
+
+            'You\'re in luck! I located information about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Want to see it on the map?',
+
+            'I\'ve successfully located details for the facility you mentioned on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Interested in viewing it on the map?',
+
+            'Good news! I have information on that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Would you like to see it on the map?'
+
+
         ];
+
         // person location found
         // $openingForFoundPersonLocation = [
         //     'Great news! I found information on navigating to [facilities] where you can find [persons]. The operation time is [operation_time].',
@@ -194,6 +277,35 @@ class Navi extends Controller
             'Eastwoods School is led by [name] as the principal.',
             'The principal at Eastwoods goes by the name of [name].',
             'At Eastwoods, [name] serves as the principal.'
+        ];
+        
+        // positive response for yes
+        $positiveResponses = [
+            "Great choice! You'll soon be able to view the facility on the map below, showcasing its location on [floor]. Enjoy exploring!",
+            "Excellent! Get ready to explore the facility on the map below, featuring its location on [floor]. Have a great time exploring!",
+            "Perfect! Take a moment to prepare for the map below, highlighting the facility's location on [floor]. Happy exploring!",
+            "Awesome! The map displaying the facility on [floor] will be ready for you in just a moment. Dive in and explore!",
+            "Fantastic! You'll soon have the opportunity to explore the facility on the map below. Simply click and interact with the map to get a closer look!",
+            "Wonderful! The map showcasing the facility's location on [floor] will be available shortly. Click on the map to start your exploration!",
+            "Terrific choice! The map highlighting the facility on [floor] will be ready in a moment. Enjoy your exploration!",
+            "Brilliant! Get ready for the map featuring the facility on [floor]. It will be available shortly. Click on the map to explore further!",
+            "Excellent decision! You can explore the facility on the map below after the message. Click and drag to navigate!",
+            "Great! The map displaying the facility on [floor] will be ready after the message. Enjoy exploring!"
+
+        ];
+        
+        // negative response for no
+        $negativeResponses = [
+            "No problem! If you change your mind or have any more questions, feel free to ask. I'm here to help!",
+            "That's alright! If you have any other questions or need assistance with something else, just let me know.",
+            "Sure thing! If you ever decide to explore further or need assistance later, don't hesitate to reach out.",
+            "Understood! If you have more questions or need assistance in the future, feel free to come back anytime.",
+            "Alright! If you ever want to see the map or have any other inquiries, I'm here to assist you.",
+            "No worries! If you change your mind or need assistance with anything else, don't hesitate to ask.",
+            "Okay! If you have any more questions or need assistance later, don't hesitate to reach out to me.",
+            "Certainly! If you ever decide to view the map or have any other questions, I'm here to assist you.",
+            "Got it! If you change your mind or need help with anything else, feel free to get in touch.",
+            "That's perfectly fine! If you have any more questions or need assistance in the future, I'm here to help."
         ];
         
 
@@ -314,11 +426,11 @@ class Navi extends Controller
             case 'facilities.found':
                 $length = mt_rand(0, count($openingForFoundFacilityStart) - 1);
                 $randomResponse = str_replace(
-                    ['[facilities]', '[operation_time]'],
-                    [$data['facilities'], $data['operation_time']],
+                    ['[facilities]', '[operation_time]', '[floor]'],
+                    [$data['facilities'], $data['operation_time'], $data['floor']],
                     $openingForFoundFacilityStart[$length]
                 ) .
-                    '! ' . $endingPart[$length];
+                    '! ';
                 break;
 
             case 'badwords':
@@ -329,6 +441,21 @@ class Navi extends Controller
             case 'goodbye':
                 $length = mt_rand(0, count($thanks) - 1);
                 $randomResponse = $thanks[$length];
+                break;
+
+            case 'yes':
+                $length = mt_rand(0, count($positiveResponses) - 1);
+                $randomResponse = $positiveResponses[$length]. '! '. $endingPart[$length];
+                // $randomResponse = str_replace(
+                //     ['[floor]'],
+                //     [$data['floor']],
+                //     $positiveResponses[$length]
+                // ) . '! '. $endingPart[$length];
+                break;
+
+            case 'no':
+                $length = mt_rand(0, count($negativeResponses) - 1);
+                $randomResponse = $negativeResponses[$length] .'! '.$endingPart[$length];
                 break;
 
             default:

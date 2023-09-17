@@ -9,6 +9,18 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ asset('css/svg-style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <!-- App favicon -->
+    {{-- <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}"> --}}
+
+    {{-- toast css --}}
+    {{-- <link rel="stylesheet" type="text/css" href="{{ asset('backend/assets/libs/toastr/build/toastr.min.css') }}"> --}}
+   
+    <!-- Bootstrap Css -->
+    {{-- <link href="{{ asset('backend/assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" --}}
+        {{-- type="text/css" /> --}}
+    <!-- Icons Css -->
+    <link href="{{ asset('backend/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     {{-- loader css --}}
     <style>
         .loader {
@@ -78,6 +90,174 @@
 
             100% {
                 transform: scale(0);
+            }
+        }
+
+        /* location popups */
+        
+    </style>
+
+    {{-- navigation style --}}
+    <style>
+         /* Set the max-width to fit-content for the modal dialog */
+         .modal-dialog, .card {
+            max-width: fit-content;
+            color: #fff;
+           
+        }
+
+        /* Add a background and box-shadow to the modal content */
+        .modal-content, .card {
+            background: rgba(38, 48, 36, 0.4);
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; /* Box shadow */
+        }
+         /* Position the close button on the right side of the modal header */
+         .modal-header .btn-close {
+            ms-auto; /* Push the button to the right */
+        }
+        /* Style for the grid container */
+        .grid-container {
+            padding: 10px;
+            width: fit-content;
+            /* Adjust the width of the floorplan */
+            height: fit-content;
+            /* Adjust the height of the floorplan */
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+            /* margin: 50px auto; */
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            /* Adjust the number of columns */
+            grid-template-rows: repeat(4, 1fr);
+            /* Adjust the number of rows */
+            gap: 5px;
+            /* Adjust the gap between rooms */
+            background-color: transparent;
+            /* Background color for the floorplan */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            /* Add a subtle shadow */
+            border-radius: 10px;
+            /* Add rounded corners */
+            perspective: 1000px;
+            /* Create perspective for 3D effect */
+            z-index: 1000;
+        }
+
+        /* Style for each room (grid point) */
+        .grid-point {
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            /* Light background color for rooms */
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            ;
+            /* Add borders */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            /* Specify a common font */
+            font-size: 16px;
+            /* Adjust font size */
+            color: #f3ecec;
+            /* Text color */
+            position: relative;
+            transition: transform 0.3s ease-in-out;
+            /* Add smooth transform transition */
+            transform-style: preserve-3d;
+            /* Preserve 3D effect */
+            z-index: 1;
+        }
+
+        /* Add 3D effect on hover */
+        .grid-point:hover {
+            transform: translateZ(10px);
+            /* Translate along the Z-axis to create elevation */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            /* Add a subtle shadow */
+        }
+
+        /* Style for the walls (blocks) */
+        .blocked {
+            background-color: #999;
+            /* Dark background color for walls */
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+            color: white;
+            transform: translateZ(20px);
+            cursor: pointer;
+        }
+
+        .grid-point.block::after {
+            content: attr(data-label);
+            /* Set the content to the data-label attribute */
+        }
+
+        /* Style for animation */
+        .grid-point.passed {
+            background-color: transparent;
+            /* Dark green for passed rooms */
+            color: white;
+            animation: animatePath 4s linear infinite;
+            /* Animation settings */
+        }
+
+        /* starting point */
+        .starting-point {
+            background-color: #4434db;
+            border: 1px solid green;
+            transform: translateZ(20px);
+            /* Dark background color for walls */
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+            color: white;
+        }
+
+        /* starting point */
+        .targetFacilities {
+            background-color: #044214;
+            border: 1px solid green;
+            /* Dark background color for walls */
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+            color: white;
+            transform: translateZ(20px);
+            cursor: pointer;
+        }
+
+        /* Define the animation */
+        @keyframes animatePath {
+            0% {
+                border: none;
+                color: #06df59;
+                /* background-color: green; */
+                /* transform: translateZ(2px); Translate along the Z-axis to create elevation */
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                /* Add a subtle shadow */
+            }
+
+            25% {
+                /* background-color: rgb(11, 196, 66); */
+                /* transform: translateZ(20px); Translate along the Z-axis to create elevation */
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                /* Add a subtle shadow */
+            }
+
+            50% {
+                /* background-color: rgb(15, 226, 61); */
+                /* transform: translateZ(5px); Translate along the Z-axis to create elevation */
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                /* Add a subtle shadow */
+            }
+
+            75% {
+                /* background-color: rgb(32, 88, 209); */
+                /* transform: translateZ(15px); Translate along the Z-axis to create elevation */
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                /* Add a subtle shadow */
+            }
+
+            100% {
+                /* background-color: green; */
+                /* transform: translateZ(10px); Translate along the Z-axis to create elevation */
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                /* Add a subtle shadow */
             }
         }
     </style>
@@ -165,8 +345,43 @@
                 </div>
             </div>
         </div>
+
         <!-- location popups -->
-        <div class="container" id="popuplocation">
+        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title me-2" id="exampleModalLabel">
+                            <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i> 
+                            Navigation Guide 
+                        </h5>
+                        <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-xl-10">
+                            <div class="card">
+                                <div class="card-body">
+                                    {{-- {{ $details }} --}}
+                                    <div class="table-responsive row">
+                                        {{-- all contents --}}
+        
+                                        <div class="col-sm-10 mx-auto mb-2 grid-container" id="grid-container">
+                                            <!-- Points will be dynamically generated here -->
+                                        </div>
+                                    </div>
+                                </div><!-- end card -->
+                            </div><!-- end card -->
+                        </div>
+                    </div>
+                    {{-- <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div> --}}
+                </div>
+            </div>
+        </div>
+    
+        <div id="overlay" class="hidden"></div>
+        {{-- <div class="container" id="popuplocation">
             <!-- <div class="content"> -->
             <div id="location" class="text-center">
                 <h1 class="text-white">Navigation Guide</h1>
@@ -290,14 +505,14 @@
                 </div>
             </div>
             <!-- </div> -->
-        </div>
+        </div> --}}
     </section>
     <footer>
         <span>Capstone1-40%</span>
     </footer>
 
     <!-- Modal -->
-    <div id="AssistantModal" class="modal">
+    {{-- <div id="AssistantModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <div class="py-12">
@@ -314,7 +529,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 @section('scripts')
@@ -339,6 +554,9 @@
     {{-- handle events --}}
     <script>
         $(document).ready(function() {
+            // $("#showModal").click(function() {
+                // $("#myModal").modal("show");
+            // });
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const form = $('form');
             const chatContainer = $('#chat_container');
@@ -412,95 +630,40 @@
 
             // handle response
             const handleResponse = async (response) => {
-                console.log(response.ok)
+                // console.log(response.ok)
                 if (response.ok) {
                     const responseData = await response.json();
                     const parsedData = responseData.response;
-                    console.log(parsedData)
+                    console.log(responseData)
                     if (parsedData.data) {
                         // nothing to add if true for now
                     } else {
                         // speak
                         input.hide()
                         $('#popupask').removeClass('active')
+                        // startToSpeak(parsedData.answer)
+
                         startToSpeak(parsedData.answer)
+                        .then((finished) => {
+                            if (finished) {
+                                // Speech finished
+                                console.log(finished)
+
+                                if(responseData.floor !== false){
+                                    console.log(responseData.continuation)
+                                    processFacilitiesNavigation(responseData.floor, responseData.facility)
+                                    if(responseData.continuation !== false && responseData.continuation !== undefined){
+                                        $("#myModal").modal("show");
+                                    }
+                                    // $("#myModal").modal("show");
+                                }
+                            } else {
+                                console.log('not fineshed')
+                                // Speech synthesis not supported
+                                // Handle accordingly
+                            }
+                        });
                     }
-
-
-
-                    // if ('speechSynthesis' in window) {
-                    //     const utterance = new SpeechSynthesisUtterance();
-                    //     utterance.volume = 1;
-                    //     utterance.rate = 0.9;
-                    //     utterance.pitch = 1;
-                    //     utterance.text = parsedData['answer'];
-
-                    //     var index = 1;
-                    //     for (index; index < window.speechSynthesis.getVoices().length; index++) {
-                    //         if (window.speechSynthesis.getVoices()[index].voiceURI.search('Zeera') != -1) {
-                    //             utterance.voice = window.speechSynthesis.getVoices()[index];
-                    //         }
-                    //     }
-                    //     utterance.voice = window.speechSynthesis.getVoices()[index];
-
-                    //     setTimeout(() => {
-                    //         utterance.voice = window.speechSynthesis.getVoices()[1];
-                    //     }, 1000);
-
-                    //     utterance.addEventListener('end', () => {
-                    //         console.log('Speech finished');
-                    //         const afterElement = circle.find('.circle-after');
-
-                    //         if (afterElement.length) {
-                    //             circle.remove(afterElement);
-
-                    //             setTimeout(() => {
-                    //                 afterElement.removeClass('circle-after');
-                    //                 conC.removeClass('container-circle');
-                    //                 conT.removeClass('container-title');
-                    //                 en.removeClass('inside');
-                    //                 location.removeClass('active');
-                    //                 // store the objects on localStorage
-                    //                 // localStorage.setItem('data',JSON.stringify(parsedData[0]['data']))
-                    //                 // store key question in input hidden
-                    //                 $('#key').val(parsedData[0]['data'] ? parsedData[0][
-                    //                     'data'
-                    //                 ]['id'] : '');
-                    //                 $('#query').val(parsedData[0] ? parsedData[0]['query'] :
-                    //                     '');
-                    //                 // show input
-                    //                 input.show()
-                    //             }, 1000);
-                    //         }
-                    //     });
-
-                    //     if (parsedData[0]['flag'] == "true") {
-                    //         afterElement.addClass('zoom-out');
-                    //         location.removeClass('active');
-
-                    //         setTimeout(() => {
-                    //             afterElement.removeClass('zoom-out');
-                    //             afterElement.addClass('circle-after');
-                    //             conC.addClass('container-circle');
-                    //             conT.addClass('container-title');
-                    //             en.addClass('inside');
-                    //             circle.append(afterElement);
-
-                    //             setTimeout(() => {
-                    //                 speechSynthesis.speak(utterance);
-                    //                 location.toggleClass('active');
-                    //             }, 1000);
-                    //         }, 1000);
-                    //     } else {
-                    //         setTimeout(() => {
-                    //             afterElement.addClass('circle-after');
-                    //             circle.append(afterElement);
-                    //             speechSynthesis.speak(utterance);
-                    //         }, 1000);
-                    //     }
-                    // } else {
-                    //     console.log('Speech synthesis not supported in this browser');
-                    // }
                 } else {
                     const err = await response.text();
                     // messageDiv.html("Something went wrong");
@@ -509,58 +672,412 @@
             }
 
             // prepare for speak
+            // const startToSpeak = async (sentence) => {
+            //     console.log(sentence)
+            //     if ('speechSynthesis' in window) {
+            //         const utterance = new SpeechSynthesisUtterance();
+            //         utterance.volume = 1;
+            //         utterance.rate = 0.9;
+            //         utterance.pitch = 1;
+            //         utterance.text = sentence;
+
+            //         var index = 1;
+            //         for (index; index < window.speechSynthesis.getVoices().length; index++) {
+            //             if (window.speechSynthesis.getVoices()[index].voiceURI.search('Zeera') != -1) {
+            //                 utterance.voice = window.speechSynthesis.getVoices()[index];
+            //             }
+            //         }
+            //         utterance.voice = window.speechSynthesis.getVoices()[index];
+
+            //         setTimeout(() => {
+            //             utterance.voice = window.speechSynthesis.getVoices()[1];
+            //         }, 1000);
+
+            //         utterance.addEventListener('end', () => {
+            //             console.log('Speech finished');
+            //             // loader
+            //             $('.loader').hide()
+            //             const afterElement = circle.find('.circle-after');
+
+            //             if (afterElement.length) {
+            //                 circle.remove(afterElement);
+
+            //                 setTimeout(() => {
+            //                     afterElement.removeClass('circle-after');
+            //                     conC.removeClass('container-circle');
+            //                     conT.removeClass('container-title');
+            //                     en.removeClass('inside');
+            //                     location.removeClass('active');
+
+            //                     // show input
+            //                     input.show()
+            //                 }, 1000);
+            //             }
+            //         });
+
+            //         // start talked
+            //         setTimeout(() => {
+            //             afterElement.addClass('circle-after');
+            //             $('.loader').show()
+            //             circle.append(afterElement);
+            //             speechSynthesis.speak(utterance);
+            //         }, 1000);
+            //     } else {
+            //         console.log('Speech synthesis not supported in this browser');
+            //     }
+            // }
             const startToSpeak = async (sentence) => {
-                console.log(sentence)
+                console.log(sentence);
+
                 if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance();
-                    utterance.volume = 1;
-                    utterance.rate = 0.9;
-                    utterance.pitch = 1;
-                    utterance.text = sentence;
+                    return new Promise((resolve, reject) => {
+                        const utterance = new SpeechSynthesisUtterance();
+                        utterance.volume = 1;
+                        utterance.rate = 0.9;
+                        utterance.pitch = 1;
+                        utterance.text = sentence;
 
-                    var index = 1;
-                    for (index; index < window.speechSynthesis.getVoices().length; index++) {
-                        if (window.speechSynthesis.getVoices()[index].voiceURI.search('Zeera') != -1) {
-                            utterance.voice = window.speechSynthesis.getVoices()[index];
+                        var index = 1;
+                        for (index; index < window.speechSynthesis.getVoices().length; index++) {
+                            if (window.speechSynthesis.getVoices()[index].voiceURI.search('Zeera') != -1) {
+                                utterance.voice = window.speechSynthesis.getVoices()[index];
+                            }
                         }
-                    }
-                    utterance.voice = window.speechSynthesis.getVoices()[index];
+                        utterance.voice = window.speechSynthesis.getVoices()[index];
 
-                    setTimeout(() => {
-                        utterance.voice = window.speechSynthesis.getVoices()[1];
-                    }, 1000);
+                        setTimeout(() => {
+                            utterance.voice = window.speechSynthesis.getVoices()[1];
+                        }, 1000);
 
-                    utterance.addEventListener('end', () => {
-                        console.log('Speech finished');
-                        // loader
-                        $('.loader').hide()
-                        const afterElement = circle.find('.circle-after');
+                        utterance.addEventListener('end', () => {
+                            console.log('Speech finished');
+                            // loader
+                            $('.loader').hide();
+                            const afterElement = circle.find('.circle-after');
 
-                        if (afterElement.length) {
-                            circle.remove(afterElement);
+                            if (afterElement.length) {
+                                circle.remove(afterElement);
 
-                            setTimeout(() => {
-                                afterElement.removeClass('circle-after');
-                                conC.removeClass('container-circle');
-                                conT.removeClass('container-title');
-                                en.removeClass('inside');
-                                location.removeClass('active');
+                                setTimeout(() => {
+                                    afterElement.removeClass('circle-after');
+                                    conC.removeClass('container-circle');
+                                    conT.removeClass('container-title');
+                                    en.removeClass('inside');
+                                    location.removeClass('active');
 
-                                // show input
-                                input.show()
-                            }, 1000);
-                        }
+                                    // show input
+                                    input.show();
+
+                                    resolve(true); // Resolve the Promise when speech finishes
+                                }, 1000);
+                            }
+                        });
+
+                        // start talked
+                        setTimeout(() => {
+                            afterElement.addClass('circle-after');
+                            $('.loader').show();
+                            circle.append(afterElement);
+                            speechSynthesis.speak(utterance);
+                        }, 1000);
                     });
-
-                    // start talked
-                    setTimeout(() => {
-                        afterElement.addClass('circle-after');
-                        $('.loader').show()
-                        circle.append(afterElement);
-                        speechSynthesis.speak(utterance);
-                    }, 1000);
                 } else {
                     console.log('Speech synthesis not supported in this browser');
+                    return false; // Return false if speech synthesis is not supported
+                }
+            };
+
+            // process facilities navigation
+            const processFacilitiesNavigation = async (floor, facility) => {
+                const response = await fetch('/navi/process/navigation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        floor: `${floor}`,
+                    }),
+
+                });
+                // const responseData = await response.json();
+                // handleResponse(response)
+                const responseData = await response.json();
+                console.log(responseData)
+                var serverResponds = responseData.details;
+                const gridContainer = $("#grid-container");
+                let gridPoints = [];
+                let startingPoint;
+                let highestX = -Infinity; // Start with negative infinity as the initial value
+                let highestY = -Infinity;
+
+                function createGridPoints(target) {
+                    console.log(target)
+                    var targetFacilities = target;
+                    var targetSelection = '';
+                    var targetX;
+                    var targetY;
+                    // default starting point
+                    var startingX;
+                    var startingY;
+
+                    gridContainer.empty(); // Clear the existing grid using jQuery
+                
+                    serverResponds['gridDetails'].forEach(coordinates => {
+
+                        if (!isNaN(parseInt(coordinates.x)) && parseInt(coordinates.x) > highestX) {
+                            highestX = parseInt(coordinates.x);
+                        
+                        }
+
+                        if (!isNaN(parseInt(coordinates.y)) && parseInt(coordinates.y) > highestY) {
+                            highestY = parseInt(coordinates.y);
+                        }
+
+                        if(highestX < highestY){
+                                // Set the width and height of gridContainer to fit-content
+                                $("#grid-container").css({
+                                    'width': "fit-content",
+                                    'height': "fit-content",
+                                    'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                                    'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                                });
+                        }else{
+                                // Set the width and height of gridContainer to fit-content
+                            $("#grid-container").css({
+                                'width': "fit-content",
+                                'height': "fit-content",
+                                'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                                'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                            });
+                        }
+
+                        // console.log(coordinates)
+                        const point = $("<div></div>"); // Create a new div element using jQuery
+                        point.addClass("grid-point");
+                        point.attr("data-x", parseInt(coordinates.x)); // Set x-coordinate as a data attribute
+                        point.attr("data-y", parseInt(coordinates.y)); // Set y-coordinate as a data attribute
+                        // point.text(`${parseInt(coordinates.x)},${parseInt(coordinates.y)}`); // Optionally, you can label points with their coordinates
+                        // Use a ternary operator to set the text based on coordinates.label
+                        point.text(coordinates.label !== null ? coordinates.label : '');
+                        gridContainer.append(point); // Append the point to the grid container using jQuery
+                        // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
+                        if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front') {
+                            point.addClass('blocked');
+                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
+                        } else if (coordinates.label === targetFacilities) {
+                            point.addClass('targetFacilities');
+                            targetX = parseInt(coordinates.x);
+                            targetY = parseInt(coordinates.y);
+                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
+                        } else if (coordinates.label === 'front'){
+                            startingX = parseInt(coordinates.x);
+                            startingY = parseInt(coordinates.y);
+                            point.addClass('starting-point');
+                            point.text('Your here.')
+                        }
+
+                        // Add the point to the gridPoints array
+                        gridPoints.push(point);
+                        $('#target-selection').html(targetSelection);
+                        // starting point x, y  target x,y
+                        dijkstra(startingX, startingY, targetX, targetY);
+                    });
+                }
+
+                // Call the function to create a 10x10 grid of points
+                createGridPoints(facility);
+
+                // Dijkstra's Algorithm
+                async function dijkstra(startX, startY, endX, endY) {
+                    try {
+                        const startNode = document.querySelector(
+                            `[data-x="${startX}"][data-y="${startY}"]`
+                        );
+                        const endNode = document.querySelector(
+                            `[data-x="${endX}"][data-y="${endY}"]`
+                        );
+
+                        const width = highestX+1; // Adjust to match the width of the grid
+                        const height = highestY+1; // Adjust to match the height of the grid
+
+                        // Create a 2D array to represent the grid
+                        const grid = new Array(height);
+                        for (let y = 0; y < height; y++) {
+                            grid[y] = new Array(width);
+                            for (let x = 0; x < width; x++) {
+                                grid[y][x] = document.querySelector(
+                                    `[data-x="${x}"][data-y="${y}"]`
+                                );
+                            }
+                        }
+
+                        // Helper function to calculate the distance between two grid points
+                        function calculateDistance(node1, node2) {
+                            const dx = Math.abs(node1.dataset.x - node2.dataset.x);
+                            const dy = Math.abs(node1.dataset.y - node2.dataset.y);
+                            return Math.sqrt(dx * dx + dy * dy);
+                        }
+
+                        // Initialize distance array with Infinity and visited array with false
+                        const distances = new Array(height)
+                            .fill(null)
+                            .map(() => new Array(width).fill(Infinity));
+                        const visited = new Array(height)
+                            .fill(null)
+                            .map(() => new Array(width).fill(false));
+
+                        // Set the distance of the starting point to 0
+                        distances[startY][startX] = 0;
+
+                        // Dijkstra's algorithm
+                        while (!visited[endY][endX]) {
+                            let currentMinDistance = Infinity;
+                            let currentX = null;
+                            let currentY = null;
+
+                            // Find the unvisited node with the smallest distance
+                            for (let y = 0; y < height; y++) {
+                                for (let x = 0; x < width; x++) {
+                                    if (!visited[y][x] && distances[y][x] < currentMinDistance) {
+                                        currentMinDistance = distances[y][x];
+                                        currentX = x;
+                                        currentY = y;
+                                    }
+                                }
+                            }
+
+                            // Mark the current node as visited
+                            visited[currentY][currentX] = true;
+
+                            // Explore neighbors
+                            const neighbors = [{
+                                    x: currentX - 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX + 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY - 1
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY + 1
+                                },
+                            ];
+
+                            for (const neighbor of neighbors) {
+                                const {
+                                    x,
+                                    y
+                                } = neighbor;
+
+                                // Check if the neighbor is within the grid
+                                if (x >= 0 && x < width && y >= 0 && y < height) {
+                                    const neighborNode = grid[y][x];
+
+                                    // Check if the neighbor is not a block
+                                    if (!neighborNode.classList.contains("blocked")) {
+                                        const distanceToNeighbor = calculateDistance(
+                                            grid[currentY][currentX],
+                                            neighborNode
+                                        );
+
+                                        // Update the distance if a shorter path is found
+                                        if (
+                                            !visited[y][x] &&
+                                            distances[currentY][currentX] + distanceToNeighbor <
+                                            distances[y][x]
+                                        ) {
+                                            distances[y][x] =
+                                                distances[currentY][currentX] + distanceToNeighbor;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Backtrack to find the shortest path
+                        const shortestPath = [];
+                        let currentX = endX;
+                        let currentY = endY;
+
+                        while (currentX !== startX || currentY !== startY) {
+                            shortestPath.unshift({
+                                x: currentX,
+                                y: currentY
+                            });
+                            const neighbors = [{
+                                    x: currentX - 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX + 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY - 1
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY + 1
+                                },
+                            ];
+
+                            for (const neighbor of neighbors) {
+                                const {
+                                    x,
+                                    y
+                                } = neighbor;
+
+                                // Check if the neighbor is within the grid
+                                if (x >= 0 && x < width && y >= 0 && y < height) {
+                                    const neighborNode = grid[y][x];
+                                    const distanceToNeighbor = calculateDistance(
+                                        grid[currentY][currentX],
+                                        neighborNode
+                                    );
+
+                                    if (
+                                        distances[y][x] + distanceToNeighbor ===
+                                        distances[currentY][currentX]
+                                    ) {
+                                        currentX = x;
+                                        currentY = y;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Add the starting point to the shortest path
+                        shortestPath.unshift({
+                            x: startX,
+                            y: startY
+                        });
+
+                        // Highlight the shortest path in the grid
+                        for (const {
+                                x,
+                                y
+                            }
+                            of shortestPath) {
+                            const node = grid[y][x];
+                            node.classList.add("passed"); // Highlight the current node as passed
+                            await sleep(200); // Delay for visualization (adjust as needed)
+                        }
+                    } catch (error) {
+                    
+                    }
+                }
+
+                // Helper function to add a delay for animation
+                function sleep(ms) {
+                    return new Promise((resolve) => setTimeout(resolve, ms));
                 }
             }
         });

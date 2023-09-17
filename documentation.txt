@@ -1,1 +1,174 @@
-in
+Dijkstra Documentation:
+
+    async function dijkstra(startX, startY, endX, endY) 
+        - This line defines an asynchronous function named dijkstra that takes four parameters: startX, startY, endX, and endY. These parameters represent the coordinates of the starting and ending points on a grid.
+
+    const startNode = document.querySelector(`[data-x="${startX}"][data-y="${startY}"]`);
+        - This line uses document.querySelector to select the HTML element in the document with the specified data-x and data-y attributes matching the starting coordinates (startX and startY). It assigns the selected element to the startNode variable.
+
+    const width = highestX + 1;
+    const height  = highestY + 1;
+        - These lines calculate the width and height of the grid based on the highest X and Y coordinates in the grid. These values are incremented by 1 to account for grid indexing starting from 0.
+
+    const grid = new Array(height);
+        - This line initializes a 1D array called grid with a length equal to the height value calculated earlier.
+
+    for (let y = 0; y < height; y++)
+        grid[y] = new Array(width);
+        - This for loop iterates over each row (Y-coordinate) in the grid and initializes a new 1D array for each row. The result is a 2D array representing the grid.
+
+    for (let x = 0; x < width; x++)
+        grid[y][x] = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+        - Nested inside the previous loop, this inner loop iterates over each column (X-coordinate) within the current row. It uses document.querySelector to select the HTML element in the document with matching coordinates and assigns it to the corresponding position in the grid array.
+
+    function calculateDistance(node1, node2)
+        - This line defines a new function called calculateDistance that takes two parameters, node1 and node2, which represent two grid nodes.
+
+    const dx = Math.abs(node1.dataset.x - node2.dataset.x);
+    const dy = Math.abs(node1.dataset.y - node2.dataset.y);
+        - These lines calculate the absolute differences (dx and dy) between the X and Y coordinates of node1 and node2.
+
+    return Math.sqrt(dx * dx + dy * dy);
+        - This line calculates the Euclidean distance between node1 and node2 using the Pythagorean theorem and returns the result as a floating-point number.
+
+    const distances = new Array(height).fill(null).map(() => new Array(width).fill(Infinity));
+        - This line initializes a 2D array called distances with dimensions height by width. It fills the array with Infinity values to represent initial distances between nodes.
+
+    const visited = new Array(height).fill(null).map(() => new Array(width).fill(false));
+        - Similar to the previous line, this one initializes a 2D array called visited with the same dimensions. It fills the array with false values to track whether nodes have been visited.
+
+    distances[startY][startX] = 0;
+        - This line sets the distance at the starting point (specified by startX and startY) to 0 in the distances array.
+
+    while (!visited[endY][endX])
+        - This line starts a while loop that continues until the ending point (specified by endX and endY) is marked as visited in the visited array.
+
+    let currentMinDistance = Infinity;
+    let currentX = null;
+    let currentY = null;
+        - These lines initialize variables currentMinDistance, currentX, and currentY. These variables will be used to keep track of the node with the smallest distance during the loop.
+
+    for (let y = 0; y < height; y++) 
+        for (let x = 0; x < width; x++) 
+        - These nested for loops iterate over all the nodes in the grid, considering each node's coordinates (x, y).
+
+    if (!visited[y][x] && distances[y][x] < currentMinDistance) 
+        - This line checks if the node at position (x, y) has not been visited (!visited[y][x]) and if the distance to this node is less than the current minimum distance (distances[y][x] < currentMinDistance).
+
+    currentMinDistance = distances[y][x];
+    currentX = x;
+    currentY = y;
+        - If the above condition is true, it updates the currentMinDistance with the distance of the current node and stores its coordinates in currentX and currentY.
+
+    visited[currentY][currentX] = true;
+        - This line marks the current node as visited by setting the corresponding value in the visited array to true.
+
+    const neighbors = [
+        { x: currentX - 1, y: currentY },
+        { x: currentX + 1, y: currentY },
+        { x: currentX, y: currentY - 1 },
+        { x: currentX, y: currentY + 1 },
+    ];
+        - This code defines an array neighbors containing the coordinates of the neighboring nodes of the current node. It considers nodes to the left, right, above, and below the current node.
+
+    for (const neighbor of neighbors)
+        const { x, y } = neighbor;
+        - This for...of loop iterates over each neighbor in the neighbors array and extracts its x and y coordinates for convenience.
+
+    if (x >= 0 && x < width && y >= 0 && y < height) 
+        - This line checks if the neighbor's coordinates (x, y) are within the boundaries of the grid.
+
+    const neighborNode = grid[y][x];
+        - It retrieves the grid node corresponding to the neighbor's coordinates and assigns it to neighborNode.
+
+    if (!neighborNode.classList.contains("blocked"))
+        - This line checks if the neighborNode does not have the CSS class "blocked". If a node is blocked, it means it cannot be traversed.
+
+    const distanceToNeighbor = calculateDistance(
+        grid[currentY][currentX],
+        neighborNode
+    );
+        - This line calculates the distance from the current node to the neighbor node using the calculateDistance function defined earlier.
+
+    if (!visited[y][x] && distances[currentY][currentX] + distanceToNeighbor < distances[y][x])
+        - This condition checks if the neighbor node has not been visited (!visited[y][x]) and if the distance to the neighbor node through the current node is shorter than the previously recorded distance to the neighbor node (distances[currentY][currentX] + distanceToNeighbor < distances[y][x]).
+
+    distances[y][x] = distances[currentY][currentX] + distanceToNeighbor;
+        - If the above condition is true, it updates the distances array with the shorter distance to the neighbor node.
+
+    const shortestPath = [];
+        - This line initializes an empty array called shortestPath to store the nodes that make up the shortest path from the starting point to the ending point.
+
+    let currentX = endX;
+    let currentY = endY;
+        - These lines initialize variables currentX and currentY to the ending coordinates. These variables will be used to backtrack from the ending point to the starting point.
+
+    while (currentX !== startX || currentY !== startY) 
+        - This while loop continues until the current coordinates (currentX, currentY) are equal to the starting coordinates (startX, startY).
+
+    shortestPath.unshift({
+        x: currentX,
+        y: currentY
+    });
+        - In each iteration of the loop, it adds the current coordinates to the beginning of the shortestPath array as an object with properties x and y.
+
+    const neighbors = [
+        { x: currentX - 1, y: currentY },
+        { x: currentX + 1, y: currentY },
+        { x: currentX, y: currentY - 1 },
+        { x: currentX, y: currentY + 1 },
+    ];
+        - Similar to earlier, this code defines an array neighbors containing the coordinates of the neighboring nodes of the current node.
+
+    for (const neighbor of neighbors) 
+        const { x, y } = neighbor;
+        - This for...of loop iterates over each neighbor in the neighbors array and extracts its x and y coordinates.
+
+    if (x >= 0 && x < width && y >= 0 && y < height) 
+        - This line checks if the neighbor's coordinates (x, y) are within the boundaries of the grid.
+
+    const neighborNode = grid[y][x];
+        - It retrieves the grid node corresponding to the neighbor's coordinates and assigns it to neighborNode.
+
+    const distanceToNeighbor = calculateDistance(
+        grid[currentY][currentX],
+        neighborNode
+    );
+        - This line calculates the distance from the current node to the neighbor node using the calculateDistance function.
+
+    if (distances[y][x] + distanceToNeighbor === distances[currentY][currentX])
+        - This condition checks if the sum of the distance to the neighbor node and the distance from the neighbor node to the ending point is equal to the distance from the current node to the ending point. This is used to identify the next node on the shortest path.
+
+    currentX = x;
+    currentY = y;
+    break;
+        - If the above condition is true, it updates currentX and currentY to the neighbor's coordinates and breaks out of the loop.
+
+
+    shortestPath.unshift({
+        x: startX,
+        y: startY
+    });
+        - Finally, this line adds the starting coordinates (startX, startY) to the beginning of the shortestPath array to complete the path.
+
+    for (const { x, y } of shortestPath) {
+        const node = grid[y][x];
+        node.classList.add("passed"); // Highlight the current node as passed
+        await sleep(200); // Delay for visualization (adjust as needed)
+    }
+        - This for...of loop iterates over each node in the shortestPath array. For each node, it selects the corresponding HTML element from the grid, adds a CSS class "passed" to highlight it, and then introduces a delay of 200 milliseconds (adjustable) to visualize the traversal.
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+

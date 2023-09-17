@@ -38,10 +38,9 @@
             display: none;
         }
         .drag-container{
-            max-height: 350px; /* Adjust the height as needed */
+            max-height: 350px;
             overflow-y: auto; /* Enable vertical scrollbar if content overflows */
-            position: relative;
-            z-index: 1000;
+           
             /* width: fit-content; */
         }
             /* Style for the draggable box */
@@ -109,6 +108,7 @@
         border-radius: 10px; /* Add rounded corners */
         perspective: 1000px; /* Create perspective for 3D effect */
         z-index: 1000;
+        
       }
 
       /* Style for each room (grid point) */
@@ -298,18 +298,18 @@
                             {{-- {{ $facilities }} --}}
                             <h4 class="card-title mb-4">Available Facilities</h4>
 
-                            <div class="table-responsive row">
+                            <div class="table-responsive row align-items-center" id="con">
                                 {{-- all contents --}}
-                                <div class="col-sm-2 mb-3 drag-container row">
-                                    <div class="col-sm-6 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front">
+                                <div class="col-sm-2 row drag-container">
+                                    <div class="col-sm-2 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front">
                                         <div class="drag-content">
                                             {{ __('front') }}
                                         </div>
                                     </div>
+                                
                                     @foreach ($facilities as $facility)
                                         
-                                    <div class="col-sm-6 mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}">
-                                        {{-- <button class="cancel-drag-button">X</button> --}}
+                                    <div class="col-sm-2 border mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}">
                                         <div class="drag-content">
                                             {{ $facility->facilities }}
                                         </div>
@@ -401,6 +401,9 @@
 
                         gridContainer.append(point); // Append the point to the grid container using jQuery
 
+                        // const containerHeight = gridContainer.height();
+                        // $('#con').css("height",containerHeight)
+                        // gridContainer.css('top',0)
                         // Add the point to the gridPoints array
                         gridPoints.push(point);
                     }
@@ -549,7 +552,7 @@
                     event.target.setAttribute("data-x", 0);
                     event.target.setAttribute("data-y", 0);
                     event.target.classList.remove("block");
-                    event.target.style.zIndex = "1000"; // Restore the original z-index when dragging stops
+                    // event.target.style.zIndex = "4000"; // Restore the original z-index when dragging stops
                 },
                 },
             });

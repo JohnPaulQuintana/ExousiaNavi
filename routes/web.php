@@ -55,5 +55,8 @@ Route::middleware('auth')->group(function () {
 // navi route
 Route::get('/navi',[Navi::class, 'startNaviServer'])->name('navi.server');
 Route::post('/navi/process',[Navi::class, 'naviProcess'])->name('navi.server.process');
+Route::post('/navi/process/navigation',[Navi::class, 'naviProcessNavigation'])->name('navi.server.process.navigation');
+
+
 
 require __DIR__.'/auth.php';

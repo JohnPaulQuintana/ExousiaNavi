@@ -112,7 +112,7 @@ class TeacherController extends Controller
         // Convert the notification to JSON
         $notificationJson = json_encode($notification);
 
-        $tableUpdates = "Maintenance Notice!.The system will be temporarily unavailable for improvements!. Sorry for any inconvenience. Maintenance will take about 3-5 seconds!. Thank you for your patience!.
+        $tableUpdates = "Maintenance Notice!.The system will be temporarily unavailable for improvements! in 10 seconds!. Sorry for any inconvenience. Maintenance will take about 3-10 seconds!. Thank you for your patience! Countdown!!! 3.! 2.! 1.!. 
         ";
         // for static response only 
         event(new UpdateSystem($tableUpdates));

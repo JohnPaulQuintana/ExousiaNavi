@@ -261,6 +261,137 @@
             }
         }
     </style>
+
+    {{-- updating system --}}
+    <style>
+        /* Background Overlay */
+        .overlay-updates {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(38, 48, 36, 0.9);
+            z-index: 1; /* Ensure it's above other content */
+        }
+
+        /* Popup Container */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            border-radius: 5px;
+            transform: translate(-50%, -50%);
+            background: rgba(38, 48, 36, 0.4);
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; /* Box shadow */
+            min-width: 50%;
+            padding: 20px;
+            z-index: 2; /* Ensure it's above the overlay */
+        }
+        .loading-container {
+            perspective: 800px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+        }
+        .title{
+           position: absolute;
+           top: 0;
+           background: linear-gradient(45deg, rgba(65, 230, 79, 1), rgb(233, 233, 227), rgb(0, 255, 21));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .loading-cube {
+            width: 100px;
+            height: 100px;
+            transform-style: preserve-3d;
+            animation: loading 5s infinite linear;
+        }
+
+        .loading-face {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            background-color: transparent;
+            border: 2px solid rgba(9, 46, 2, 0.4);
+            box-shadow: 0 0 5px rgba(2, 134, 123, 0.5);
+            display: flex;
+            flex-direction: column; /* Display text below icon */
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transform: translateZ(50px);
+            transition: transform 0.5s ease-in-out, color 1s ease-in-out; /* Added color transition */
+        }
+
+        .loading-face:nth-child(1) {
+            transform: rotateY(0deg) translateZ(52px);
+            color: #FF5733; /* Red */
+        }
+
+        .loading-face:nth-child(2) {
+            transform: rotateY(90deg) translateZ(52px);
+            color: #33FF57; /* Green */
+        }
+
+        .loading-face:nth-child(3) {
+            transform: rotateY(180deg) translateZ(52px);
+            color: #5733FF; /* Blue */
+        }
+
+        .loading-face:nth-child(4) {
+            transform: rotateY(270deg) translateZ(52px);
+            color: #FF33EC; /* Pink */
+        }
+
+        .loading-face:nth-child(5) {
+            transform: rotateX(90deg) translateZ(52px);
+            color: #F3FF33; /* Yellow */
+        }
+
+        .loading-face:nth-child(6) {
+            transform: rotateX(-90deg) translateZ(52px);
+            color: #33A6FF; /* Light Blue */
+        }
+
+        .loading-cube.loaded .loading-face {
+            transform: translateZ(0);
+        }
+
+        @keyframes loading {
+            0% {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 24px;
+            margin-top: -100px;
+            text-align: center;
+            background: linear-gradient(45deg, rgba(65, 230, 79, 1), rgb(233, 233, 227), rgb(0, 255, 21));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textAnimation 1s infinite alternate; /* Text animation */
+            font-weight: 500;
+        }
+
+        /* Animation for text */
+        @keyframes textAnimation {
+            0% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
 @endsection
 
 @section('contents')
@@ -380,6 +511,37 @@
             </div>
         </div>
     
+         <!-- updating systems popups -->
+         <div class="overlay-updates" id="overlay-updates"></div>
+         <div class="popup" id="popup">
+            <div class="loading-container">
+                <div class="title">
+                    <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
+                    <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
+                </div>
+                <div class="loading-cube" id="loadingCube">
+                    <div class="loading-face">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="loading-face">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <div class="loading-face">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="loading-face">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="loading-face">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="loading-face">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-text" id="loadingText">Loading...</div>
+         </div>
         <div id="overlay" class="hidden"></div>
         {{-- <div class="container" id="popuplocation">
             <!-- <div class="content"> -->
@@ -558,7 +720,7 @@
     <script>
         $(document).ready(function() {
             // $("#showModal").click(function() {
-                // $("#myModal").modal("show");
+            
             // });
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const form = $('form');
@@ -590,10 +752,21 @@
                         if (finished) {
                                 // Speech finished
                             console.log(finished)
-                            // Refresh the page
-                            var currentURL = window.location.href;
-                            window.location.href = currentURL;
-                            localStorage.setItem('updates',true);
+                            $('#overlay-updates').css('display', 'block');
+                                $('#popup').css('display', 'block');
+                            // Call the animateCube function to start the animation
+                            animateCube();  
+
+                            setTimeout(() => {
+                                 // Display the overlay and popup
+                                $('#overlay-updates').css('display', 'none');
+                                $('#popup').css('display', 'none');
+                                 // Refresh the page
+                                var currentURL = window.location.href;
+                                window.location.href = currentURL;
+                                localStorage.setItem('updates',true);
+                            }, 10000);
+                           
                         } else {
                             console.log('not fineshed')
                            
@@ -1114,11 +1287,55 @@
                 }
                 
             }
+
+            // Function to generate random hex color
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            // Function to update cube face colors
+            function updateCubeColors() {
+                const cubeFaces = document.querySelectorAll('.loading-face');
+                cubeFaces.forEach(face => {
+                    face.style.color = getRandomColor();
+                });
+            }
+
+            // Update loading text
+            function updateLoadingText() {
+                const loadingText = document.getElementById('loadingText');
+                loadingText.textContent = 'Updating System...';
+            }
+
+            // Assemble and disassemble the cube continuously
+            function animateCube() {
+                const loadingCube = document.getElementById('loadingCube');
+                loadingCube.classList.add('loaded');
+                
+                updateLoadingText(); // Update text initially
+
+                // Update cube face colors in an interval
+                setInterval(updateCubeColors, 500);
+
+                setTimeout(() => {
+                    loadingCube.classList.remove('loaded');
+                    updateLoadingText(); // Update text after disassembling
+                    setTimeout(animateCube, 2000); // Adjust the delay duration (milliseconds) as needed
+                }, 1000); // Adjust the delay duration (milliseconds) as needed
+            }
+
+            // Start the animation
+            // animateCube();
              
             // updates completed
             console.log(updates)
             // checks for updates
-            if(updates){
+            if(updates !== 'false'){
                 var updatesCompleted = "Updates Completed! Maintenance for the  system is done. We've made improvements and added new data. The system is now fully operational. Thank you for your understanding!"
                 startToSpeak(updatesCompleted)
                     .then((finished) => {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UpdateSystem;
 use App\Models\EastwoodsFacilities;
 use App\Models\Frequently;
 use App\Models\Teacher;
@@ -27,6 +28,7 @@ class TeacherController extends Controller
         $actionText = '';
         $actionType = '';
         $actionName = '';
+        $tableUpdates = [];
 
         if ($inputs || $ids) {
             // dd('true');
@@ -38,6 +40,7 @@ class TeacherController extends Controller
                         $actionText = 'Added';
                         $actionType = 'success';
                         $actionName = "Teacher";
+                       
                         break;
                     case 'update':
                         $input = Teacher::where('id', $ids[$i])->first();
@@ -109,6 +112,10 @@ class TeacherController extends Controller
         // Convert the notification to JSON
         $notificationJson = json_encode($notification);
 
+        $tableUpdates = "Maintenance Notice!.The system will be temporarily unavailable for improvements!. Sorry for any inconvenience. Maintenance will take about 3-5 seconds!. Thank you for your patience!.
+        ";
+        // for static response only 
+        event(new UpdateSystem($tableUpdates));
         // Redirect back with a success message and the inserted products
         return back()->with('notification', $notificationJson);
     }

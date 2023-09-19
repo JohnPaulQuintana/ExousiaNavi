@@ -542,6 +542,9 @@
     <script src="{{ asset('js/events.js') }}"></script>
     {{-- <script src="{{ asset('js/home.js') }}"></script> --}}
 
+    {{-- pusher events --}}
+    <script src="{{ asset('js/pusher.min.js') }}"></script>
+   
     @if (session('message'))
         <script>
             var message = @json(session('message'));
@@ -568,7 +571,37 @@
             const location = $('#popuplocation');
             const input = $('#input')
             let loadInterval;
+            let updates = localStorage.getItem('updates') || false;
+             // Enable pusher logging - don't include this in production
+             Pusher.logToConsole = true;
 
+            var pusher = new Pusher('4ef07d09e997c8b8f24b', {
+                cluster: 'ap1'
+            });
+
+            var channel = pusher.subscribe('update-system');
+            channel.bind('initialize-updates', function(data) {
+                // Parse the JSON data
+                // var eventData = JSON.parse(data);
+                // console.log(data.message[0])
+                var message = data.message
+                startToSpeak(message)
+                    .then((finished) => {
+                        if (finished) {
+                                // Speech finished
+                            console.log(finished)
+                            // Refresh the page
+                            var currentURL = window.location.href;
+                            window.location.href = currentURL;
+                            localStorage.setItem('updates',true);
+                        } else {
+                            console.log('not fineshed')
+                           
+                                // Speech synthesis not supported
+                                // Handle accordingly
+                        }
+                    });
+            });
             // loader
             $('.loader').hide()
             const handleSubmit = async (e) => {
@@ -638,8 +671,7 @@
                     if (parsedData.data) {
                         // nothing to add if true for now
                     } else {
-                        // speak
-                        input.hide()
+                       
                         $('#popupask').removeClass('active')
                         // startToSpeak(parsedData.answer)
 
@@ -728,7 +760,8 @@
             // }
             const startToSpeak = async (sentence) => {
                 console.log(sentence);
-
+                // speak
+                input.hide()
                 if ('speechSynthesis' in window) {
                     return new Promise((resolve, reject) => {
                         const utterance = new SpeechSynthesisUtterance();
@@ -1079,6 +1112,25 @@
                 function sleep(ms) {
                     return new Promise((resolve) => setTimeout(resolve, ms));
                 }
+                
+            }
+             
+            // updates completed
+            console.log(updates)
+            // checks for updates
+            if(updates){
+                var updatesCompleted = "Updates Completed! Maintenance for the  system is done. We've made improvements and added new data. The system is now fully operational. Thank you for your understanding!"
+                startToSpeak(updatesCompleted)
+                    .then((finished) => {
+                        if (finished) {
+                            console.log(finished)
+                            localStorage.setItem('updates',false)
+                        }else{
+                            console.log('not finished')
+                        }
+                    })
+            }else{
+                console.log('nothing to say')
             }
         });
     </script>

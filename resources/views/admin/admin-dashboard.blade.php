@@ -49,6 +49,22 @@
         <div class="rightbar-overlay"></div>
 
         @yield('scripts')
+
+        {{-- pusher events --}}
+        <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+        <script>
+            // Enable pusher logging - don't include this in production
+            Pusher.logToConsole = true;
+
+            var pusher = new Pusher('4ef07d09e997c8b8f24b', {
+            cluster: 'ap1'
+            });
+
+            var channel = pusher.subscribe('update-system');
+            channel.bind('initialize-updates', function(data) {
+            console.log(JSON.stringify(data));
+            });
+        </script>
     </body>
 
 </html>

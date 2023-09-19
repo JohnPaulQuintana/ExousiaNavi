@@ -6,10 +6,14 @@
 
 
 <body>
+    
+    {{-- @include('navi.loaderPage.preloader') --}}
     {{-- <div class="contents-wrapper"> --}}
     @yield('contents')
     {{-- </div> --}}
     @yield('scripts')
+
+
 </body>
 
 </html>

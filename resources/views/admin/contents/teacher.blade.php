@@ -92,8 +92,8 @@
                                                             class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
                                                         <span class="text-secondary">Please Enter your name.</span>
                                                         <input type="text" name="teachers_name[]"
-                                                            class="form-control text-white mt-2"
-                                                            placeholder="jaypee quintana">
+                                                            class="form-control text-white mt-2 add-input"
+                                                            placeholder="jaypee quintana" required>
                                                     </h6>
                                                 </td>
                                                 <td>
@@ -102,7 +102,7 @@
                                                             class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
                                                         <span class="text-secondary">Please Enter your position.</span>
                                                         <input type="text" name="teachers_position[]"
-                                                            class="form-control text-white mt-2" placeholder="Teacher">
+                                                            class="form-control text-white mt-2" placeholder="Teacher" required>
                                                     </h6>
                                                 </td>
                                             </tr>
@@ -245,6 +245,7 @@
     {{-- custom --}}
     <script>
         $(document).ready(function() {
+            $('#editTeachers').prop('disabled', true);
             // Add product
             $("#addInputField").on("click", function() {
                 var newRow = `  <tr>
@@ -294,6 +295,7 @@
             });
 
             $("#teachers-table-edit").on("click", ".cancel-edit", function() {
+                $('#editTeachers').prop('disabled', true);
                 const parentDiv = $(this).closest(".input-group");
                 const customIcon = `<i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>`;
                 const originalHTML = customIcon+parentDiv.data("original-html");
@@ -303,6 +305,7 @@
             });
 
             function makeEditable(element) {
+                $('#editTeachers').prop('disabled', false);
                 const originalName = $(element).attr("name");
                 const isInput = true; // Since it's an input field
                 const selectedOption = $(element);
@@ -310,16 +313,20 @@
                 // console.log("selectedOption:", selectedOption.val());
                 if (selectedOption.val() !== "") {
                     const originalHTML = $(element).prop("outerHTML");
-                    $(element).replaceWith(
+                    if(!$(element).hasClass("edited")){
+                        $(element).replaceWith(
                         `
                             <i class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
                             <input type="text" name="${originalName}"
-                                class="form-control text-white mt-2 edit-input"
+                                class="form-control text-white mt-2 edited edit-input"
                                 placeholder="who is navi team?"
                                 value="${selectedOption.val()}">
                             <i class="text-danger h3 fas fa-times cancel-edit" style="margin:15px auto 10px 10px;"></i>
                         
                         `);
+                    }else{
+                        $(element).removeClass('edited')
+                    }
                     const parentDiv = $(`[name='${originalName}']`).closest(".input-group");
                     parentDiv.data("original-html", originalHTML);
 

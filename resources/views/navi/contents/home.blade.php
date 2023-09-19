@@ -289,6 +289,8 @@
             min-width: 50%;
             padding: 20px;
             z-index: 2; /* Ensure it's above the overlay */
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.5s; /* Smooth transition effect */
         }
         .loading-container {
             perspective: 800px;
@@ -510,6 +512,7 @@
                 </div>
             </div>
         </div>
+        <div id="overlay" class="hidden"></div>
     
          <!-- updating systems popups -->
          <div class="overlay-updates" id="overlay-updates"></div>
@@ -542,7 +545,6 @@
             </div>
             <div class="loading-text" id="loadingText">Loading...</div>
          </div>
-        <div id="overlay" class="hidden"></div>
         {{-- <div class="container" id="popuplocation">
             <!-- <div class="content"> -->
             <div id="location" class="text-center">
@@ -745,27 +747,28 @@
             channel.bind('initialize-updates', function(data) {
                 // Parse the JSON data
                 // var eventData = JSON.parse(data);
-                // console.log(data.message[0])
+                console.log(data.message)
                 var message = data.message
+                input.hide();
                 startToSpeak(message)
                     .then((finished) => {
                         if (finished) {
                                 // Speech finished
                             console.log(finished)
                             $('#overlay-updates').css('display', 'block');
-                                $('#popup').css('display', 'block');
+                            $('#popup').css({'display':'block', 'opacity':'1'});
                             // Call the animateCube function to start the animation
                             animateCube();  
 
                             setTimeout(() => {
                                  // Display the overlay and popup
                                 $('#overlay-updates').css('display', 'none');
-                                $('#popup').css('display', 'none');
+                                $('#popup').css({'display':'none', 'opacity':'0'});
                                  // Refresh the page
                                 var currentURL = window.location.href;
                                 window.location.href = currentURL;
                                 localStorage.setItem('updates',true);
-                            }, 10000);
+                            }, 20000);
                            
                         } else {
                             console.log('not fineshed')
@@ -775,6 +778,7 @@
                         }
                     });
             });
+
             // loader
             $('.loader').hide()
             const handleSubmit = async (e) => {
@@ -1336,6 +1340,7 @@
             console.log(updates)
             // checks for updates
             if(updates !== 'false'){
+                input.hide();
                 var updatesCompleted = "Updates Completed! Maintenance for the  system is done. We've made improvements and added new data. The system is now fully operational. Thank you for your understanding!"
                 startToSpeak(updatesCompleted)
                     .then((finished) => {
@@ -1349,6 +1354,15 @@
             }else{
                 console.log('nothing to say')
             }
+
+            $(document).on('click', '.blocked, .targetFacilities', function() {
+                // Inside this function, 'this' refers to the clicked element
+                var clickedElement = $(this).text();
+
+                // Your click event handler code here
+                // You can use 'clickedElement' to refer to the clicked element if needed
+                alert(clickedElement);
+            });
         });
     </script>
 @endsection

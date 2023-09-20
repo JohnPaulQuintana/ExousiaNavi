@@ -52,8 +52,8 @@ class Navi extends Controller
 
                 return response()->json(['response' => $this->generateText($dataArray['navi'][0]),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>$continuation]);
             }elseif ($request->input('prompt') === 'no') {
-                $floor = Session::get('floor');
-                $facility = Session::get('facility');
+                $floor = 'false';
+                $facility = 'false';
                 $continuation = false;
                 $dataArray = [
                     'navi' => [
@@ -102,9 +102,10 @@ class Navi extends Controller
             } else {
                 // 'floor' key is not present in the specified structure
                 $floor = false;
+                $continuation = 'information';
             }
 
-            return response()->json(['response' => $this->generateText($result['navi'][0]),'floor'=>$floor, 'facility'=>$facility]);
+            return response()->json(['response' => $this->generateText($result['navi'][0]),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>$continuation]);
             // return response()->json(['response' => $result['navi']], 200);
         } //else {
         //     // if continuation of question

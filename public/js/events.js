@@ -1,17 +1,17 @@
 const svgIcons = document.querySelectorAll('svg')
 let circle = document.querySelector('.circle');
-svgIcons.forEach(element => {
-    element.addEventListener("click", function () {
-        console.log(element.dataset.id);
-        if(element.dataset.id === 'ask'){
-            toggle()
-        }
-        if(element.dataset.id === 'scanner'){
+// svgIcons.forEach(element => {
+//     element.addEventListener("click", function () {
+//         console.log(element.dataset.id);
+//         if(element.dataset.id === 'ask'){
+//             toggle()
+//         }
+//         if(element.dataset.id === 'scanner'){
 
-        }
-        // Perform your desired actions here
-      });
-});
+//         }
+//         // Perform your desired actions here
+//       });
+// });
 
 $('.circle').on('click',()=>{
     alert('dwadawd')
@@ -19,10 +19,10 @@ $('.circle').on('click',()=>{
 
 
 // toggle function
-function toggle(){
-    var blur = document.getElementById('popupask')
-    blur.classList.toggle('active')
-}
+// function toggle(){
+//     var blur = document.getElementById('popupask')
+//     blur.classList.toggle('active')
+// }
 
 // render circle animation
 circle.addEventListener('mouseenter', () => {

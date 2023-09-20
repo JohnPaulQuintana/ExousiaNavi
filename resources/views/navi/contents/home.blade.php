@@ -266,7 +266,7 @@
     <style>
         /* Background Overlay */
         .overlay-updates {
-            display: none;
+            visibility: hidden;
             position: fixed;
             top: 0;
             left: 0;
@@ -274,11 +274,18 @@
             height: 100%;
             background: rgba(38, 48, 36, 0.9);
             z-index: 1; /* Ensure it's above other content */
+            opacity: 0; /* Initially hidden */
+            transition: ease 0.5s; /* Smooth transition effect */
         }
 
+        .overlay-updates.active{
+            visibility: visible;
+            opacity: 1;
+            transition: ease 0.6s;
+        }
         /* Popup Container */
         .popup {
-            display: none;
+            visibility: hidden;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -290,7 +297,12 @@
             padding: 20px;
             z-index: 2; /* Ensure it's above the overlay */
             opacity: 0; /* Initially hidden */
-            transition: opacity 0.5s; /* Smooth transition effect */
+            transition: ease 0.5s; /* Smooth transition effect */
+        }
+        .popup.active{
+            visibility: visible;
+            opacity: 1;
+            transition: ease 0.6s;
         }
         .loading-container {
             perspective: 800px;
@@ -394,6 +406,176 @@
             }
         }
     </style>
+
+    {{-- popup answer --}}
+    <style>
+        .answerbtn{
+            font-size: 26px;
+            margin-left: 10px;
+        }       
+    </style>
+
+    {{-- browsing --}}
+    <style>
+        .main_back {
+        position: absolute;
+        border-radius: 10px;
+        transform: rotate(90deg);
+        width: 15em;
+        height: 15em;
+        background: linear-gradient(270deg,#ffffff , #ffffff, #044e20);
+        z-index: -2;
+        box-shadow: inset 0px 0px 180px 5px #ffffff;
+        }
+
+        .main {
+        display: flex;
+        flex-wrap: wrap;
+        width: 14em;
+        align-items: center;
+        justify-content: center;
+        z-index: -1;
+        }
+
+        .browseCard {
+        width: 100px;
+        height: 60px;
+        border-top-left-radius: 10px;
+        background: lightgrey;
+        transition: .4s ease-in-out, .2s background-color ease-in-out, .2s background-image ease-in-out;
+        background: rgba(255, 255, 255, 0.596);
+        backdrop-filter: blur(5px);
+        border: 1px solid transparent;
+        -webkit-backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        }
+
+        .browseCard .facilities {
+        opacity: 0;
+        transition: .2s ease-in-out;
+        fill: rgba(90, 66, 224, 0.9);
+        }
+
+        .browseCard:nth-child(2) {
+        border-radius: 0px;
+        }
+
+        .browseCard:nth-child(2) .teachers {
+        opacity: 0;
+        transition: .2s ease-in-out;
+        fill: rgba(14, 59, 3, 0.9);
+        }
+
+        .label{
+            opacity: 0;
+        }
+        .browseCard:nth-child(3) {
+        border-top-right-radius: 10px;
+        border-top-left-radius: 0px;
+        }
+
+        .browseCard:nth-child(3) .events {
+        opacity: 0;
+        transition: .2s ease-in-out;
+        fill: #cf457c;
+        }
+
+        .main:hover {
+            width: 15em;
+            cursor: pointer;
+        }
+
+        /* .main:hover .main_back {
+        opacity: 0;
+        } */
+
+        .main:hover .browseCard {
+        margin: .2em;
+        border-radius: 10px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main:hover .text {
+        opacity: 0;
+        z-index: -3;
+        }
+
+        .main:hover .label{
+            opacity: 1;
+        }
+
+        .main:hover .facilities {
+        opacity: 1;
+        }
+
+        .main:hover .teachers {
+        opacity: 1;
+        }
+
+        .main:hover .events {
+        opacity: 1;
+        }
+
+        .browseCard:nth-child(1):hover {
+        background-color: #cc39a4;
+        }
+
+        .browseCard:nth-child(1):hover .facilities {
+        fill: rgb(255, 255, 255);
+        }
+
+        .browseCard:nth-child(2):hover {
+        background-color: #03A9F4;
+        }
+
+        .browseCard:nth-child(2):hover .teachers {
+        fill: white;
+        }
+
+        .browseCard:nth-child(3):hover {
+        background-color: #bd1d5d;
+        }
+
+        .browseCard:nth-child(3):hover .events {
+        fill: white;
+        }
+
+
+        .text {
+        position: absolute;
+        font-size: 0.9em;
+        transition: .4s ease-in-out;
+        color: black;
+        text-align: center;
+        font-weight: bold;
+        letter-spacing: 0.33em;
+        z-index: 3;
+        }
+
+        box-icon[name='building'] {
+            width: 60px; /* Set the width to your desired size */
+            height: 60px; /* Set the height to your desired size */
+        }
+        box-icon[name='user-rectangle'] {
+            width: 60px; /* Set the width to your desired size */
+            height: 60px; /* Set the height to your desired size */
+        }
+        box-icon[name='calendar-event'] {
+            width: 60px; /* Set the width to your desired size */
+            height: 60px; /* Set the height to your desired size */
+        }
+        .label {
+            text-align: center;
+            font-size: 15px; /* Adjust font size as needed */
+            margin-top: 15px; /* Adjust margin as needed */
+            font-weight: 700;
+            
+        }
+    </style>
 @endsection
 
 @section('contents')
@@ -413,6 +595,15 @@
 
     </div>
     <main>
+        <span id="svg-title" class="text-white">
+            <b>
+                <svg class="icons" data-id="search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 20l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </svg>
+                
+            </b>
+        </span>
         <span id="svg-title" class="text-white">
             <b><svg class="icons" data-id="ask" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                     viewBox="0 0 24 24">
@@ -545,131 +736,50 @@
             </div>
             <div class="loading-text" id="loadingText">Loading...</div>
          </div>
-        {{-- <div class="container" id="popuplocation">
-            <!-- <div class="content"> -->
-            <div id="location" class="text-center">
-                <h1 class="text-white">Navigation Guide</h1>
-                <div class="tilted-svg">
-                    <svg version="1.1" width="450" height="200" xmlns="http://www.w3.org/2000/svg" class="">
-                        <rect width="100%" height="100%" fill="#263024" class="rect-box" />
 
-                        <rect width="10%" height="25%" fill="white" y="10" x="10"
-                            class="myRect" />
-                        <text x="20" y="40" fill="white">R-1</text>
-                        <circle cx="30" cy="60" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="10" x="60"
-                            class="myRect" />
-                        <text x="70" y="40" fill="white">R-2</text>
-                        <circle cx="80" cy="60" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="10" x="110"
-                            class="myRect" />
-                        <text x="120" y="40" fill="white">F-1</text>
-                        <circle cx="130" cy="60" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="10" x="160"
-                            class="myRect" />
-                        <text x="170" y="40" fill="white">R-1</text>
-                        <circle cx="180" cy="60" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="10" x="210"
-                            class="myRect" />
-                        <text x="220" y="40" fill="white">F-1</text>
-                        <circle cx="230" cy="60" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="10" x="260"
-                            class="myRect" />
-                        <text x="270" y="40" fill="white">R-1</text>
-                        <circle cx="280" cy="60" r="4" fill="transparent" class="" />
-
-
-
-
-                        <rect width="10%" height="25%" fill="white" y="75" x="400"
-                            class="myRect" />
-                        <text x="410" y="90" fill="white">S-1</text>
-                        <circle cx="420" cy="100" r="5" fill="green"
-                            class="stPoint active-rect" />
-                        <!-- starting position -->
-                        <!-- Hallway -->
-                        <!-- <rect x="10" y="75" width="400" height="50" fill="black" /> -->
-
-                        <!-- Dots -->
-                        <circle cx="30" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <!-- <polygon points="280,60 275,56 275,64" fill="red" class="arrow"/> -->
-                        <circle cx="80" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <circle cx="130" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <circle cx="180" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <circle cx="230" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <circle cx="280" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <circle cx="335" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-                        <circle cx="380" cy="100" r="4" fill="transparent"
-                            class="arrow unvisited" />
-
-                        <rect width="10%" height="25%" fill="white" y="140" x="10"
-                            class="myRect" />
-                        <text x="20" y="160" fill="white">R-1</text>
-                        <circle cx="30" cy="140" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="140" x="60"
-                            class="myRect" />
-                        <text x="70" y="160" fill="white">R-2</text>
-                        <circle cx="80" cy="140" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="140" x="110"
-                            class="myRect" />
-                        <text x="120" y="160" fill="white">F-1</text>
-                        <circle cx="130" cy="140" r="4" fill="transparent"
-                            class="finaldestination" />
-
-                        <rect width="10%" height="25%" fill="white" y="140" x="160"
-                            class="myRect" />
-                        <text x="170" y="160" fill="white">R-1</text>
-                        <circle cx="180" cy="140" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="140" x="210"
-                            class="myRect" />
-                        <text x="220" y="160" fill="white">F-1</text>
-                        <circle cx="230" cy="140" r="4" fill="transparent" class="" />
-
-                        <rect width="10%" height="25%" fill="white" y="140" x="260"
-                            class="myRect" />
-                        <text x="270" y="160" fill="white">R-1</text>
-                        <circle cx="280" cy="140" r="4" fill="transparent" class="" />
-
-
-
-
-                        <!-- M = move to -->
-                        <!-- x30, y35 = ending point -->
-                        <!-- L = line -->
-                        <!-- x30, y420 = starting point -->
-
-                        <path fill="none" stroke="green" stroke-dasharray="5,2" stroke-width="3" id="p">
-                            <animate attributeName="stroke-dashoffset" from="0" to="7" dur=".5s"
-                                repeatCount="indefinite" />
-                        </path>
-                        <!-- final stage -->
-                        <path fill="none" stroke="green" stroke-dasharray="5,2" stroke-width="3" id="f">
-                            <animate attributeName="stroke-dashoffset" from="0" to="7" dur=".5s"
-                                repeatCount="indefinite" />
-                        </path>
-                        <!-- Arrowhead -->
-
-                    </svg>
-
+         <!-- waiting for answer systems popups -->
+         <div class="popup" id="popup-continuation">
+            <div class="loading-container">
+                <div class="title">
+                    <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
+                    <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
+                </div>
+                <span id="title sec-title" class="text-white mb-2"><b>Click your answer below!</b></span>
+                <div class="answer-handler">
+                    <button type="button" class="btn btn-success answerbtn" data-value="yes">Yes</button>
+                    <button type="button" class="btn btn-danger answerbtn" data-value="no">No</button>
                 </div>
             </div>
-            <!-- </div> -->
-        </div> --}}
+         </div>
+
+         <!-- searching popups -->
+         <div class="popup" id="popup-searching">
+            <div class="loading-container">
+                <div class="title">
+                    <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
+                    <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
+                </div><br>
+                <div class="browsing-handler">
+                    <div class="main">
+                        <div class="browseCard" data-value="facilities">
+                            <box-icon type='solid' name='building' class="facilities" data-value="facilities"></box-icon>
+                            <p class="label">Facilities</p> <!-- Add label for facilities -->
+                        </div>
+                        <div class="browseCard" data-value="teachers">
+                            <box-icon type='solid' name='user-rectangle' class="teachers" data-value="teachers"></box-icon>
+                            <p class="label">Teachers</p> <!-- Add label for teachers -->
+                        </div>
+                        <div class="browseCard" data-value="events">
+                            <box-icon type='solid' name='calendar-event' class="events" data-value="events"></box-icon>
+                            <p class="label">Events</p> <!-- Add label for events -->
+                        </div>
+                        <p class="text">CLICK<br><br>FOR<br><br>BROWSING</p>
+                        <div class="main_back"></div>
+                    </div>
+                    
+                </div>
+            </div>
+         </div>
     </section>
     <footer>
         <span>Capstone1-40%</span>
@@ -708,6 +818,7 @@
 
     {{-- pusher events --}}
     <script src="{{ asset('js/pusher.min.js') }}"></script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
    
     @if (session('message'))
         <script>
@@ -721,9 +832,6 @@
     {{-- handle events --}}
     <script>
         $(document).ready(function() {
-            // $("#showModal").click(function() {
-            
-            // });
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const form = $('form');
             const chatContainer = $('#chat_container');
@@ -820,6 +928,7 @@
                 }
             });
 
+            // frequently ask
             $(document).on('click', '#frequently-question', async function() {
                 var q = $(this).data('id')
                 console.log(q)
@@ -836,6 +945,51 @@
                 });
                 // const responseData = await response.json();
                 handleResponse(response)
+            })
+
+            // answer by yes or no
+            $(document).on('click', '.answerbtn', async function(){
+                var a = $(this).data('value')
+                const response = await fetch('/navi/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        prompt: `${a}`,
+                    }),
+
+                });
+                $('#overlay-updates').toggleClass('active');
+                $('#popup-continuation').toggleClass('active');
+                // const responseData = await response.json();
+                handleResponse(response)
+            })
+
+            // svg clicked handler
+            $(document).on('click', 'svg', function(){
+                var svg = $(this).data('id')
+                console.log(svg)
+                switch (svg) {
+                    // frequently ask
+                    case 'ask':
+                        $('#popupask').toggleClass('active');
+                        break;
+                    // browsing
+                    case 'search':
+                        $('#popup-searching').toggleClass('active');
+                        break;
+                
+                    default:
+                        break;
+                }
+            })
+
+            // box-icons
+            $(document).on('click', '.browseCard', function(){
+                var bxi = $(this).data('value')
+                alert(bxi)
             })
 
             // handle response
@@ -857,12 +1011,17 @@
                             if (finished) {
                                 // Speech finished
                                 console.log(finished)
-
-                                if(responseData.floor !== false){
+                                $('#overlay-updates').removeClass('active');
+                                $('#popup-continuation').removeClass('active');
+                                if(responseData.floor !== "false"){
                                     console.log(responseData.continuation)
-                                    processFacilitiesNavigation(responseData.floor, responseData.facility)
-                                    if(responseData.continuation !== false && responseData.continuation !== undefined){
+                                    if(responseData.continuation !== false && responseData.continuation !== undefined && responseData.continuation !== 'information'){
+                                        processFacilitiesNavigation(responseData.floor, responseData.facility)
                                         $("#myModal").modal("show");
+                                        
+                                    }else if(responseData.continuation !== 'information'){
+                                        $('#overlay-updates').toggleClass('active');
+                                        $('#popup-continuation').toggleClass('active');
                                     }
                                     // $("#myModal").modal("show");
                                 }
@@ -1013,6 +1172,7 @@
                 // const responseData = await response.json();
                 // handleResponse(response)
                 const responseData = await response.json();
+
                 console.log(responseData)
                 var serverResponds = responseData.details;
                 const gridContainer = $("#grid-container");
@@ -1033,11 +1193,12 @@
 
                     gridContainer.empty(); // Clear the existing grid using jQuery
                 
-                    serverResponds['gridDetails'].forEach(coordinates => {
+                   if (serverResponds && serverResponds['gridDetails'] && Array.isArray(serverResponds['gridDetails'])) {
+                        serverResponds['gridDetails'].forEach(coordinates => {
 
                         if (!isNaN(parseInt(coordinates.x)) && parseInt(coordinates.x) > highestX) {
                             highestX = parseInt(coordinates.x);
-                        
+
                         }
 
                         if (!isNaN(parseInt(coordinates.y)) && parseInt(coordinates.y) > highestY) {
@@ -1092,7 +1253,10 @@
                         $('#target-selection').html(targetSelection);
                         // starting point x, y  target x,y
                         dijkstra(startingX, startingY, targetX, targetY);
-                    });
+                        });
+                   } else {
+                    console.log('gridDetails is null or not an array');
+                   }
                 }
 
                 // Call the function to create a 10x10 grid of points
@@ -1332,9 +1496,6 @@
                     setTimeout(animateCube, 2000); // Adjust the delay duration (milliseconds) as needed
                 }, 1000); // Adjust the delay duration (milliseconds) as needed
             }
-
-            // Start the animation
-            // animateCube();
              
             // updates completed
             console.log(updates)
@@ -1363,6 +1524,8 @@
                 // You can use 'clickedElement' to refer to the clicked element if needed
                 alert(clickedElement);
             });
+
+
         });
     </script>
 @endsection

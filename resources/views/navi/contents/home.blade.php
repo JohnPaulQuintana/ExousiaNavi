@@ -576,6 +576,104 @@
             
         }
     </style>
+
+    {{-- info --}}
+    <style>
+        .overlay-updates {
+            visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(38, 48, 36, 0.9);
+            z-index: 1; /* Ensure it's above other content */
+            opacity: 0; /* Initially hidden */
+            transition: ease 0.5s; /* Smooth transition effect */
+        }
+
+        .overlay-updates.active{
+            visibility: visible;
+            opacity: 1;
+            transition: ease 0.6s;
+        }
+        /* Popup Container */
+        #popup-searchingInfo {
+            visibility: hidden;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            border-radius: 5px;
+            transform: translate(-50%, -50%);
+            background: rgba(38, 48, 36, 0.4);
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; /* Box shadow */
+            min-width: 70%;
+            padding: 20px;
+            z-index: 2; /* Ensure it's above the overlay */
+            opacity: 0; /* Initially hidden */
+            transition: ease 0.5s; /* Smooth transition effect */
+        }
+        #popup-searchingInfo.active{
+            visibility: visible;
+            opacity: 1;
+            transition: ease 0.6s;
+        }
+
+        #popup-searchingInfo .loading-container .info-container{
+            position: relative;
+            top:30px;
+            width: 100%;
+            height: 250px;
+            background: rgba(38, 48, 36, 0.4);
+            border-radius: 10px;
+            /* overflow-y: auto; */
+        }
+        #popup-searchingInfo .loading-container .info-container .information-container{
+            height: 200px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Adjust the number of columns as needed */
+            gap: 5px; /* Adjust the gap between grid items */
+            overflow-y: auto;
+            padding: 10px;
+        }
+        /* Optional: Style for the <p> elements */
+        .information-container span {
+            padding: 10px;
+            max-height: 50px;
+            background:linear-gradient(45deg, rgba(65, 230, 79, 1), rgb(233, 233, 227), rgb(0, 255, 21));
+            --webkit-background-clip:text;
+            --webkit-text-fill-color: transparent;
+            border-radius: 10px;
+            font-weight: 700;
+            color:rgba(14, 59, 3, 1); 
+            /* border: 1px solid #ddd; */
+            text-align: center;
+            margin-bottom: 3px; /* Adjust the margin as needed */
+        }
+        
+
+        .info-container .search-input {
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 25px;
+            background: transparent;
+            /* width: 80%; */
+            
+        }
+
+        /* Change the color of the placeholder text */
+        .search-input::placeholder {
+            color: #fff;
+        }
+
+        #searchingInfo-Cancel{
+            position: absolute;
+            right: 5px;
+            top:5px;
+            font-size: 24px;
+        }
+
+    </style>
 @endsection
 
 @section('contents')
@@ -752,24 +850,24 @@
             </div>
          </div>
 
-         <!-- searching popups -->
+         <!-- searching popups options-->
          <div class="popup" id="popup-searching">
             <div class="loading-container">
                 <div class="title">
                     <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
                     <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
-                </div><br>
-                <div class="browsing-handler">
+                </div>
+                <div class="browsing-handler mt-5">
                     <div class="main">
-                        <div class="browseCard" data-value="facilities">
+                        <div class="browseCard" data-value="facilities" data-model="EastwoodsFacilities">
                             <box-icon type='solid' name='building' class="facilities" data-value="facilities"></box-icon>
                             <p class="label">Facilities</p> <!-- Add label for facilities -->
                         </div>
-                        <div class="browseCard" data-value="teachers">
+                        <div class="browseCard" data-value="teachers" data-model="Teacher">
                             <box-icon type='solid' name='user-rectangle' class="teachers" data-value="teachers"></box-icon>
                             <p class="label">Teachers</p> <!-- Add label for teachers -->
                         </div>
-                        <div class="browseCard" data-value="events">
+                        <div class="browseCard" data-value="events" data-model="Event">
                             <box-icon type='solid' name='calendar-event' class="events" data-value="events"></box-icon>
                             <p class="label">Events</p> <!-- Add label for events -->
                         </div>
@@ -777,6 +875,31 @@
                         <div class="main_back"></div>
                     </div>
                     
+                </div>
+            </div>
+         </div>
+
+         <!-- searching popups info -->
+         <div id="popup-searchingInfo">
+            <button type="button" class="btn-close bg-danger" id="searchingInfo-Cancel"></button>
+            <div class="loading-container">
+                <!-- Back icon added here -->
+                {{-- <span class='bx bx-arrow-back bg-danger'></span> --}}
+                <div class="title">
+                    <div id="title" class="text-center text-white h1">
+                        <b>EXOUSIA-NAVI</b>
+                    </div>
+                    <span id="sec-title" class="text-white info-title"><b>Eastwoods Professional College</b></span>
+                </div>
+                
+                <div class="info-container">
+                    <div class="information-container">
+                        <span>Default</span>
+                        
+                    </div>
+                    {{-- <input type="text" name="" id="search-input" class="form-control text-center mt-2" placeholder="Searching..."> --}}
+                    
+                    <input type="text" id="search-input" name="text" class="search-input form-control text-white" placeholder="Type something here....">
                 </div>
             </div>
          </div>
@@ -820,6 +943,8 @@
     <script src="{{ asset('js/pusher.min.js') }}"></script>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
    
+     <!-- materialdesign icon js-->
+     {{-- <script src="{{ asset('backend/assets/js/pages/materialdesign.init.js') }}"></script> --}}
     @if (session('message'))
         <script>
             var message = @json(session('message'));
@@ -975,21 +1100,38 @@
                     // frequently ask
                     case 'ask':
                         $('#popupask').toggleClass('active');
+                        $('#popup-searching').removeClass('active');
                         break;
                     // browsing
                     case 'search':
+                        $('#popupask').removeClass('active');
                         $('#popup-searching').toggleClass('active');
                         break;
                 
                     default:
                         break;
                 }
+                
             })
 
             // box-icons
-            $(document).on('click', '.browseCard', function(){
+            $(document).on('click', '.browseCard', async function(){
                 var bxi = $(this).data('value')
-                alert(bxi)
+                var bxiModel = $(this).data('model')
+                // alert(bxi)
+                const response = await fetch('/navi/process/information', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        requestInfo: `${bxi}`,
+                        modelClass: bxiModel,
+                    }),
+
+                });
+                handleResponseInfo(response)
             })
 
             // handle response
@@ -1039,61 +1181,94 @@
                 }
             }
 
-            // prepare for speak
-            // const startToSpeak = async (sentence) => {
-            //     console.log(sentence)
-            //     if ('speechSynthesis' in window) {
-            //         const utterance = new SpeechSynthesisUtterance();
-            //         utterance.volume = 1;
-            //         utterance.rate = 0.9;
-            //         utterance.pitch = 1;
-            //         utterance.text = sentence;
+            // handle response for information
+            const handleResponseInfo = async (response) => {
+                if (response.ok) {
+                    const responseData = await response.json();
+                    $('#popup-searching').removeClass('active');
+                    $('#popup-searchingInfo').toggleClass('active');
+                    // console.log(responseData)
+                    $('.info-title').text(`Available's Information on ${responseData.modelClass}`)
+                    var html = ''
+                    responseData.informations.forEach((info, key) => {
+                        // console.log(info)
+                        switch (responseData.modelClass) {
+                            case "EastwoodsFacilities":
+                                html += `
+                                    <span class="grid-item" data-info-model="${responseData.modelClass}" data-info-id="${info.id}" data-info-search="${info.facilities}">${info.facilities.toUpperCase()}</span>
+                                `
+                                break;
+                            case "Teacher":
+                                html += `
+                                    <span class="grid-item" data-info-model="${responseData.modelClass}" data-info-id="${info.id}" data-info-search="${info.name}">${info.name.toUpperCase()}</span>
+                                `
+                                break;
+                        
+                            default:
+                                break;
+                        }
+                    })
+                    $('.information-container').html(html)
 
-            //         var index = 1;
-            //         for (index; index < window.speechSynthesis.getVoices().length; index++) {
-            //             if (window.speechSynthesis.getVoices()[index].voiceURI.search('Zeera') != -1) {
-            //                 utterance.voice = window.speechSynthesis.getVoices()[index];
-            //             }
-            //         }
-            //         utterance.voice = window.speechSynthesis.getVoices()[index];
+                    // search functionality
+                    $('#search-input').on('input', function() {
+                        const searchQuery = $(this).val().toLowerCase();
 
-            //         setTimeout(() => {
-            //             utterance.voice = window.speechSynthesis.getVoices()[1];
-            //         }, 1000);
+                        // Filter grid items based on the search query
+                        $('.grid-item').each(function() {
+                            const itemText = $(this).text().toLowerCase();
+                            if (itemText.includes(searchQuery)) {
+                                $(this).show(); // Display matching items
+                            } else {
+                                $(this).hide(); // Hide non-matching items
+                            }
+                        });
+                    });
 
-            //         utterance.addEventListener('end', () => {
-            //             console.log('Speech finished');
-            //             // loader
-            //             $('.loader').hide()
-            //             const afterElement = circle.find('.circle-after');
+                    // click handler on grid-item
+                    $(document).off('click', '.grid-item').on('click', '.grid-item', async function(){
+                        var infoModel = $(this).data('info-model')
+                        var infoId = $(this).data('info-id')
+                        // just for now
+                        var prompt = $(this).data('info-search')
+                        
+                        $('#popup-searching').removeClass('active');
+                        $('#popup-searchingInfo').toggleClass('active');
 
-            //             if (afterElement.length) {
-            //                 circle.remove(afterElement);
+                        const response = await fetch('/navi/process/search', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            body: JSON.stringify({
+                                infoModel: `${infoModel}`,
+                                infoId: `${infoId}`,
+                                prompt: `${prompt}`,
+                            }),
 
-            //                 setTimeout(() => {
-            //                     afterElement.removeClass('circle-after');
-            //                     conC.removeClass('container-circle');
-            //                     conT.removeClass('container-title');
-            //                     en.removeClass('inside');
-            //                     location.removeClass('active');
+                        });
+                        $('#overlay-updates').removeClass('active');
+                        $('#popup-searchingInfo').removeClass('active');
+                       
+                        $('#popup-continuation').removeClass('active');
+                        // const responseData = await response.json();
+                        handleResponse(response)
+                    })
 
-            //                     // show input
-            //                     input.show()
-            //                 }, 1000);
-            //             }
-            //         });
+                    $(document).off('click', '#searchingInfo-Cancel').on('click', '#searchingInfo-Cancel', function() {
+                        $('#popup-searchingInfo').removeClass('active');
+                        $('#popup-searching').toggleClass('active');
+                    });
 
-            //         // start talked
-            //         setTimeout(() => {
-            //             afterElement.addClass('circle-after');
-            //             $('.loader').show()
-            //             circle.append(afterElement);
-            //             speechSynthesis.speak(utterance);
-            //         }, 1000);
-            //     } else {
-            //         console.log('Speech synthesis not supported in this browser');
-            //     }
-            // }
+                } else {
+                    const err = await response.text();
+                    // messageDiv.html("Something went wrong");
+                    alert(err);
+                }
+            }
+
+            // speak
             const startToSpeak = async (sentence) => {
                 console.log(sentence);
                 // speak

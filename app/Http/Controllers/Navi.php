@@ -95,7 +95,7 @@ class Navi extends Controller
                 // 'floor' key is present in the specified structure
                 $floor = $result['navi'][0]['data']['floor'];
                 $facility = $result['navi'][0]['data']['facilities'];
-
+                // dd($floor);
                 // Store $floor and $facility in the session
                 session(['floor' => $floor, 'facility' => $facility]);
             
@@ -105,47 +105,9 @@ class Navi extends Controller
                 $continuation = 'information';
             }
 
+            // dd($result['navi'][0]);
             return response()->json(['response' => $this->generateText($result['navi'][0]),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>$continuation]);
-            // return response()->json(['response' => $result['navi']], 200);
-        } //else {
-        //     // if continuation of question
-        //     switch ($query) {
-        //         case 'facilities':
-        //             $data = EastwoodsFacilities::where('id', $id)->first();
-        //             $answer = 'Here is the map ' . 'The ' . $data->facilities . ' is also available from ' . $data->operation_time;
-        //             break;
-
-        //             // query a persons
-        //         case 'persons':
-        //             // we should get the location using id
-        //             $data = Teacher::where('id', $id)->first();
-        //             $answer = $data->name.' position is a '.$data->position . 'located on the map below! is there anything i can do for you?';
-        //             break;
-
-        //             // query a persons located
-        //         case 'query.persons.facilities.show':
-        //             // we should get the location using id
-        //             $data = Teacher::where('id', $id)->first();
-        //             $answer = $data->name .' position is a '.$data->position. 'and located on the map below! is there anything i can do for you?';
-        //             break;
-
-        //         case 'continue':
-        //             $data = Teacher::where('id', $id)->first();
-        //             $answer = $data->name . 'located on the map below! is there anything i can do for you?';
-        //             break;
-        //         default:
-        //             # code...
-        //             break;
-        //     }
-
-        //     // return response
-        //     $response = [
-        //         'flag' => 'true',
-        //         'answer' => $answer,
-        //         'data' => $data,
-        //     ];
-        //     return response()->json(["response" => [$response]], 200);
-        // }
+        } 
 
     }
 
@@ -154,6 +116,49 @@ class Navi extends Controller
         // dd($request->input('floor'));
         $floor = Floorplan::where('floor',$request->input('floor'))->first();
         return response()->json(['details'=>$floor]);
+    }
+
+    // process information request for browsing
+    public function naviProcessInformationRequest(Request $request){
+        $reqInfo = $request->input('requestInfo');
+        $modelClass = 'App\Models\\' . $request->input('modelClass');
+        $informations = $modelClass::get();
+        // dd($informations);
+        return response()->json(['informations'=>$informations, 'modelClass'=>$request->input('modelClass')]);
+    }
+
+    // process for searching
+    public function naviProcessInformationSearch(Request $request){
+        // dd($request);
+        $reqInfoId = $request->input('infoId');
+        $modelClass = 'App\Models\\' . $request->input('infoModel');
+        $findInformation = $modelClass::where('id',$reqInfoId)->first();
+        $continuation = false;
+        switch ($request->input('infoModel')) {
+            case 'EastwoodsFacilities':
+                $response = [
+                    "flag" => "false",
+                    "query" => "facilities.found",
+                    "data" => $findInformation,
+                ];
+                session(['floor' => $findInformation->floor, 'facility' => $findInformation->facilities]);
+                return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>$continuation]);
+                
+            case 'Teacher':
+                $response = [
+                    "flag" => "false",
+                    "query" => "persons.found",
+                    "data" => $findInformation,
+                ];
+                $continuation = 'information';
+                return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>$continuation]);
+                
+            
+            default:
+                # code...
+                break;
+        }
+
     }
     // generating text
     public function generateText($data)
@@ -169,8 +174,8 @@ class Navi extends Controller
         //     "updated_at" => "2023-09-10T13:57:21.000Z"
 
         // not found optional server response text
-        $serverResponseText = $data['answer'];
-
+        // $serverResponseText = $data['answer'];
+        // dd($data);
         $recomposed = $this->randomText($data['query'], $data['data']);
 
         $response = [

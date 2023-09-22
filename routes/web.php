@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
 // navi route
 Route::get('/navi',[Navi::class, 'startNaviServer'])->name('navi.server');
 Route::post('/navi/process',[Navi::class, 'naviProcess'])->name('navi.server.process');
+Route::post('/navi/process/information',[Navi::class, 'naviProcessInformationRequest'])->name('navi.server.process.information');
+Route::post('/navi/process/search',[Navi::class, 'naviProcessInformationSearch'])->name('navi.server.process.search');
 Route::post('/navi/process/navigation',[Navi::class, 'naviProcessNavigation'])->name('navi.server.process.navigation');
 
 

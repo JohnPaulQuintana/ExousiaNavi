@@ -40,13 +40,14 @@
         .drag-container{
             max-height: 350px;
             overflow-y: auto; /* Enable vertical scrollbar if content overflows */
-           
-            /* width: fit-content; */
+            border: 1px solid gray;
+            /* max-width: 200px; */
+            padding:10px ;
         }
             /* Style for the draggable box */
         .drag-item {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             word-break: break-all; /* Break long words */
             text-align: center;
             /* background-color: #ffc107; Yellow background for draggable item */
@@ -55,16 +56,30 @@
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif; /* Specify a common font */
-            font-size: 18px; /* Adjust font size */
+            font-size: 15px; /* Adjust font size */
             color: #f5e8e8; /* Text color */
             cursor: grab; /* Change cursor when dragging */
             position: relative;
-            z-index: 2001;
+            /* z-index: 2001; */
             transition: transform 0.2s ease-in-out; /* Add a transition for the transform property */
+        }
+
+        /* .is-dragging {
+            scale: 1.05;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.25);
+            background: rgb(50, 50, 50);
+            color: white;
+        } */
+
+        .zone.dragover {
+            /* Add a shadow style when dragging over */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Customize the shadow style */
+            transform: scale(1.1); /* Apply a scale transformation on hover */
+            border-color: #f0eded;
         }
         .drag-item:hover{
             transform: scale(1.1); /* Apply a scale transformation on hover */
-            z-index: 3000;
+            /* z-index: 3000; */
         }
 
       /* Style for the draggable box container */
@@ -73,7 +88,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 15px;
+            font-size: 12px;
+            z-index: 1;
         }
 
         /* Style for the cancel button (X) */
@@ -107,14 +123,14 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
         border-radius: 10px; /* Add rounded corners */
         perspective: 1000px; /* Create perspective for 3D effect */
-        z-index: 1000;
+        /* z-index: 1000; */
         
       }
 
       /* Style for each room (grid point) */
       .grid-point {
-        width: 80px;
-        height: 80px;
+        width: 60px;
+        height: 60px;
         background-color: transparent; /* Light background color for rooms */
         border: 1px solid rgba(0, 0, 0, 0.3);; /* Add borders */
         display: flex;
@@ -126,7 +142,7 @@
         position: relative;
         transition: transform 0.3s ease-in-out; /* Add smooth transform transition */
         transform-style: preserve-3d; /* Preserve 3D effect */
-        z-index: 1;
+        /* z-index: 1; */
       }
 
       /* Add 3D effect on hover */
@@ -265,8 +281,6 @@
                                                 }
                                             @endphp
                                         </select>
-                                        
-                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
                                     </div>
                                 </h6>
 
@@ -276,7 +290,6 @@
                                     <div class="input-group d-flex align-items-center text-success">
                                         <input type="number" id="row-size" value="4" min="1" max="20" class="form-control text-white mt-2"
                                         placeholder="add columns">
-                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
                                     </div>
                                 </h6>
 
@@ -286,7 +299,6 @@
                                     <div class="input-group d-flex align-items-center text-success">
                                         <input type="number" id="column-size" value="10" min="1" max="20" class="form-control text-white mt-2"
                                         placeholder="add columns">
-                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
                                     </div>
                                 </h6>
                                 <button class="btn btn-secondary mt-2" id="apply-grid-size">Resize</button>
@@ -295,23 +307,24 @@
                     </div><!-- end card -->
                 </div>
                 <!-- end col -->
-
-                <div class="col-xl-10">
+        
+                <div class="col-xl-2">
                     <div class="card">
                         <div class="card-body">
-                            {{-- {{ $facilities }} --}}
-                            <h4 class="card-title mb-4">Available Facilities</h4>
-
+                            <h4 class="card-title mb-4">
+                                <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                Available Facilities
+                            </h4>
                             <div class="table-responsive row align-items-center" id="con">
                                 {{-- starting point --}}
-                                <div class="col-sm-2 row drag-container">
-                                    <div class="col-sm-2 mb-2 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front">
+                                <div class="col-sm-12 border row drag-container">
+                                    <div class="col-sm-2 mb-2 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front" draggable="true">
                                         <div class="drag-content">
                                             {{ __('Exousia') }}
                                         </div>
                                     </div>
                                     
-                                    <div class="col-sm-2 mb-2 mx-auto drag-item stair-point" id="stair-point" data-name="start" data-label="stair-in">
+                                    <div class="col-sm-2 mb-2 mx-auto drag-item stair-point" id="stair-point" data-name="start" data-label="stair-in" draggable="true">
                                         <div class="drag-content">
                                             {{ __('Stair-In') }}
                                         </div>
@@ -319,7 +332,7 @@
                                 
                                     @foreach ($facilities as $facility)
                                         {{-- {{ $facility }} --}}
-                                    <div class="col-sm-2 border mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}" data-floor="{{ $facility->floor }}">
+                                    <div class="col-sm-2 border mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}" data-floor="{{ $facility->floor }}" draggable="true">
                                         <div class="drag-content">
                                             {{ $facility->facilities }}
                                         </div>
@@ -329,8 +342,23 @@
                         
 
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                <div class="col-sm-10 mx-auto mb-2 grid-container" id="grid-container">
+                <div class="col-xl-8">
+                    <div class="card">
+                        <div class="card-body">
+                            {{-- {{ $facilities }} --}}
+                            <h4 class="card-title mb-4">
+                                <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                Floor Plan Layout
+                            </h4>
+
+                            <div class="table-responsive row align-items-center" id="con">
+                                
+                                <div class="col-sm-12 mx-auto mb-2 grid-container" id="grid-container">
                                         <!-- Points will be dynamically generated here -->
                                 </div>
                                   <button class="btn btn-secondary" id="run-dijkstra">Save Floor Plan</button>
@@ -410,6 +438,7 @@
                         point.addClass("grid-point");
                         point.attr("data-x", x); // Set x-coordinate as a data attribute
                         point.attr("data-y", y); // Set y-coordinate as a data attribute
+                        point.addClass("zone")
                         // point.text(`${x},${y}`); // Optionally, you can label points with their coordinates
 
                         gridContainer.append(point); // Append the point to the grid container using jQuery
@@ -500,74 +529,119 @@
             // Call the function to create a 10x10 grid of points
             createGridPoints(4, 10);
 
-            interact(".drag-item").draggable({
-                listeners: {
-                start(event) {
-                    event.target.classList.add("dragging");
-                    event.target.style.zIndex = "1001"; // Increase the z-index when dragging starts
-                },
-                move(event) {
-                    const target = event.target;
-                    const x =
-                    (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
-                    const y =
-                    (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+            // interact(".drag-item").draggable({
+            //     listeners: {
+            //     start(event) {
+            //         event.target.classList.add("dragging");
+            //         // event.target.style.zIndex = "3001"; // Increase the z-index when dragging starts
+            //     },
+            //     move(event) {
+            //         const target = event.target;
+            //         const x =
+            //         (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
+            //         const y =
+            //         (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
 
-                    target.style.transform = `translate(${x}px, ${y}px)`;
-                    target.setAttribute("data-x", x);
-                    target.setAttribute("data-y", y);
-                },
-                end(event) {
-                    event.target.classList.remove("dragging");
-                    // Calculate the center coordinates of the draggable box
-                    const boxRect = event.target.getBoundingClientRect();
-                    const boxCenterX = (boxRect.left + boxRect.right) / 2;
-                    const boxCenterY = (boxRect.top + boxRect.bottom) / 2;
+            //         target.style.transform = `translate(${x}px, ${y}px)`;
+            //         target.setAttribute("data-x", x);
+            //         target.setAttribute("data-y", y);
+            //     },
+            //     end(event) {
+            //         event.target.classList.remove("dragging");
+            //         // Calculate the center coordinates of the draggable box
+            //         const boxRect = event.target.getBoundingClientRect();
+            //         const boxCenterX = (boxRect.left + boxRect.right) / 2;
+            //         const boxCenterY = (boxRect.top + boxRect.bottom) / 2;
 
-                    // Find the grid-point under the center of the draggable box
-                    const gridPoints = document.querySelectorAll(".grid-point");
-                    for (const gridPoint of gridPoints) {
-                    const pointRect = gridPoint.getBoundingClientRect();
-                    if (
-                        boxCenterX >= pointRect.left &&
-                        boxCenterX <= pointRect.right &&
-                        boxCenterY >= pointRect.top &&
-                        boxCenterY <= pointRect.bottom
-                    ) {
-                        // The center of the box is over a grid-point, turn it into a block
-                        const label = event.target.getAttribute("data-label");
-                        const dataId = event.target.getAttribute("data-id");
-                        // The center of the box is over a grid-point, turn it into a block
-                        gridPoint.classList.add(dataId, "block");
+            //         // Find the grid-point under the center of the draggable box
+            //         const gridPoints = document.querySelectorAll(".grid-point");
+            //         for (const gridPoint of gridPoints) {
+            //         const pointRect = gridPoint.getBoundingClientRect();
+            //         if (
+            //             boxCenterX >= pointRect.left &&
+            //             boxCenterX <= pointRect.right &&
+            //             boxCenterY >= pointRect.top &&
+            //             boxCenterY <= pointRect.bottom
+            //         ) {
+            //             // The center of the box is over a grid-point, turn it into a block
+            //             const label = event.target.getAttribute("data-label");
+            //             const dataId = event.target.getAttribute("data-id");
+            //             // The center of the box is over a grid-point, turn it into a block
+            //             gridPoint.classList.add(dataId, "block");
                         
-                        gridPoint.innerText = '';
-                        gridPoint.setAttribute("data-label", label); // Set the data-label attribute
-                        // Create a close button
-                        const closeButton = document.createElement("button");
-                        closeButton.className = "cancel-drag-button";
-                        closeButton.innerText = "X";
-                        closeButton.addEventListener("click", () => {
-                            gridPoint.classList.remove("block");
-                            gridPoint.removeAttribute("data-label");
-                            gridPoint.removeChild(closeButton);
-                        });
-                         // Append the close button to the grid point
-                         gridPoint.appendChild(closeButton);
-                        event.target.style.transform = "translate(0px, 0px)";
-                        event.target.setAttribute("data-x", 0);
-                        event.target.setAttribute("data-y", 0);
-                        return; // Exit the loop when a match is found
-                    }
-                    }
+            //             gridPoint.innerText = '';
+            //             gridPoint.setAttribute("data-label", label); // Set the data-label attribute
+            //             // Create a close button
+            //             const closeButton = document.createElement("button");
+            //             closeButton.className = "cancel-drag-button";
+            //             closeButton.innerText = "X";
+            //             closeButton.addEventListener("click", () => {
+            //                 gridPoint.classList.remove("block");
+            //                 gridPoint.removeAttribute("data-label");
+            //                 gridPoint.removeChild(closeButton);
+            //             });
+            //              // Append the close button to the grid point
+            //              gridPoint.appendChild(closeButton);
+            //             event.target.style.transform = "translate(0px, 0px)";
+            //             event.target.setAttribute("data-x", 0);
+            //             event.target.setAttribute("data-y", 0);
+            //             return; // Exit the loop when a match is found
+            //         }
+            //         }
 
-                    // The center of the box is not over a grid-point, reset its position and remove the "block" class
-                    event.target.style.transform = "translate(0px, 0px)";
-                    event.target.setAttribute("data-x", 0);
-                    event.target.setAttribute("data-y", 0);
-                    event.target.classList.remove("block");
-                    // event.target.style.zIndex = "4000"; // Restore the original z-index when dragging stops
-                },
-                },
+            //         // The center of the box is not over a grid-point, reset its position and remove the "block" class
+            //         event.target.style.transform = "translate(0px, 0px)";
+            //         event.target.setAttribute("data-x", 0);
+            //         event.target.setAttribute("data-y", 0);
+            //         event.target.classList.remove("block");
+            //         // event.target.style.zIndex = "4000"; // Restore the original z-index when dragging stops
+            //     },
+            //     },
+            // });
+
+            $(".drag-item").on("dragstart", function () {
+                $(this).addClass("dragging");
+            });
+
+            $(".drag-item").on("dragend", function () {
+                $(this).removeClass("dragging");
+                $(this).css("transform", "translate(0px, 0px)");
+                $(this).attr("data-x", 0);
+                $(this).attr("data-y", 0);
+            });
+
+            $(".zone").on("dragover", function (e) {
+                e.preventDefault();
+                $(this).addClass("dragover");
+            });
+
+            $(".zone").on("dragleave", function () {
+                $(this).removeClass("dragover");
+            });
+
+            $(".zone").on("drop", function (e) {
+                e.preventDefault(); // Prevent the default behavior of a drop event
+                const box = $(".dragging")[0];
+                const label = $(box).attr("data-label");
+                // const dataId = $(box).attr("data-id");
+                // addClass(dataId)
+                $(e.target).addClass("block").text('').attr("data-label", label);
+
+                // Create a close button using jQuery
+                const closeButton = $("<button>").addClass("cancel-drag-button").text("X");
+                closeButton.on("click", function () {
+                    $(e.target).removeClass("block").removeAttr("data-label");
+                    $(this).remove();
+                });
+
+                // Append the close button to the grid point
+                $(e.target).append(closeButton);
+
+                // Remove the dragover class when the drop event occurs
+                $(this).removeClass("dragover");
+
+                // Reset the position of the dragged item
+                $(box).css("transform", "translate(0px, 0px)").attr("data-x", 0).attr("data-y", 0);
             });
 
             // Dijkstra's Algorithm

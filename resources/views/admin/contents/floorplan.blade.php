@@ -155,10 +155,10 @@
 
       /* Style for the walls (blocks) */
       .block {
-        background-color: #999; /* Dark background color for walls */
+        /* background-color: #999; Dark background color for walls */
         box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
         color: white;
-        font-size: 15px;
+        font-size: 14px;
       }
 
       /* Style for the walls (starting points) */
@@ -622,11 +622,16 @@
             $(".zone").on("drop", function (e) {
                 e.preventDefault(); // Prevent the default behavior of a drop event
                 const box = $(".dragging")[0];
+                const computedStyle = getComputedStyle(box);
                 const label = $(box).attr("data-label");
+
+                // Get CSS properties from computed style
+                const color = computedStyle.color;
+                const border = computedStyle.border;
                 // const dataId = $(box).attr("data-id");
                 // addClass(dataId)
-                $(e.target).addClass("block").text('').attr("data-label", label);
-
+                $(e.target).addClass("block").text('').attr("data-label", label).css({"color":color,"border":border});
+                
                 // Create a close button using jQuery
                 const closeButton = $("<button>").addClass("cancel-drag-button").text("X");
                 closeButton.on("click", function () {

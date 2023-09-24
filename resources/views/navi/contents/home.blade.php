@@ -196,6 +196,7 @@
             background-color: transparent;
             /* Dark green for passed rooms */
             color: white;
+            border: none;
             animation: animatePath 4s linear infinite;
             /* Animation settings */
         }

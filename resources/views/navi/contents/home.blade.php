@@ -29,7 +29,7 @@
             justify-content: center;
             align-items: center;
             background: transparent;
-            margin-top: -100px;
+            margin-top: -150px;
             /* display: none; */
 
         }
@@ -221,6 +221,36 @@
             cursor: pointer;
         }
 
+        /* Add styles for the ball */
+        .ball {
+            width: 20px;
+            height: 20px;
+            background-color: #06661e; /* Change the color as needed */
+            border-radius: 50%; /* Makes it a circle */
+            position: absolute;
+            /* top: -10px; */
+            animation: jumpAnimation 2s infinite; /* Adjust animation duration as needed */
+            z-index: 3; /* Ensure the ball is above other elements */
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 1); /* Add shadow properties here */
+        }
+
+        @keyframes jumpAnimation {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(-10px, -20px);
+            }
+            50% {
+                transform: translate(0, 0);
+            }
+            75% {
+                transform: translate(-10px, -20px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
         /* Define the animation */
         @keyframes animatePath {
             0% {
@@ -649,6 +679,7 @@
             /* border: 1px solid #ddd; */
             text-align: center;
             margin-bottom: 3px; /* Adjust the margin as needed */
+            cursor: pointer;
         }
         
 
@@ -674,24 +705,27 @@
         }
 
     </style>
+
 @endsection
 
 @section('contents')
     <div class="version">
         <span>Epcst-v1.0.1</span>
     </div>
+
     <header>
         <div class="en"><b>E-N</b></div>
     </header>
+
     <div class="" id="con-circle">
         <div class="circle">
             <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
             <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
-            <br>
             @include('navi.loaderPage.preloader')
         </div>
 
     </div>
+
     <main>
         <span id="svg-title" class="text-white">
             <b>
@@ -742,6 +776,7 @@
                 </svg></b>
         </span>
     </main>
+
     <main-form id="in">
         <div id="chat_container" hidden></div>
         <form>
@@ -775,7 +810,7 @@
                     <div class="modal-header border-0">
                         <h5 class="modal-title me-2" id="exampleModalLabel">
                             <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i> 
-                            Navigation Guide 
+                            Navigation Guide <span id="span-floor"></span>
                         </h5>
                         <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -903,7 +938,9 @@
                 </div>
             </div>
          </div>
+
     </section>
+
     <footer>
         <span>Capstone1-40%</span>
     </footer>
@@ -927,6 +964,7 @@
             </div>
         </div>
     </div> --}}
+
 @endsection
 
 @section('scripts')
@@ -1341,6 +1379,7 @@
                     },
                     body: JSON.stringify({
                         floor: `${floor}`,
+                        facility:`${facility}`,
                     }),
 
                 });
@@ -1348,97 +1387,130 @@
                 // handleResponse(response)
                 const responseData = await response.json();
 
-                console.log(responseData)
+                console.log(responseData.details)
                 var serverResponds = responseData.details;
                 const gridContainer = $("#grid-container");
                 let gridPoints = [];
+                let floorIndex = 0;
+                let len = serverResponds.length;
                 let startingPoint;
+                let isTargetFound = false;
                 let highestX = -Infinity; // Start with negative infinity as the initial value
                 let highestY = -Infinity;
 
-                function createGridPoints(target) {
-                    console.log(target)
-                    var targetFacilities = target;
-                    var targetSelection = '';
-                    var targetX;
-                    var targetY;
-                    // default starting point
-                    var startingX;
-                    var startingY;
+                var targetFacilities;
+                var targetSelection = '';
+                var targetX;
+                var targetY;
+                            // default starting point
+                var startingX;
+                var startingY;
 
-                    gridContainer.empty(); // Clear the existing grid using jQuery
-                
-                   if (serverResponds && serverResponds['gridDetails'] && Array.isArray(serverResponds['gridDetails'])) {
-                        serverResponds['gridDetails'].forEach(coordinates => {
+                    function createGridPoints(target) {
+                        if(floorIndex < len){
+                            console.log('count', floorIndex, '<', len)
+                            console.log(serverResponds[floorIndex]['gridDetails'])
+                            $('#span-floor').text(serverResponds[floorIndex]['floor'])
+                            console.log(serverResponds[floorIndex]['floor'])
+                            targetFacilities = target;
 
-                        if (!isNaN(parseInt(coordinates.x)) && parseInt(coordinates.x) > highestX) {
-                            highestX = parseInt(coordinates.x);
+                            gridContainer.empty(); // Clear the existing grid using jQuery
+                            // && serverResponds['gridDetails'] && Array.isArray(serverResponds['gridDetails'])
+                            if (serverResponds && serverResponds[floorIndex]['gridDetails'] && Array.isArray(serverResponds[floorIndex]['gridDetails'])) {
+                                // serverResponds.forEach(floor => {
+                                    // console.log(floor)
+                                    serverResponds[floorIndex]['gridDetails'].forEach(coordinates => {
+                                        if (!isNaN(parseInt(coordinates.x)) && parseInt(coordinates.x) > highestX) {
+                                            highestX = parseInt(coordinates.x);
 
+                                        }
+
+                                        if (!isNaN(parseInt(coordinates.y)) && parseInt(coordinates.y) > highestY) {
+                                            highestY = parseInt(coordinates.y);
+                                        }
+
+                                        if(highestX < highestY){
+                                                // Set the width and height of gridContainer to fit-content
+                                                $("#grid-container").css({
+                                                    'width': "fit-content",
+                                                    'height': "fit-content",
+                                                    'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                                                    'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                                                });
+                                        }else{
+                                                // Set the width and height of gridContainer to fit-content
+                                            $("#grid-container").css({
+                                                'width': "fit-content",
+                                                'height': "fit-content",
+                                                'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
+                                                'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
+                                            });
+                                        }
+
+                                        // console.log(coordinates)
+                                        const point = $("<div></div>"); // Create a new div element using jQuery
+                                        point.addClass("grid-point");
+                                        point.attr("data-x", parseInt(coordinates.x)); // Set x-coordinate as a data attribute
+                                        point.attr("data-y", parseInt(coordinates.y)); // Set y-coordinate as a data attribute
+                                        // point.text(`${parseInt(coordinates.x)},${parseInt(coordinates.y)}`); // Optionally, you can label points with their coordinates
+                                        // Use a ternary operator to set the text based on coordinates.label
+                                        point.text(coordinates.label !== null ? coordinates.label : '');
+                                        gridContainer.append(point); // Append the point to the grid container using jQuery
+                                        // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
+                                        if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front' && coordinates.label !== 'stair-in') {
+                                            point.addClass('blocked');
+                                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
+                                        } else if (coordinates.label === targetFacilities) {
+                                            point.addClass('targetFacilities');
+                                            targetX = parseInt(coordinates.x);
+                                            targetY = parseInt(coordinates.y);
+                                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
+                                            // Set the flag to true when the target is found
+                                            isTargetFound = true;
+                                        } else if (coordinates.label === 'front'){
+                                            startingX = parseInt(coordinates.x);
+                                            startingY = parseInt(coordinates.y);
+                                            point.addClass('starting-point');
+                                            point.text('Your here.')
+                                        }
+
+                                        if(isTargetFound === false && coordinates.label === 'stair-in'){
+                                            console.log('not found')
+                                            point.addClass('targetFacilities');
+                                            targetX = parseInt(coordinates.x);
+                                            targetY = parseInt(coordinates.y);
+                                            // console.log(coordinates.label,targetX, targetY)
+                                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
+                                        }
+
+                                        // Add the point to the gridPoints array
+                                        gridPoints.push(point);
+                                        // $('#target-selection').html(targetSelection);
+                                        
+                                        
+                                    });
+                                // console.log()
+                                // starting point x, y  target x,y
+                                dijkstra(startingX, startingY, targetX, targetY);
+
+                                // speak the guidelines
+                                startToSpeak(responseData.navigationMessage[floorIndex])
+                                floorIndex++; // Move to the next floor
+                                setTimeout(() => createGridPoints(facility), 10000); // Display the next floor after 10 seconds
+                            } else {
+                                console.log('gridDetails is null or not an array');
+                            }
                         }
-
-                        if (!isNaN(parseInt(coordinates.y)) && parseInt(coordinates.y) > highestY) {
-                            highestY = parseInt(coordinates.y);
-                        }
-
-                        if(highestX < highestY){
-                                // Set the width and height of gridContainer to fit-content
-                                $("#grid-container").css({
-                                    'width': "fit-content",
-                                    'height': "fit-content",
-                                    'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
-                                    'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
-                                });
-                        }else{
-                                // Set the width and height of gridContainer to fit-content
-                            $("#grid-container").css({
-                                'width': "fit-content",
-                                'height': "fit-content",
-                                'grid-template-rows':`repeat(${highestX+1}, 1fr)`,
-                                'grid-template-columns':`repeat(${highestY+1}, 1fr)`,
-                            });
-                        }
-
-                        // console.log(coordinates)
-                        const point = $("<div></div>"); // Create a new div element using jQuery
-                        point.addClass("grid-point");
-                        point.attr("data-x", parseInt(coordinates.x)); // Set x-coordinate as a data attribute
-                        point.attr("data-y", parseInt(coordinates.y)); // Set y-coordinate as a data attribute
-                        // point.text(`${parseInt(coordinates.x)},${parseInt(coordinates.y)}`); // Optionally, you can label points with their coordinates
-                        // Use a ternary operator to set the text based on coordinates.label
-                        point.text(coordinates.label !== null ? coordinates.label : '');
-                        gridContainer.append(point); // Append the point to the grid container using jQuery
-                        // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
-                        if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front') {
-                            point.addClass('blocked');
-                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
-                        } else if (coordinates.label === targetFacilities) {
-                            point.addClass('targetFacilities');
-                            targetX = parseInt(coordinates.x);
-                            targetY = parseInt(coordinates.y);
-                            targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
-                        } else if (coordinates.label === 'front'){
-                            startingX = parseInt(coordinates.x);
-                            startingY = parseInt(coordinates.y);
-                            point.addClass('starting-point');
-                            point.text('Your here.')
-                        }
-
-                        // Add the point to the gridPoints array
-                        gridPoints.push(point);
-                        $('#target-selection').html(targetSelection);
-                        // starting point x, y  target x,y
-                        dijkstra(startingX, startingY, targetX, targetY);
-                        });
-                   } else {
-                    console.log('gridDetails is null or not an array');
-                   }
-                }
-
-                // Call the function to create a 10x10 grid of points
+                    }
+                     // Call the function to create a 10x10 grid of points
                 createGridPoints(facility);
+                
+
+               
 
                 // Dijkstra's Algorithm
                 async function dijkstra(startX, startY, endX, endY) {
+                    console.log(startX, startY, endX, endY)
                     try {
                         const startNode = document.querySelector(
                             `[data-x="${startX}"][data-y="${startY}"]`
@@ -1610,17 +1682,34 @@
                         });
 
                         // Highlight the shortest path in the grid
-                        for (const {
-                                x,
-                                y
-                            }
-                            of shortestPath) {
-                            const node = grid[y][x];
-                            node.classList.add("passed"); // Highlight the current node as passed
-                            await sleep(200); // Delay for visualization (adjust as needed)
-                        }
+                    async function animateShortestPath(shortestPath) {
+                    for (const { x, y } of shortestPath) {
+                        const node = grid[y][x];
+                        node.classList.add("passed"); // Highlight the current node as passed
+                        // node.classList.add("blocked"); // Highlight the current node as passed
+
+                        // Create the ball element
+                        const ball = document.createElement("div");
+                        ball.classList.add("ball");
+
+                        // Append the ball to the grid container
+                        node.append(ball);
+
+                        // Wait for 200 milliseconds (remove the ball after 200ms)
+                        await new Promise((resolve) => setTimeout(resolve, 400));
+
+                        // Remove the ball element
+                        ball.remove();
+                    }
+
+                    // Repeat the animation infinitely
+                    animateShortestPath(shortestPath);
+                    }
+
+                    // Start the animation
+                    animateShortestPath(shortestPath);
                     } catch (error) {
-                    
+                        console.log(error)
                     }
                 }
 

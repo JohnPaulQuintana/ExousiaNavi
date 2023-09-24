@@ -31,8 +31,8 @@
                     <span>Information</span>
                 </a>
                 <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="{{ route('admin.table', ['parameter' => 'teachers', 'actions'=>'destroy_t']) }}">Teacher's</a></li>
-                    <li><a href="{{ route('admin.table', ['parameter' => 'eastwoods_facilities', 'actions'=>'destroy_ef']) }}">Facilities</a></li>
+                    <li><a href="{{ route('admin.table', ['parameter' => 'teachers', 'actions'=>'destroy_t', 'routes'=>'admin.teachers']) }}">Teacher's</a></li>
+                    <li><a href="{{ route('admin.table', ['parameter' => 'eastwoods_facilities', 'actions'=>'destroy_ef', 'routes'=>'admin.facilities']) }}">Facilities</a></li>
                     <li><a href="{{ route('admin.table', ['parameter' => 'teachers', 'actions'=>'destroy_e']) }}">Events</a></li>
                     <li><a href="{{ route('admin.table', ['parameter' => 'frequentlies', 'actions'=>'destroy_f']) }}">Frequently Ask</a></li>
                 </ul>

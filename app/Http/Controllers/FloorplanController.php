@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class FloorplanController extends Controller
 {
    public function floorPlanLayout(){
-      $data = DB::table('eastwoods_facilities')->select('id', 'facilities')->get();
+      $data = DB::table('eastwoods_facilities')->select('id', 'facilities', 'floor')->get();
 
         return view('admin.contents.floorplan')->with(['facilities'=>$data]);
    }

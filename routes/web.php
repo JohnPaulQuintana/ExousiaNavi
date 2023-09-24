@@ -3,6 +3,7 @@
 use App\Models\Frequently;
 use App\Http\Controllers\Navi;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\FloorplanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TableController;
@@ -41,6 +42,10 @@ Route::middleware('auth')->group(function () {
     // teachers
     Route::get('/teachers', [TeacherController::class, 'teachers'])->name('admin.teachers');
     Route::post('/teachers-manage', [TeacherController::class, 'teachersManage'])->name('bulk.manage.teachers');
+
+    // facilites
+    Route::get('/facilities', [FacilityController::class, 'facilities'])->name('admin.facilities');
+    Route::post('/facilities-manage', [FacilityController::class, 'facilitiesManage'])->name('bulk.manage.facilities');
 
     // dynamic table content
     Route::get('/tables', [TableController::class, 'tables'])->name('admin.table');

@@ -147,12 +147,15 @@
 
       /* Style for the walls (starting points) */
       .starting-point {
-        background-color: #034d07; /* Dark background color for walls */
+        /* background-color: #034d07; Dark background color for walls */
         box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-        color: white;
+        color: green;
         font-size: 15px;
       }
 
+      #stair-point{
+        color: yellow;
+      }
       .grid-point.block::after {
         content: attr(
           data-label
@@ -255,6 +258,7 @@
                                     <span class="text-secondary">Floor Selection</span>
                                     <div class="input-group d-flex align-items-center text-success">
                                         <select id="floor-selected" class="form-control text-white mt-2">
+                                            <option value="ground-floor">Ground Floor</option>
                                             @php
                                                 for ($i = 1; $i <= 10; $i++) { 
                                                     echo "<option value='floor-$i'>$i" . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))) . " Floor</option>";
@@ -299,17 +303,23 @@
                             <h4 class="card-title mb-4">Available Facilities</h4>
 
                             <div class="table-responsive row align-items-center" id="con">
-                                {{-- all contents --}}
+                                {{-- starting point --}}
                                 <div class="col-sm-2 row drag-container">
-                                    <div class="col-sm-2 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front">
+                                    <div class="col-sm-2 mb-2 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front">
                                         <div class="drag-content">
-                                            {{ __('front') }}
+                                            {{ __('Exousia') }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-sm-2 mb-2 mx-auto drag-item stair-point" id="stair-point" data-name="start" data-label="stair-in">
+                                        <div class="drag-content">
+                                            {{ __('Stair-In') }}
                                         </div>
                                     </div>
                                 
                                     @foreach ($facilities as $facility)
-                                        
-                                    <div class="col-sm-2 border mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}">
+                                        {{-- {{ $facility }} --}}
+                                    <div class="col-sm-2 border mx-auto mb-2 drag-item start" id="{{ $facility->facilities }}" data-name="start" data-label="{{ $facility->facilities }}" data-id="{{ $facility->id }}" data-floor="{{ $facility->floor }}">
                                         <div class="drag-content">
                                             {{ $facility->facilities }}
                                         </div>
@@ -317,6 +327,7 @@
                                     
                                     @endforeach
                         
+
                                 </div>
 
                                 <div class="col-sm-10 mx-auto mb-2 grid-container" id="grid-container">
@@ -379,6 +390,8 @@
     {{-- custom --}}
     <script>
        $(document).ready(function(){
+            // Initial page load
+            filterFacilitiesByFloor($('#floor-selected').val());
 
             const gridContainer = $("#grid-container");
             let gridPoints = [];
@@ -765,6 +778,26 @@
                 });
             }
 
+            // Handle floor selection change
+            $('#floor-selected').change(function () {
+                var selectedFloor = $(this).val();
+                // alert(selectedFloor)
+                filterFacilitiesByFloor(selectedFloor);
+            });
+
+            function filterFacilitiesByFloor(floor) {
+                $('.drag-item').fadeOut(300); // Hide all facilities with a fade-out animation
+                // Show the "starting-point" element
+                $('#starting-point').fadeIn(300);
+                $('#stair-point').fadeIn(300);
+                if (floor === 'ground-floor') {
+                    // Show only ground floor facilities
+                    $('.drag-item[data-floor="ground-floor"]').fadeIn(300);
+                } else {
+                    // Show facilities for the selected floor
+                    $('.drag-item[data-floor="' + floor + '"]').fadeIn(300);
+                }
+            }
        })
 
     </script>

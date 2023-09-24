@@ -115,6 +115,7 @@
             background-color: transparent;
             /* Dark green for passed rooms */
             color: white;
+        
             animation: animatePath 4s linear infinite;
             /* Animation settings */
         }
@@ -139,6 +140,38 @@
             transform: translateZ(20px);
             cursor: pointer;
         }
+
+        /* Add styles for the ball */
+        .ball {
+            width: 20px;
+            height: 20px;
+            background-color: #06661e; /* Change the color as needed */
+            border-radius: 50%; /* Makes it a circle */
+            position: absolute;
+            /* top: -10px; */
+            animation: jumpAnimation 2s infinite; /* Adjust animation duration as needed */
+            z-index: 3; /* Ensure the ball is above other elements */
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 1); /* Add shadow properties here */
+        }
+
+        @keyframes jumpAnimation {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(-10px, -20px);
+            }
+            50% {
+                transform: translate(0, 0);
+            }
+            75% {
+                transform: translate(-10px, -20px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+    }
+
 
         /* Define the animation */
         @keyframes animatePath {
@@ -418,6 +451,12 @@
                         startingY = parseInt(coordinates.y);
                         point.addClass('starting-point');
                         point.text('Your here.')
+
+                        // Create the ball element
+                        // const ball = $("<div></div>");
+                        // ball.addClass("ball");                 
+                        // // Append the ball to the grid container
+                        // point.append(ball);
                     }
 
                     // Add the point to the gridPoints array
@@ -604,15 +643,32 @@
                     });
 
                     // Highlight the shortest path in the grid
-                    for (const {
-                            x,
-                            y
-                        }
-                        of shortestPath) {
+                    async function animateShortestPath(shortestPath) {
+                    for (const { x, y } of shortestPath) {
                         const node = grid[y][x];
                         node.classList.add("passed"); // Highlight the current node as passed
-                        await sleep(200); // Delay for visualization (adjust as needed)
+
+                        // Create the ball element
+                        const ball = document.createElement("div");
+                        ball.classList.add("ball");
+
+                        // Append the ball to the grid container
+                        node.append(ball);
+
+                        // Wait for 200 milliseconds (remove the ball after 200ms)
+                        await new Promise((resolve) => setTimeout(resolve, 400));
+
+                        // Remove the ball element
+                        ball.remove();
                     }
+
+                    // Repeat the animation infinitely
+                    animateShortestPath(shortestPath);
+                    }
+
+                    // Start the animation
+                    animateShortestPath(shortestPath);
+
                 } catch (error) {
                    
                 }

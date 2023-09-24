@@ -66,7 +66,7 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <!-- item-->
-                                    <a href="{{ route('admin.teachers') }}" class="dropdown-item">
+                                    <a href="{{ route($going) }}" class="dropdown-item">
                                         <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
                                         Manage
                                     </a>

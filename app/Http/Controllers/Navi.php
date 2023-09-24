@@ -72,7 +72,9 @@ class Navi extends Controller
                 return response()->json(['response' => $this->generateText($dataArray['navi'][0]),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>$continuation]);
             }
 
-
+            // Tokenize the prompt into words or tokens
+            // $tokens = str_word_count($request->input('prompt'), 1); // This splits the prompt into an array of words
+            // dd($tokens);
             // dd('ginagwaa');
             $client = new Client();
             $response = $client->post('http://localhost:5000/nlp', [
@@ -94,11 +96,44 @@ class Navi extends Controller
             ) {
                 // 'floor' key is present in the specified structure
                 $floor = $result['navi'][0]['data']['floor'];
+                // $floorId = $result['navi'][0]['data']['id'];
                 $facility = $result['navi'][0]['data']['facilities'];
                 // dd($floor);
                 // Store $floor and $facility in the session
                 session(['floor' => $floor, 'facility' => $facility]);
-            
+                $facilityFound = false;
+                $floorFound = Floorplan::where('floor', $floor)->first();
+                // dd($floorFound);
+                if($floorFound){
+                    foreach ($floorFound['gridDetails'] as $value) {
+                        // dd($value);
+                        if (isset($value['label']) && $value['label'] === $facility) {
+                            // dd('found');
+                            $facilityFound = true; // Set the flag to true if the facility is found
+                            break; // Stop searching once found
+                        }
+                    }
+
+                    if(!$facilityFound){   
+                        // dd($value);
+                        $response = [
+                            "flag" => "false",
+                            "query" => "facilities.layout.not",
+                            "data" => $facility,
+                        ];
+                        return response()->json(['response' => $this->generateText($response),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>'information']);    
+                    }
+                    
+                    // dd($jsonData);
+                }else{
+                    // dd('not found!');
+                    $response = [
+                        "flag" => "false",
+                        "query" => "facilities.layout.not",
+                        "data" => $facility,
+                    ];
+                    return response()->json(['response' => $this->generateText($response),'floor'=>$floor, 'facility'=>$facility, 'continuation'=>'information']);
+                }
             } else {
                 // 'floor' key is not present in the specified structure
                 $floor = false;
@@ -112,19 +147,100 @@ class Navi extends Controller
     }
 
     // process navigation
-    public function naviProcessNavigation(Request $request){
-        // dd($request->input('floor'));
-        $floor = Floorplan::where('floor',$request->input('floor'))->first();
-        return response()->json(['details'=>$floor]);
+    public function naviProcessNavigation(Request $request)
+{
+    $requestedFloorLabel = $request->input('floor');
+    $requestedFacilityLabel = $request->input('facility');
+    
+    // ending part
+    $endingPart = [
+        'How can I assist you further?',
+        'What else would you like to know?',
+        'How may I help you with it?',
+        'What would you like to do next?',
+        'How can I assist you with it?',
+        'How may I assist you further?',
+        'What specific information do you need?',
+        'What else can I do for you today?',
+        'How can I assist you today?',
+        'How may I help you with it?',
+        'Is there anything else on your mind?',
+        'Feel free to ask any other questions.',
+        'Im here to help. Whats next?',
+        'What can I do to make your day better?',
+        'Dont hesitate to ask if you need more information.',
+        'Your satisfaction is my priority. Whats your next query?',
+        'Im at your service. Whats your request?',
+        'Let me know how I can be of further assistance.',
+        'What other assistance do you require today?',
+        'Im here to assist you. Whats your next question?',
+    ];
+
+    // Find the target floor
+    $targetFloor = Floorplan::where('floor', $requestedFloorLabel)->first();
+
+    if (!$targetFloor) {
+        return response()->json(['details' => [], 'message' => 'Target floor not found.']);
     }
+
+    // Include the ground floor in the response
+    $groundFloor = Floorplan::where('floor', 'ground-floor')->first();
+    $responseData = [];
+    $responseGuide = [];
+    $length = 0;
+    if ($groundFloor) {
+        $responseData[] = $groundFloor->toArray();
+    }
+
+    // Include floors leading to the target floor
+    $floors = Floorplan::where('floor', '<=', $requestedFloorLabel)->get();
+    // dd($groundFloor['floor']);
+    if (!$floors->isEmpty()) {
+        $responseGuide[] = $this->generateTextStairs($groundFloor['floor'], $requestedFacilityLabel, false);
+        foreach ($floors as $floor) {
+            $floorData = $floor->toArray();
+            $floorData['found'] = true;
+            $responseData[] = $floorData;
+
+            if ($floor->floor === $requestedFloorLabel) {
+                // dd('ginagawa');
+                $length = mt_rand(0, count($endingPart) - 1);
+                $randomResponse = $endingPart[$length];
+
+                $responseGuide[] = $this->generateTextStairs($floor->floor, $requestedFacilityLabel, true). ' !' . $randomResponse;
+                break;
+            }else{
+                $responseGuide[] = $this->generateTextStairs($floor->floor, $requestedFacilityLabel, false); 
+            }
+        
+        }
+
+        // dd($responseGuide);
+        
+    } else {
+        $responseData['found'] = false;
+        $responseData['message'] = 'No matching floor found';
+    }
+
+    // dd($floorData); 
+    return response()->json([
+        'details' => $responseData, 
+        'navigationMessage'=>$responseGuide]
+    );
+}
+
 
     // process information request for browsing
     public function naviProcessInformationRequest(Request $request){
-        $reqInfo = $request->input('requestInfo');
-        $modelClass = 'App\Models\\' . $request->input('modelClass');
-        $informations = $modelClass::get();
-        // dd($informations);
-        return response()->json(['informations'=>$informations, 'modelClass'=>$request->input('modelClass')]);
+        try {
+            $reqInfo = $request->input('requestInfo');
+            $modelClass = 'App\Models\\' . $request->input('modelClass');
+            $informations = $modelClass::get();
+            // dd($informations);
+            return response()->json(['informations'=>$informations, 'modelClass'=>$request->input('modelClass')]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 
     // process for searching
@@ -134,15 +250,52 @@ class Navi extends Controller
         $modelClass = 'App\Models\\' . $request->input('infoModel');
         $findInformation = $modelClass::where('id',$reqInfoId)->first();
         $continuation = false;
+        $facilityFound = false; // Initialize a flag to track if the facility is found
+
         switch ($request->input('infoModel')) {
             case 'EastwoodsFacilities':
-                $response = [
-                    "flag" => "false",
-                    "query" => "facilities.found",
-                    "data" => $findInformation,
-                ];
-                session(['floor' => $findInformation->floor, 'facility' => $findInformation->facilities]);
-                return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>$continuation]);
+                $floorFound = Floorplan::where('floor', $findInformation->floor)->first();
+                // dd($floorFound['gridDetails']);
+                if($floorFound){
+                    foreach ($floorFound['gridDetails'] as $value) {
+                        // dd($findInformation->facilities);
+                        if (isset($value['label']) && $value['label'] == $findInformation->facilities) {
+                            $facilityFound = true; // Set the flag to true if the facility is found
+                            break; // Stop searching once found
+                        }
+                    }
+
+                    if ($facilityFound) {
+                        // dd('found');
+                        $response = [
+                            "flag" => "false",
+                            "query" => "facilities.found",
+                            "data" => $findInformation,
+                        ];
+                        session(['floor' => $findInformation->floor, 'facility' => $findInformation->facilities]);
+                        return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>$continuation]);
+                       // break; // Stop searching once found
+                    }else{
+                        // print($value['label']);
+
+                        $response = [
+                            "flag" => "false",
+                            "query" => "facilities.layout.not",
+                            "data" => $findInformation->facilities,
+                        ];
+                        return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>'information']);
+                    }
+                    // dd($jsonData);
+                }else{
+                    // dd('not found!');
+                    $response = [
+                        "flag" => "false",
+                        "query" => "facilities.layout.not",
+                        "data" => $findInformation->facilities,
+                    ];
+                    return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>'information']);
+                }
+                
                 
             case 'Teacher':
                 $response = [
@@ -313,6 +466,30 @@ class Navi extends Controller
             "Got it! If you change your mind or need help with anything else, feel free to get in touch.",
             "That's perfectly fine! If you have any more questions or need assistance in the future, I'm here to help."
         ];
+
+        //layout not found
+        $layoutNotFoundMessages = [
+            "I apologize, but it seems we don't currently have the layout information for this facility's location.",
+            "We understand your request for the layout, but at this moment, the layout for this facility's location is unavailable.",
+            "Regrettably, the layout details for this facility's location are not present in our database.",
+            "We're sorry to inform you that we couldn't locate the layout for this facility's location.",
+            "Unfortunately, the layout for this facility's location is not currently accessible in our records.",
+            "Apologies, but we're currently missing the layout information for this facility's location.",
+            "The layout for this facility's location is regrettably absent from our database.",
+            "I regret to inform you that we are unable to provide the layout for this facility's location at this time.",
+            "We've conducted a search, but the layout for this facility's location is nowhere to be found.",
+            "We're actively working on obtaining the layout for this facility's location, but it's not yet available.",
+            "The layout for this facility's location is currently undergoing updates, and we don't have the latest version.",
+            "Layout data for this facility's location is temporarily out of reach. We apologize for any inconvenience.",
+            "Our team is diligently searching for the layout of this facility's location, but it has proven elusive.",
+            "The layout for this facility's location is in a pending state and hasn't been finalized yet.",
+            "Please check back later for the layout details of this facility's location as we continue our efforts to obtain it.",
+            "We sincerely apologize, but the layout information for this facility's location is currently unavailable.",
+            "We understand your desire for the layout, but we're unable to provide it as of now.",
+            "The layout for this facility's location is still in the process of being updated, and we don't have the latest version.",
+            "We're sorry for the inconvenience, but the layout is currently not accessible to us.",
+            "We're doing our best to acquire the layout for this facility's location, but it's not yet ready for retrieval.",
+        ];
         
 
         // ending part
@@ -327,6 +504,16 @@ class Navi extends Controller
             'What else can I do for you today?',
             'How can I assist you today?',
             'How may I help you with it?',
+            'Is there anything else on your mind?',
+            'Feel free to ask any other questions.',
+            'Im here to help. Whats next?',
+            'What can I do to make your day better?',
+            'Dont hesitate to ask if you need more information.',
+            'Your satisfaction is my priority. Whats your next query?',
+            'Im at your service. Whats your request?',
+            'Let me know how I can be of further assistance.',
+            'What other assistance do you require today?',
+            'Im here to assist you. Whats your next question?',
         ];
 
         // greetings
@@ -413,17 +600,6 @@ class Navi extends Controller
                 $randomResponse = $openingForFalsePerson[$length];
                 break;
 
-            // case 'persons.location.found':
-            //     $length = mt_rand(0, count($openingForFoundPersonLocation) - 1);
-            //     // Get the random response
-            //     $randomResponse = str_replace(
-            //         ['[facilities]', '[persons]', '[operation_time]'],
-            //         [$data['facilities'], $data['persons']],
-            //         $openingForFoundPersonLocation[$length]
-            //     ) .
-            //         '! ' . $endingPart[$length];
-            //     break;
-
             case 'facilities.not':
                 $length = mt_rand(0, count($openingForFalseFacility) - 1);
                 $randomResponse = $openingForFalseFacility[$length];
@@ -439,6 +615,12 @@ class Navi extends Controller
                     '! ';
                 break;
 
+            case 'facilities.layout.not':
+                $length = mt_rand(0, count($layoutNotFoundMessages) - 1);
+                $randomResponse = $layoutNotFoundMessages[$length].'! '. $endingPart[$length];
+                break;
+           
+
             case 'badwords':
                 $length = mt_rand(0, count($badWordResponses) - 1);
                 $randomResponse = $badWordResponses[$length];
@@ -451,7 +633,7 @@ class Navi extends Controller
 
             case 'yes':
                 $length = mt_rand(0, count($positiveResponses) - 1);
-                $randomResponse = $positiveResponses[$length]. '! '. $endingPart[$length];
+                $randomResponse = $positiveResponses[$length]. '! ';
                 // $randomResponse = str_replace(
                 //     ['[floor]'],
                 //     [$data['floor']],
@@ -470,6 +652,96 @@ class Navi extends Controller
                 break;
         }
 
+        return $randomResponse;
+    }
+
+    // generate response message on taking stairs
+    public function generateTextStairs($floor, $facility, $found){
+
+        // dd($facility);
+        $length = 0;
+        $floorguide = [
+            "Here is your navigation guide in [floor], pointing towards the stairs to reach your destination.",
+            "Your navigation guide for [floor] is ready, showing the way to the stairs to reach your desired location.",
+            "In [floor], your navigation guide directs you towards the stairs for access.",
+            "Welcome to [floor]! Your navigation guide is set to lead you to the stairs for your destination.",
+            "For [floor], follow your navigation guide; it's indicating the stairs as the way to go.",
+            "Your [floor] navigation guide has your path marked to the stairs; follow its directions.",
+            "In [floor], your navigation guide highlights the stairs as your route.",
+            "Upon arriving at [floor], trust your navigation guide to guide you to the stairs.",
+            "To reach your goal on [floor], follow your navigation guide's path to the stairs.",
+            "Your navigation guide for [floor] is ready to lead you to the stairs as the next step.",
+            "Welcome to [floor]! Your navigation guide highlights the stairs on the map.",
+            "In [floor], your navigation guide points towards the stairs; follow it.",
+            "For [floor], the quickest route involves using the stairs, as shown by your navigation guide.",
+            "In [floor], the stairs are your next step; let your navigation guide show you the way.",
+            "At [floor], head to the stairs; your navigation guide has them marked for you.",
+            "Upon reaching [floor], trust your navigation guide; it's leading you straight to the stairs.",
+            "For [floor], follow your navigation guide to find the stairs on your way.",
+            "Your navigation guide for [floor] has the stairs clearly marked for your convenience.",
+            "In [floor], your destination is just a staircase away; your navigation guide knows the way.",
+            "In [floor], use the stairs as guided by your navigation guide to reach your destination."
+        ];
+
+        $messagesGroundFloor = [
+            "Here is your navigation guide on the ground floor to reach [facilities]. Follow the path indicated by the guide.",
+            "To find [facilities] on the ground floor, trust your navigation guide's directions; it will lead you there.",
+            "Your navigation guide on the ground floor is set to take you to [facilities]. Follow its route to reach your destination.",
+            "For the ground floor, your navigation guide will guide you to [facilities]. Follow its instructions to get there.",
+            "Welcome to the ground floor! Your navigation guide is ready to lead you to [facilities].",
+            "On the ground floor, your navigation guide points you to [facilities]. Follow its directions to reach your destination.",
+            "To reach [facilities] on the ground floor, follow the path highlighted by your navigation guide.",
+            "Your navigation guide on the ground floor will direct you to [facilities]. Trust its instructions to find your way.",
+            "On the ground floor, follow your navigation guide to reach [facilities]. It knows the best route.",
+            "Your navigation guide for the ground floor is set to assist you in reaching [facilities]. Follow its guidance.",
+            "Welcome to the ground floor! Your navigation guide is here to help you find [facilities].",
+            "On the ground floor, your navigation guide points you in the right direction to locate [facilities].",
+            "For the ground floor, the quickest route to [facilities] is shown by your navigation guide.",
+            "On the ground floor, [facilities] is just a step away; let your navigation guide show you the way.",
+            "At the ground floor, trust your navigation guide to lead you to [facilities].",
+            "For the ground floor, follow your navigation guide to find [facilities].",
+            "Your navigation guide for the ground floor has the location of [facilities] clearly marked for your convenience.",
+            "On the ground floor, [facilities] is within reach; your navigation guide knows the way.",
+            "On the ground floor, discovering [facilities] is easy; your navigation guide is here to assist you.",
+            "On the ground floor, [facilities] is just moments away; your navigation guide is here to guide you."
+        ];
+
+        $foundfloorguide = [
+            "Your guide to [floor] is ready. Follow the guide to reach [facility].",
+            "Welcome to [floor]! Your guide is set to lead you to [facility].",
+            "In [floor], your guide directs you towards [facility] as your destination.",
+            "For [floor], follow your guide; it's indicating [facility] as the way to go.",
+            "Your [floor] guide has your path marked to [facility]; follow its directions.",
+            "In [floor], your guide highlights [facility] as your route to success.",
+            "To reach your goal on [floor], follow your guide's path to [facility].",
+            "Your guide for [floor] is ready to lead you to [facility] as the next step.",
+            "Welcome to [floor]! Your guide highlights [facility] on the map.",
+            "In [floor], your guide points you towards [facility]; follow it.",
+            "For [floor], the quickest route involves using [facility], as shown by your guide.",
+            "In [floor], [facility] is your next step; let your guide show you the way.",
+            "At [floor], head to [facility]; your guide has it marked for you.",
+            "Upon reaching [floor], trust your guide; it's leading you straight to [facility].",
+            "For [floor], follow your guide to find [facility] on your way.",
+            "Your guide for [floor] has [facility] clearly marked for your convenience.",
+            "In [floor], your destination is just a [facility] away; your guide knows the way.",
+            "In [floor], use [facility] as guided by your guide to reach your destination.",
+            "Your guide to [facility] on [floor] is ready. Follow the guide to reach [facility].",
+            "For [floor], your guide is your trusted companion to find [facility].",
+        ];
+        
+        if ($floor === 'ground-floor') {
+            $length = mt_rand(0, count($messagesGroundFloor) - 1);
+            $randomResponse = str_replace('[facilities]', $facility, $messagesGroundFloor[$length]);
+        } elseif ($floor !== 'ground-floor' && !$found) {
+            $length = mt_rand(0, count($floorguide) - 1);
+            $randomResponse = str_replace('[floor]', $floor, $floorguide[$length]);
+        }
+        
+        if ($found) {
+            $length = mt_rand(0, count($foundfloorguide) - 1);
+            $randomResponse = str_replace(['[facility]', '[floor]'], [$facility, $floor], $foundfloorguide[$length]) . '! ';
+        }
+        
         return $randomResponse;
     }
 }

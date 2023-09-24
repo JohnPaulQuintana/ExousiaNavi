@@ -11,6 +11,7 @@ class TableController extends Controller
     public function tables(Request $request){
         $tableName = $request->query('parameter');
         $actions = $request->query('actions');
+        $going = $request->query('routes');
 
         $allColumns = DB::getSchemaBuilder()->getColumnListing($tableName);
         // Columns to exclude (e.g., 'created_at', 'column_to_exclude', 'another_column_to_exclude')
@@ -24,7 +25,7 @@ class TableController extends Controller
             $item->created_at = Carbon::parse($item->created_at)->format('Y-m-d');
         }
         // dd($data);
-        return view('admin.contents.table')->with(['columns'=>$columns, 'datas'=>$data, 'title'=>$tableName, 'actions'=>$actions]);
+        return view('admin.contents.table')->with(['columns'=>$columns, 'datas'=>$data, 'title'=>$tableName, 'actions'=>$actions, 'going'=>$going]);
     }
 
     public function getCreatedAtAttribute($value)

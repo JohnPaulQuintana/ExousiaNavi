@@ -454,9 +454,10 @@
         transform: rotate(90deg);
         width: 15em;
         height: 15em;
-        background: linear-gradient(270deg,#ffffff , #ffffff, #044e20);
+        background: transparent;
+        /* margin-top: -150px; */
         z-index: -2;
-        box-shadow: inset 0px 0px 180px 5px #ffffff;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
         }
 
         .main {
@@ -464,43 +465,53 @@
         flex-wrap: wrap;
         width: 14em;
         align-items: center;
+        margin-top: -100px;
         justify-content: center;
-        z-index: -1;
+        /* z-index: -1; */
         }
 
         .browseCard {
         width: 100px;
         height: 60px;
         border-top-left-radius: 10px;
-        background: lightgrey;
+        background: transparent;
         transition: .4s ease-in-out, .2s background-color ease-in-out, .2s background-image ease-in-out;
-        background: rgba(255, 255, 255, 0.596);
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
         backdrop-filter: blur(5px);
         border: 1px solid transparent;
         -webkit-backdrop-filter: blur(5px);
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.2);
+        margin: .2em;
+        border-radius: 10px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
         .browseCard .facilities {
-        opacity: 0;
-        transition: .2s ease-in-out;
-        fill: rgba(90, 66, 224, 0.9);
-        }
-
-        .browseCard:nth-child(2) {
-        border-radius: 0px;
-        }
-
-        .browseCard:nth-child(2) .teachers {
-        opacity: 0;
+        /* opacity: 0; */
         transition: .2s ease-in-out;
         fill: rgba(14, 59, 3, 0.9);
         }
 
+        .browseCard:nth-child(2) {
+        border-radius: 0px;
+        border-radius: 10px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .browseCard:nth-child(2) .teachers {
+        /* opacity: 0; */
+        transition: .2s ease-in-out;
+        fill: rgba(14, 59, 3, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
         .label{
-            opacity: 0;
+            /* opacity: 0; */
         }
         .browseCard:nth-child(3) {
         border-top-right-radius: 10px;
@@ -508,9 +519,10 @@
         }
 
         .browseCard:nth-child(3) .events {
-        opacity: 0;
+        /* opacity: 0; */
         transition: .2s ease-in-out;
-        fill: #cf457c;
+        fill: rgba(14, 59, 3, 0.9);
+        
         }
 
         .main:hover {
@@ -518,17 +530,6 @@
             cursor: pointer;
         }
 
-        /* .main:hover .main_back {
-        opacity: 0;
-        } */
-
-        .main:hover .browseCard {
-        margin: .2em;
-        border-radius: 10px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.2);
-        }
 
         .main:hover .text {
         opacity: 0;
@@ -551,24 +552,12 @@
         opacity: 1;
         }
 
-        .browseCard:nth-child(1):hover {
-        background-color: #cc39a4;
-        }
-
         .browseCard:nth-child(1):hover .facilities {
         fill: rgb(255, 255, 255);
         }
 
-        .browseCard:nth-child(2):hover {
-        background-color: #03A9F4;
-        }
-
         .browseCard:nth-child(2):hover .teachers {
         fill: white;
-        }
-
-        .browseCard:nth-child(3):hover {
-        background-color: #bd1d5d;
         }
 
         .browseCard:nth-child(3):hover .events {
@@ -580,7 +569,7 @@
         position: absolute;
         font-size: 0.9em;
         transition: .4s ease-in-out;
-        color: black;
+        color: white;
         text-align: center;
         font-weight: bold;
         letter-spacing: 0.33em;
@@ -604,6 +593,7 @@
             font-size: 15px; /* Adjust font size as needed */
             margin-top: 15px; /* Adjust margin as needed */
             font-weight: 700;
+            color: white;
             
         }
     </style>
@@ -889,10 +879,10 @@
          <!-- searching popups options-->
          <div class="popup" id="popup-searching">
             <div class="loading-container">
-                <div class="title">
+                {{-- <div class="title">
                     <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
                     <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
-                </div>
+                </div> --}}
                 <div class="browsing-handler mt-5">
                     <div class="main">
                         <div class="browseCard" data-value="facilities" data-model="EastwoodsFacilities">
@@ -907,7 +897,7 @@
                             <box-icon type='solid' name='calendar-event' class="events" data-value="events"></box-icon>
                             <p class="label">Events</p> <!-- Add label for events -->
                         </div>
-                        <p class="text">CLICK<br><br>FOR<br><br>BROWSING</p>
+                        <p class="text"></p>
                         <div class="main_back"></div>
                     </div>
                     

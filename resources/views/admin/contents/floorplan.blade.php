@@ -38,9 +38,10 @@
             display: none;
         }
         .drag-container{
-            max-height: 350px;
+            max-height: inherit;
+            padding: 10px;
             overflow-y: auto; /* Enable vertical scrollbar if content overflows */
-            border: 1px solid gray;
+            /* border: 1px solid gray; */
             /* max-width: 200px; */
             padding:10px ;
         }
@@ -96,14 +97,14 @@
         .cancel-drag-button {
             background: transparent;
             border: 1px solid red;
-            border-radius: 5px;
+            /* border-radius: 5px; */
             background-color: red;
             color: #f3ecec;
-            font-size: 14px;
+            font-size: 10px;
             cursor: pointer;
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -1px;
+            right: -1px;
             /* display: none;  */
         }
 
@@ -116,8 +117,8 @@
         box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
         /* margin: 50px auto; */
         display: grid;
-        grid-template-columns: repeat(10, 1fr); /* Adjust the number of columns */
-        grid-template-rows: repeat(4, 1fr); /* Adjust the number of rows */
+        grid-template-columns: repeat(14, 1fr); /* Adjust the number of columns */
+        grid-template-rows: repeat(10, 1fr); /* Adjust the number of rows */
         gap: 5px; /* Adjust the gap between rooms */
         background-color: transparent; /* Background color for the floorplan */
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
@@ -132,7 +133,7 @@
         width: 60px;
         height: 60px;
         background-color: transparent; /* Light background color for rooms */
-        border: 1px solid rgba(0, 0, 0, 0.3);; /* Add borders */
+        border: 1px solid rgba(0, 0, 0, 0.1);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -216,7 +217,60 @@
         }
       }
 
-      
+        /* Define the CSS for the selected grid points */
+        .wall {
+            background-color: #ccc; /* Set the background color for the grid points */
+            /* width: 10px; */
+            /* margin: auto; */
+            /* height: 20px; Set the height of each grid point */
+            display: inline-block; /* Display the grid points in a row */
+            /* margin: 2px; */
+            border: 2px solid #fff; /* Add a border to each grid point */
+        }
+    
+        /* CSS for horizontal selection */
+        /* .horizontal-selection {
+            border-top: none; 
+            border-bottom: none; 
+        } */
+
+        /* Style for the first selected grid point */
+        /* .horizontal-selection:first-child {
+            border-top: 2px solid #fff;
+        } */
+
+        /* Style for the last selected grid point */
+        /* .horizontal-selection-last {
+            border-bottom: 2px solid #fff;
+        } */
+
+        /* Style for horizontal selection excluding first and last
+        .horizontal-selection:not(.horizontal-selection:first-child):not(.horizontal-selection-last) {
+            gap: 0;
+        } */
+
+        /* CSS for horizontal selection */
+        /* .vertical-selection {
+            border-left: none;
+            border-right: none;
+        } */
+
+        /* Style for the first selected grid point */
+        /* .vertical-selection:first-child {
+            border-left: 2px solid #fff;
+        } */
+
+        /* Style for the last selected grid point */
+        /* .vertical-selection-last {
+            border-right: 2px solid #fff;
+        } */
+
+        /* CSS for horizontal selection */
+        /* .combined-selection {
+            border-left: none; 
+            border-right: none;
+        } */
+
     </style>
 @endsection
 
@@ -243,35 +297,34 @@
             <!-- end page title -->
 
             <div class="row">
+                <div class="card">
+                    <div class="card-body">
 
-                <div class="col-xl-2">
-                    <div class="card">
-                        <div class="card-body">
-
-                            <div class="dropdown float-end">
-                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <!-- item-->
-                                    <a href="{{ route('dashboard') }}" class="dropdown-item">Dashboard</a>
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item">Teacher's</a>
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item">Facilities</a>
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item">Event's</a>
-                                </div>
+                        <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="{{ route('dashboard') }}" class="dropdown-item">Dashboard</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Teacher's</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Facilities</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Event's</a>
                             </div>
+                        </div>
 
-                            <h4 class="card-title mb-4">Building Field</h4>
+                        <div class="row">
 
-                            <div class="table-responsive">
-
-                                <h6 class="font-size-13">
+                            <div class="col-xl-3">
+                                <h4 class="card-title mb-4">
                                     <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                    <span class="text-secondary">Floor Selection</span>
+                                    Floor Selection
+                                </h4>
+                                <h6 class="font-size-13">
                                     <div class="input-group d-flex align-items-center text-success">
                                         <select id="floor-selected" class="form-control text-white mt-2">
                                             <option value="ground-floor">Ground Floor</option>
@@ -283,32 +336,45 @@
                                         </select>
                                     </div>
                                 </h6>
-
-                                <h6 class="font-size-13">
-                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                    <span class="text-secondary">Row Fields</span>
-                                    <div class="input-group d-flex align-items-center text-success">
-                                        <input type="number" id="row-size" value="4" min="1" max="20" class="form-control text-white mt-2"
-                                        placeholder="add columns">
-                                    </div>
-                                </h6>
-
-                                <h6 class="font-size-13">
-                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                    <span class="text-secondary">Column Fields</span>
-                                    <div class="input-group d-flex align-items-center text-success">
-                                        <input type="number" id="column-size" value="10" min="1" max="20" class="form-control text-white mt-2"
-                                        placeholder="add columns">
-                                    </div>
-                                </h6>
-                                <button class="btn btn-secondary mt-2" id="apply-grid-size">Resize</button>
                             </div>
-                        </div><!-- end card -->
-                    </div><!-- end card -->
+
+                            <div class="col-xl-3">
+                                <h4 class="card-title mb-4">
+                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                    Row Field
+                                </h4>
+                                <h6 class="font-size-13">
+                                    <div class="input-group d-flex align-items-center text-success">
+                                        <input type="number" id="row-size" value="8" min="1" max="20" class="form-control text-white mt-2"
+                                        placeholder="add columns">
+                                    </div>
+                                </h6>
+                            </div>
+
+                            <div class="col-xl-3">
+                                <h4 class="card-title mb-4">
+                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>    
+                                    Column Field
+                                </h4>
+                                <h6 class="font-size-13">
+                                    <div class="input-group d-flex align-items-center text-success">
+                                        <input type="number" id="column-size" value="14" min="1" max="20" class="form-control text-white mt-2"
+                                        placeholder="add columns">
+                                    </div>
+                                </h6>
+                            </div>
+
+                            <div class="col-xl-3">
+                                <button class="btn btn-secondary mt-5" id="apply-grid-size">Resize Floor Layout</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!-- end col -->
+            </div>
+
+            <div class="row">
         
-                <div class="col-xl-2">
+                <div class="col-xl-3">
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title mb-4">
@@ -316,19 +382,35 @@
                                 Available Facilities
                             </h4>
                             <div class="table-responsive row align-items-center" id="con">
+                                
                                 {{-- starting point --}}
-                                <div class="col-sm-12 border row drag-container">
+                                <div class="col-sm-12 row drag-container">
+                                    <div class="col-xl-12">
+                                        <h6 class="font-size-13">
+                                            <div class="input-group d-flex align-items-center text-success">
+                                                <input type="text" id="drag-search" class="form-control text-white"
+                                                placeholder="Search Facilities">
+                                            </div>
+                                        </h6>
+                                    </div>
+                                    <div class="col-sm-2 mb-2 mx-auto drag-item wall-point blocked" id="wall-point" data-name="wall" data-label="wall" draggable="true">
+                                        <div class="drag-content">
+                                            {{ __('Wall') }}
+                                        </div>
+                                    </div>
+
                                     <div class="col-sm-2 mb-2 mx-auto drag-item starting-point" id="starting-point" data-name="start" data-label="front" draggable="true">
                                         <div class="drag-content">
-                                            {{ __('Exousia') }}
+                                            {{ __('lobby') }}
                                         </div>
                                     </div>
                                     
                                     <div class="col-sm-2 mb-2 mx-auto drag-item stair-point" id="stair-point" data-name="start" data-label="stair-in" draggable="true">
                                         <div class="drag-content">
-                                            {{ __('Stair-In') }}
+                                            {{ __('Stair') }}
                                         </div>
                                     </div>
+
                                 
                                     @foreach ($facilities as $facility)
                                         {{-- {{ $facility }} --}}
@@ -347,7 +429,7 @@
                     </div>
                 </div>
 
-                <div class="col-xl-8">
+                <div class="col-xl-9">
                     <div class="card">
                         <div class="card-body">
                             {{-- {{ $facilities }} --}}
@@ -361,7 +443,15 @@
                                 <div class="col-sm-12 mx-auto mb-2 grid-container" id="grid-container">
                                         <!-- Points will be dynamically generated here -->
                                 </div>
-                                  <button class="btn btn-secondary" id="run-dijkstra">Save Floor Plan</button>
+                                <button class="btn btn-secondary float-end" id="run-dijkstra">Save Floor Plan</button>
+                                {{-- <div class="col-xl-12">
+                                    <button class="btn btn-secondary float-end" id="run-dijkstra">Save Floor Plan</button>
+                                </div> --}}
+                                {{-- <div class="col-xl-6">
+                                    <button class="btn btn-secondary" id="merge-grid">Merged Box</button>
+                                </div> --}}
+                
+                                  
                             </div>
                         </div><!-- end card -->
                     </div><!-- end card -->
@@ -388,7 +478,7 @@
 
 
     <!-- apexcharts -->
-    <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script> --}}
 
     <!-- jquery.vectormap map -->
     <script src="{{ asset('backend/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}">
@@ -405,7 +495,7 @@
     <script src="{{ asset('backend/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}">
     </script>
 
-    <script src="{{ asset('backend/assets/js/pages/dashboard.init.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/js/pages/dashboard.init.js') }}"></script> --}}
 
     <!-- toastr plugin -->
     <script src="{{ asset('backend/assets/libs/toastr/build/toastr.min.js') }}"></script>
@@ -427,7 +517,7 @@
             let startingPoint;
             let details;
             // Function to create and append points to the grid
-            function createGridPoints(width, height) {
+            function createGridPoints(width, height, gridDetails) {
                 gridPointWidth = width;
                 gridPointHeight = height;
                 gridContainer.empty(); // Clear the existing grid using jQuery
@@ -440,6 +530,26 @@
                         point.attr("data-y", y); // Set y-coordinate as a data attribute
                         point.addClass("zone")
                         // point.text(`${x},${y}`); // Optionally, you can label points with their coordinates
+
+
+                        if(gridDetails !== 'null'){
+                            // Find the corresponding grid detail by matching x and y coordinates
+                            const gridDetail = gridDetails.find(detail => detail.x === x && detail.y === y);
+
+                            if (gridDetail && gridDetail.label !== null) {
+                                point.text(gridDetail.label); // Set the label as the text of the point
+                                point.addClass('block')
+                                const closeButton = $("<button>").addClass("cancel-drag-button").text("X");
+                                point.append(closeButton)
+                                closeButton.on("click", function (e) {
+                                    $(point).removeClass("block").removeAttr("data-label");
+                                    $(this).remove();
+                                    $(point).css({'border':'1px solid rgba(0, 0, 0, 0.1)'})
+                                    point.text("");
+                                });
+                            }
+                        }
+                        
 
                         gridContainer.append(point); // Append the point to the grid container using jQuery
 
@@ -474,12 +584,12 @@
                     $("#grid-container").css("grid-template-columns", `repeat(${gridColumn}, 1fr)`);
                     $("#grid-container").css("grid-template-rows", `repeat(${gridSize}, 1fr)`);
 
-                    
-                    // $(".drag-container").css("width",)
-                    createGridPoints(gridSize,gridColumn);
-
                     details = collectGridDetails();
                     console.log(details)
+                    // $(".drag-container").css("width",)
+                    createGridPoints(gridSize,gridColumn, details.gridDetails);
+
+                    interaction()
                 } else {
                     alert("Please enter a valid grid size between 1 and 20.");
                 }
@@ -527,7 +637,7 @@
             }
 
             // Call the function to create a 10x10 grid of points
-            createGridPoints(4, 10);
+            createGridPoints(10, 14, 'null');
 
             // interact(".drag-item").draggable({
             //     listeners: {
@@ -599,56 +709,60 @@
             //     },
             // });
 
-            $(".drag-item").on("dragstart", function () {
-                $(this).addClass("dragging");
-            });
-
-            $(".drag-item").on("dragend", function () {
-                $(this).removeClass("dragging");
-                $(this).css("transform", "translate(0px, 0px)");
-                $(this).attr("data-x", 0);
-                $(this).attr("data-y", 0);
-            });
-
-            $(".zone").on("dragover", function (e) {
-                e.preventDefault();
-                $(this).addClass("dragover");
-            });
-
-            $(".zone").on("dragleave", function () {
-                $(this).removeClass("dragover");
-            });
-
-            $(".zone").on("drop", function (e) {
-                e.preventDefault(); // Prevent the default behavior of a drop event
-                const box = $(".dragging")[0];
-                const computedStyle = getComputedStyle(box);
-                const label = $(box).attr("data-label");
-
-                // Get CSS properties from computed style
-                const color = computedStyle.color;
-                const border = computedStyle.border;
-                // const dataId = $(box).attr("data-id");
-                // addClass(dataId)
-                $(e.target).addClass("block").text('').attr("data-label", label).css({"color":color,"border":border});
-                
-                // Create a close button using jQuery
-                const closeButton = $("<button>").addClass("cancel-drag-button").text("X");
-                closeButton.on("click", function () {
-                    $(e.target).removeClass("block").removeAttr("data-label");
-                    $(this).remove();
+            function interaction(){
+                $(".drag-item").on("dragstart", function () {
+                    $(this).addClass("dragging");
                 });
 
-                // Append the close button to the grid point
-                $(e.target).append(closeButton);
+                $(".drag-item").on("dragend", function () {
+                    $(this).removeClass("dragging");
+                    $(this).css("transform", "translate(0px, 0px)");
+                    $(this).attr("data-x", 0);
+                    $(this).attr("data-y", 0);
+                });
 
-                // Remove the dragover class when the drop event occurs
-                $(this).removeClass("dragover");
+                $(".zone").on("dragover", function (e) {
+                    e.preventDefault();
+                    $(this).addClass("dragover");
+                });
 
-                // Reset the position of the dragged item
-                $(box).css("transform", "translate(0px, 0px)").attr("data-x", 0).attr("data-y", 0);
-            });
+                $(".zone").on("dragleave", function () {
+                    $(this).removeClass("dragover");
+                });
 
+                $(".zone").on("drop", function (e) {
+                    e.preventDefault(); // Prevent the default behavior of a drop event
+                    const box = $(".dragging")[0];
+                    const computedStyle = getComputedStyle(box);
+                    const label = $(box).attr("data-label");
+
+                    // Get CSS properties from computed style
+                    const color = computedStyle.color;
+                    const border = computedStyle.border;
+                    // const dataId = $(box).attr("data-id");
+                    // addClass(dataId)
+                    $(e.target).addClass("block").text('').attr("data-label", label).css({"color":color,"border":border});
+                    
+                    // Create a close button using jQuery
+                    const closeButton = $("<button>").addClass("cancel-drag-button").text("X");
+                    closeButton.on("click", function () {
+                        $(e.target).removeClass("block").removeAttr("data-label");
+                        $(this).remove();
+                        $(e.target).css({'border':'1px solid rgba(0, 0, 0, 0.1)'})
+                    });
+
+                    // Append the close button to the grid point
+                    $(e.target).append(closeButton);
+
+                    // Remove the dragover class when the drop event occurs
+                    $(this).removeClass("dragover");
+
+                    // Reset the position of the dragged item
+                    $(box).css("transform", "translate(0px, 0px)").attr("data-x", 0).attr("data-y", 0);
+                });
+            }
+
+            interaction()
             // Dijkstra's Algorithm
             async function dijkstra(startX, startY, endX, endY, width2, height2) {
                 const startNode = document.querySelector(
@@ -869,6 +983,7 @@
                 // Show the "starting-point" element
                 $('#starting-point').fadeIn(300);
                 $('#stair-point').fadeIn(300);
+                $('#wall-point').fadeIn(300);
                 if (floor === 'ground-floor') {
                     // Show only ground floor facilities
                     $('.drag-item[data-floor="ground-floor"]').fadeIn(300);
@@ -877,6 +992,92 @@
                     $('.drag-item[data-floor="' + floor + '"]').fadeIn(300);
                 }
             }
+
+            // function for grid merge
+            function gridMerge(){
+                // JavaScript to add and remove the 'selected' class
+                const gridPoints = document.querySelectorAll('.grid-point');
+
+                gridPoints.forEach(point => {
+                    point.addEventListener('click', () => {
+                        point.classList.toggle('wall');
+                    });
+                });
+
+                // jQuery to handle merging when the button is clicked
+                $(document).ready(function () {
+                    $('#merge-grid').on('click', function () {
+                        const selectionType = identifySelectionType();
+                        console.log(`Selection type: ${selectionType}`);
+                    });
+                });
+            }
+
+            // Function to identify the selection type and apply styling
+            function identifySelectionType() {
+                const $gridPoints = $('.grid-point.selected');
+                const selectedGridPoints = $gridPoints.toArray(); // Convert jQuery selection to an array
+
+                if ($gridPoints.length < 2) {
+                    return "Single"; // Only one grid point is selected
+                }
+
+                const xValues = [...new Set($gridPoints.map(function () { return $(this).data('x'); }))]; // Get unique x-values
+                const yValues = [...new Set($gridPoints.map(function () { return $(this).data('y'); }))]; // Get unique y-values
+
+                if (xValues.length === $gridPoints.length) {
+                    $gridPoints.addClass("horizontal-selection"); // Add the "horizontal-selection" class for horizontal selection
+                    $gridPoints.removeClass("vertical-selection"); // Remove the "vertical-selection" class
+
+                    // Remove the class from all grid points
+                    $gridPoints.removeClass("horizontal-selection-last");
+                    
+                    // Add the class to the last grid point within the horizontal selection
+                    const lastHorizontalGridPoint = $gridPoints.last();
+                    if (lastHorizontalGridPoint.hasClass("horizontal-selection")) {
+                        lastHorizontalGridPoint.addClass("horizontal-selection-last");
+                    }
+
+                    return "Horizontal"; // All selected grid points have unique x-values
+
+                } else if (yValues.length === $gridPoints.length) {
+                    $gridPoints.addClass("vertical-selection"); // Add the "vertical-selection" class for vertical selection
+                    $gridPoints.removeClass("horizontal-selection"); // Remove the "horizontal-selection" class
+                    
+                    // Remove the class from all grid points
+                    $gridPoints.removeClass("horizontal-selection-last");
+                    
+                    // Add the class to the last grid point within the horizontal selection
+                    const lastVerticalGridPoint = $gridPoints.last();
+                    if (lastVerticalGridPoint.hasClass("vertical-selection")) {
+                        lastVerticalGridPoint.addClass("vertical-selection-last");
+                    }
+
+                    return "Vertical"; // All selected grid points have unique y-values
+                
+                } 
+            }
+
+            // Listen for changes in the search input field
+            $("#drag-search").on("input", function () {
+                // Get the search query from the input
+                const searchQuery = $(this).val().toLowerCase();
+
+                // Filter the drag items based on the search query
+                $(".drag-item").each(function () {
+                    const itemName = $(this).text().toLowerCase();
+                    
+                    // Check if the item name contains the search query
+                    if (itemName.includes(searchQuery)) {
+                        $(this).show(); // Display matching items
+                    } else {
+                        $(this).hide(); // Hide non-matching items
+                    }
+                });
+            });
+
+
+            // gridMerge()
        })
 
     </script>

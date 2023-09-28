@@ -385,31 +385,21 @@ class Navi extends Controller
             'It appears there are no records for that facility. Can I help you with a different request?',
         ];
 
-        // facilities found
         $openingForFoundFacilityStart = [
-            'Great news! I found information about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Would you like to see it on the map?',
-
-            'Good news! I located information about the facility you mentioned on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Want to see it on the map?',
-
-            'You\'re in luck! I have information on that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Interested in viewing it on the map?',
-
-            'I found the information you were looking for about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Would you like to see it on the map?',
-
-            'I\'ve found details for the facility you mentioned on [floor]!. Here are the details where you can find it [facilities]! and the operation time is [operation_time]!. Want to see it on the map?',
-
-            'You\'re in the right place! I have information about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Are you Interested in viewing it on the map?',
-
-            'I found the facility you were looking for on [floor]! Here are the details where you can find it [facilities] and the operation time is [operation_time]. Would you like to see it on the map?',
-
-            'You\'re in luck! I located information about that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Want to see it on the map?',
-
-            'I\'ve successfully located details for the facility you mentioned on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Interested in viewing it on the map?',
-
-            'Good news! I have information on that facility on [floor]!. Here are the details where you can find it [facilities] and the operation time is [operation_time]!. Would you like to see it on the map?'
-
-
+            'Found [facilities] on [floor]. Operating hours: [operation_time]. Go there?',
+            'Located [facilities] on [floor]. Operating hours: [operation_time]. Ready to go?',
+            'Info: [facilities] on [floor]. Operating hours: [operation_time]. Lets head there?',
+            "Details for [facilities] on [floor]. Operating hours: [operation_time]. Shall we go?",
+            "Facility: [facilities] on [floor]. Hours: [operation_time]. Go now?",
+            "Info: [facilities] on [floor]. Operating hours: [operation_time]. Ready to visit?",
+            "Found [facilities] on [floor]. Operating hours: [operation_time]. Go there now?",
+            "Located [facilities] on [floor]. Operating hours: [operation_time]. Ready to go now?",
+            "Info: [facilities] on [floor]. Operating hours: [operation_time]. Time to head there?",
+            "Details for [facilities] on [floor]. Operating hours: [operation_time]. Lets go!",
         ];
-
+        
+        
+        
         // person location found
         // $openingForFoundPersonLocation = [
         //     'Great news! I found information on navigating to [facilities] where you can find [persons]. The operation time is [operation_time].',

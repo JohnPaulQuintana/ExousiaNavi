@@ -63,11 +63,11 @@
 
         /* Style for each room (grid point) */
         .grid-point {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background-color: transparent;
             /* Light background color for rooms */
-            border: 1px solid rgba(0, 0, 0, 0.3);
+            border: 0.5px transparent;
             ;
             /* Add borders */
             display: flex;
@@ -75,7 +75,7 @@
             align-items: center;
             font-family: Arial, sans-serif;
             /* Specify a common font */
-            font-size: 16px;
+            font-size: 14px;
             /* Adjust font size */
             color: #f3ecec;
             /* Text color */
@@ -97,10 +97,11 @@
 
         /* Style for the walls (blocks) */
         .blocked {
-            background-color: #999;
+            /* background-color: transparent; */
             /* Dark background color for walls */
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-            color: white;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+            color: greenyellow;
+            border: 1px solid white;
             transform: translateZ(20px);
             cursor: pointer;
         }
@@ -111,8 +112,13 @@
         }
 
         /* Style for animation */
-        .grid-point.passed {
-            background-color: transparent;
+        .grid-point.passed:not(.targetFacilities):not(.starting-point) {
+            /* background-color: transparent; */
+                background-image: url('{{ asset('backend/assets/images/footmark.png') }}');
+                background-position:center;
+                background-repeat: no-repeat;
+                background-size: 20px 20px; /* Width x Height in pixels */
+                transform: rotate(-90deg); /* Rotate the background image 90 degrees counter-clockwise */
             /* Dark green for passed rooms */
             color: white;
         
@@ -120,9 +126,18 @@
             /* Animation settings */
         }
 
+        .grid-point.passed.up:not(.targetFacilities):not(.starting-point){
+            transform: rotate(0); /* Rotate the background image 0 degrees*/
+        }
+        .grid-point.passed.right:not(.targetFacilities):not(.starting-point){
+            transform: rotate(90deg); /* Rotate the background image 90 degrees clockwise */
+        }
+        .grid-point.passed.down:not(.targetFacilities):not(.starting-point){
+            transform: rotate(180deg); /* Rotate the background image 90 degrees clockwise */
+        }
         /* starting point */
         .starting-point {
-            background-color: #4434db;
+            /* background-color: #4434db; */
             border: 1px solid green;
             transform: translateZ(20px);
             /* Dark background color for walls */
@@ -141,36 +156,16 @@
             cursor: pointer;
         }
 
-        /* Add styles for the ball */
-        .ball {
-            width: 20px;
-            height: 20px;
-            background-color: #06661e; /* Change the color as needed */
-            border-radius: 50%; /* Makes it a circle */
-            position: absolute;
-            /* top: -10px; */
-            animation: jumpAnimation 2s infinite; /* Adjust animation duration as needed */
-            z-index: 3; /* Ensure the ball is above other elements */
-            box-shadow: 0px 0px 5px rgba(0, 0, 0, 1); /* Add shadow properties here */
+        .wall {
+            background-color: #ccc; /* Set the background color for the grid points */
+            color: #ccc;
+            /* width: 15px; */
+            /* margin: auto; */
+            /* height: 20px; Set the height of each grid point */
+            display: inline-block; /* Display the grid points in a row */
+            /* margin: 2px; */
+            border: 2px solid #fff; /* Add a border to each grid point */
         }
-
-        @keyframes jumpAnimation {
-            0% {
-                transform: translate(0, 0);
-            }
-            25% {
-                transform: translate(-10px, -20px);
-            }
-            50% {
-                transform: translate(0, 0);
-            }
-            75% {
-                transform: translate(-10px, -20px);
-            }
-            100% {
-                transform: translate(0, 0);
-            }
-    }
 
 
         /* Define the animation */
@@ -180,7 +175,8 @@
                 color: #06df59;
                 /* background-color: green; */
                 /* transform: translateZ(2px); Translate along the Z-axis to create elevation */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.0);
+                /* background-image: url(''); */
                 /* Add a subtle shadow */
             }
 
@@ -271,8 +267,9 @@
                                     <div class="input-group d-flex align-items-center text-success">
                                         <select id="target-floor" class="form-control text-white mt-2">
                                             @foreach ($details as $key => $floor)
-                                            <option value="{{ $key }}">{{ $floor->floor }}</option>
-                                        @endforeach
+                                                    <option value="{{ $key }}">{{ $floor->floor }}</option>
+                                               
+                                            @endforeach
                                         </select>
                                         {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
                                     </div>
@@ -302,7 +299,7 @@
                             {{-- {{ $details }} --}}
                             <h4 class="card-title mb-4">
                                 <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                Testing Phase > <span class="text-success">First Floor</span>
+                                Testing Phase > <span class="text-success">Floor Deployed layout</span>
                             </h4>
 
                             <div class="table-responsive row">
@@ -435,10 +432,10 @@
                     point.attr("data-y", parseInt(coordinates.y)); // Set y-coordinate as a data attribute
                     // point.text(`${parseInt(coordinates.x)},${parseInt(coordinates.y)}`); // Optionally, you can label points with their coordinates
                     // Use a ternary operator to set the text based on coordinates.label
-                    point.text(coordinates.label !== null ? coordinates.label : '');
+                    point.text(coordinates.label !== null ? truncateText(coordinates.label, 7) : '');
                     gridContainer.append(point); // Append the point to the grid container using jQuery
                     // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
-                    if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front') {
+                    if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front' && coordinates.label !== 'wall') {
                         point.addClass('blocked');
                         targetSelection += `<option value="${coordinates.label}">${coordinates.label}</option>`
                     } else if (coordinates.label === targetFacilities) {
@@ -450,13 +447,15 @@
                         startingX = parseInt(coordinates.x);
                         startingY = parseInt(coordinates.y);
                         point.addClass('starting-point');
-                        point.text('Your here.')
+                        point.text('Lobby.')
 
                         // Create the ball element
                         // const ball = $("<div></div>");
                         // ball.addClass("ball");                 
                         // // Append the ball to the grid container
                         // point.append(ball);
+                    } else if(coordinates.label === 'wall'){
+                        point.addClass('blocked wall');
                     }
 
                     // Add the point to the gridPoints array
@@ -466,6 +465,32 @@
                     dijkstra(startingX, startingY, targetX, targetY);
                 });
             }
+
+            // Function to truncate text if it exceeds a specified length
+            function truncateText(text, maxLength) {
+            const withoutSpaces = text.replace(/\s/g, ''); // Remove spaces from the text
+            if (withoutSpaces.length > maxLength) {
+                let truncatedText = '';
+                let charCount = 0;
+                for (const char of text) {
+                    if (char !== ' ' || charCount < maxLength) {
+                        truncatedText += char;
+                        if (char !== ' ') {
+                            charCount++;
+                        }
+                    }
+                    if (charCount >= maxLength) {
+                        break;
+                    }
+                }
+                if (charCount < text.length) {
+                    // truncatedText += '...'; // Add ellipsis if text is truncated
+                }
+                return truncatedText;
+            }
+            return text; // Text is within the maxLength limit
+        }
+
 
             // Call the function to create a 10x10 grid of points
             createGridPoints('epas', 0);
@@ -644,22 +669,48 @@
 
                     // Highlight the shortest path in the grid
                     async function animateShortestPath(shortestPath) {
-                    for (const { x, y } of shortestPath) {
-                        const node = grid[y][x];
+                    for (let i = 1; i < shortestPath.length; i++) {
+
+                        const { x: currentX, y: currentY } = shortestPath[i - 1];
+                        const { x: nextX, y: nextY } = shortestPath[i];
+
+                        const node = grid[currentY][currentX];
                         node.classList.add("passed"); // Highlight the current node as passed
 
-                        // Create the ball element
-                        const ball = document.createElement("div");
-                        ball.classList.add("ball");
+                        // Determine the direction (up or down)
+                        let directionClass = "";
+                        // if (nextY < currentY) {
+                        //     // alert('yes')
+                        //     directionClass = "left";
+                        // } else {
+                        //     directionClass = "up";
+                        // }
+                        if (nextY < currentY) {
+                            directionClass = "left";
+                        } else if (nextY > currentY) {
+                            directionClass = "right";
+                        } else if (nextX < currentX) {
+                            directionClass = "up";
+                        } else if (nextX > currentX) {
+                            directionClass = "down";
+                        }
 
-                        // Append the ball to the grid container
-                        node.append(ball);
+                        // Check if directionClass is not empty before adding it as a class
+                        if (directionClass !== "") {
+                            // Create the ball element with the direction class
+                            // const ball = document.createElement("div");
+                            // ball.classList.add("ball", directionClass);
+                            node.classList.add(directionClass);
 
-                        // Wait for 200 milliseconds (remove the ball after 200ms)
-                        await new Promise((resolve) => setTimeout(resolve, 400));
+                            // Append the ball to the grid container
+                            // node.append(ball);
 
-                        // Remove the ball element
-                        ball.remove();
+                            // Wait for 200 milliseconds (remove the ball after 200ms)
+                            await new Promise((resolve) => setTimeout(resolve, 400));
+
+                            // Remove the ball element
+                            // ball.remove();
+                        }
                     }
 
                     // Repeat the animation infinitely

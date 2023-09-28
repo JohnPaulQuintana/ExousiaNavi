@@ -14,15 +14,21 @@ class FloorplanController extends Controller
         return view('admin.contents.floorplan')->with(['facilities'=>$data]);
    }
 
-   public function floorPlanLayoutSave(Request $request){
-      // dd($request->gridDetails);
-      $floorplan = new Floorplan();
-      $floorplan->floor = $request->gridDetails['floor'];
-      $floorplan->gridSize = $request->gridDetails['gridSize'];
-      $floorplan->gridDetails = $request->gridDetails['gridDetails'];
-      $floorplan->save();
-      return response()->json(['status'=>'success']);
-   }
+   public function floorPlanLayoutSave(Request $request) {
+      try {
+          $floorplan = new Floorplan();
+          $floorplan->floor = $request->gridDetails['floor'];
+          $floorplan->gridSize = $request->gridDetails['gridSize'];
+          $floorplan->gridDetails = $request->gridDetails['gridDetails'];
+          $floorplan->save();
+          
+          return response()->json(['status' => 'success']);
+      } catch (\Exception $e) {
+          // Handle any exceptions that occur during the save operation
+          return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+      }
+  }
+  
 
    public function floorPlanLayoutGet(Request $request){
       $floorplans = Floorplan::get();

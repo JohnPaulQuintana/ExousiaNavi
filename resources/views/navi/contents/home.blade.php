@@ -108,7 +108,7 @@
 
         /* Add a background and box-shadow to the modal content */
         .modal-content, .card {
-            background: rgba(38, 48, 36, 0.4);
+            background: rgba(38, 48, 36, 0.7);
             box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; /* Box shadow */
         }
          /* Position the close button on the right side of the modal header */

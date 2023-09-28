@@ -428,20 +428,19 @@ class Navi extends Controller
             'At Eastwoods, [name] serves as the principal.'
         ];
         
-        // positive response for yes
         $positiveResponses = [
-            "Great choice! You'll soon be able to view the facility on the map below, showcasing its location on [floor]. Enjoy exploring!",
-            "Excellent! Get ready to explore the facility on the map below, featuring its location on [floor]. Have a great time exploring!",
-            "Perfect! Take a moment to prepare for the map below, highlighting the facility's location on [floor]. Happy exploring!",
-            "Awesome! The map displaying the facility on [floor] will be ready for you in just a moment. Dive in and explore!",
-            "Fantastic! You'll soon have the opportunity to explore the facility on the map below. Simply click and interact with the map to get a closer look!",
-            "Wonderful! The map showcasing the facility's location on [floor] will be available shortly. Click on the map to start your exploration!",
-            "Terrific choice! The map highlighting the facility on [floor] will be ready in a moment. Enjoy your exploration!",
-            "Brilliant! Get ready for the map featuring the facility on [floor]. It will be available shortly. Click on the map to explore further!",
-            "Excellent decision! You can explore the facility on the map below after the message. Click and drag to navigate!",
-            "Great! The map displaying the facility on [floor] will be ready after the message. Enjoy exploring!"
-
+            "Explore the facility on [floor] below. Enjoy!",
+            "Get ready to explore on [floor]. Enjoy the map!",
+            "Discover the facility on [floor] with the map below!",
+            "Your map for [floor] is coming up. Enjoy exploring!",
+            "Exciting! [floor] facility on the map below. Dive in!",
+            "Explore [floor] with the map coming up. Enjoy!",
+            "Ready for [floor]? Map below. Enjoy your exploration!",
+            "Brace yourself for [floor] on the map. Dive in!",
+            "Your map for [floor] is ready. Start exploring!",
+            "Map for [floor] coming up. Enjoy your exploration!"
         ];
+        
         
         // negative response for no
         $negativeResponses = [

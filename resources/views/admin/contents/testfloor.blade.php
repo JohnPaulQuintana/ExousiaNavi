@@ -68,7 +68,7 @@
             background-color: transparent;
             /* Light background color for rooms */
             border: 0.5px transparent;
-            ;
+            
             /* Add borders */
             display: flex;
             justify-content: center;
@@ -468,28 +468,28 @@
 
             // Function to truncate text if it exceeds a specified length
             function truncateText(text, maxLength) {
-            const withoutSpaces = text.replace(/\s/g, ''); // Remove spaces from the text
-            if (withoutSpaces.length > maxLength) {
-                let truncatedText = '';
-                let charCount = 0;
-                for (const char of text) {
-                    if (char !== ' ' || charCount < maxLength) {
-                        truncatedText += char;
-                        if (char !== ' ') {
-                            charCount++;
+                const withoutSpaces = text.replace(/\s/g, ''); // Remove spaces from the text
+                if (withoutSpaces.length > maxLength) {
+                    let truncatedText = '';
+                    let charCount = 0;
+                    for (const char of text) {
+                        if (char !== ' ' || charCount < maxLength) {
+                            truncatedText += char;
+                            if (char !== ' ') {
+                                charCount++;
+                            }
+                        }
+                        if (charCount >= maxLength) {
+                            break;
                         }
                     }
-                    if (charCount >= maxLength) {
-                        break;
+                    if (charCount < text.length) {
+                        // truncatedText += '...'; // Add ellipsis if text is truncated
                     }
+                    return truncatedText;
                 }
-                if (charCount < text.length) {
-                    // truncatedText += '...'; // Add ellipsis if text is truncated
-                }
-                return truncatedText;
+                return text; // Text is within the maxLength limit
             }
-            return text; // Text is within the maxLength limit
-        }
 
 
             // Call the function to create a 10x10 grid of points
@@ -669,52 +669,52 @@
 
                     // Highlight the shortest path in the grid
                     async function animateShortestPath(shortestPath) {
-                    for (let i = 1; i < shortestPath.length; i++) {
+                        for (let i = 1; i < shortestPath.length; i++) {
 
-                        const { x: currentX, y: currentY } = shortestPath[i - 1];
-                        const { x: nextX, y: nextY } = shortestPath[i];
+                            const { x: currentX, y: currentY } = shortestPath[i - 1];
+                            const { x: nextX, y: nextY } = shortestPath[i];
 
-                        const node = grid[currentY][currentX];
-                        node.classList.add("passed"); // Highlight the current node as passed
+                            const node = grid[currentY][currentX];
+                            node.classList.add("passed"); // Highlight the current node as passed
 
-                        // Determine the direction (up or down)
-                        let directionClass = "";
-                        // if (nextY < currentY) {
-                        //     // alert('yes')
-                        //     directionClass = "left";
-                        // } else {
-                        //     directionClass = "up";
-                        // }
-                        if (nextY < currentY) {
-                            directionClass = "left";
-                        } else if (nextY > currentY) {
-                            directionClass = "right";
-                        } else if (nextX < currentX) {
-                            directionClass = "up";
-                        } else if (nextX > currentX) {
-                            directionClass = "down";
+                            // Determine the direction (up or down)
+                            let directionClass = "";
+                            // if (nextY < currentY) {
+                            //     // alert('yes')
+                            //     directionClass = "left";
+                            // } else {
+                            //     directionClass = "up";
+                            // }
+                            if (nextY < currentY) {
+                                directionClass = "left";
+                            } else if (nextY > currentY) {
+                                directionClass = "right";
+                            } else if (nextX < currentX) {
+                                directionClass = "up";
+                            } else if (nextX > currentX) {
+                                directionClass = "down";
+                            }
+
+                            // Check if directionClass is not empty before adding it as a class
+                            if (directionClass !== "") {
+                                // Create the ball element with the direction class
+                                // const ball = document.createElement("div");
+                                // ball.classList.add("ball", directionClass);
+                                node.classList.add(directionClass);
+
+                                // Append the ball to the grid container
+                                // node.append(ball);
+
+                                // Wait for 200 milliseconds (remove the ball after 200ms)
+                                await new Promise((resolve) => setTimeout(resolve, 400));
+
+                                // Remove the ball element
+                                // ball.remove();
+                            }
                         }
 
-                        // Check if directionClass is not empty before adding it as a class
-                        if (directionClass !== "") {
-                            // Create the ball element with the direction class
-                            // const ball = document.createElement("div");
-                            // ball.classList.add("ball", directionClass);
-                            node.classList.add(directionClass);
-
-                            // Append the ball to the grid container
-                            // node.append(ball);
-
-                            // Wait for 200 milliseconds (remove the ball after 200ms)
-                            await new Promise((resolve) => setTimeout(resolve, 400));
-
-                            // Remove the ball element
-                            // ball.remove();
-                        }
-                    }
-
-                    // Repeat the animation infinitely
-                    animateShortestPath(shortestPath);
+                        // Repeat the animation infinitely
+                        animateShortestPath(shortestPath);
                     }
 
                     // Start the animation

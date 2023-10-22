@@ -60,6 +60,7 @@
                         <div class="card-body">
 
                             <div class="dropdown float-end">
+                                
                                 <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
                                     aria-expanded="false">
                                     <i class="mdi mdi-dots-vertical"></i>
@@ -70,6 +71,7 @@
                                 </div>
                             </div>
 
+                            
                             <h4 class="card-title mb-4">Manage Teacher's Information</h4>
 
                             <div class="table-responsive">
@@ -82,6 +84,7 @@
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Position</th>
+                                                <th>Located</th>
                                             </tr>
                                         </thead><!-- end thead -->
                                         <tbody id="teachers-table">
@@ -90,7 +93,7 @@
                                                     <h6 class="font-size-13">
                                                         <i
                                                             class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
-                                                        <span class="text-secondary">Please Enter your name.</span>
+                                                        <span class="text-secondary">Please Enter location.</span>
                                                         <input type="text" name="teachers_name[]"
                                                             class="form-control text-white mt-2 add-input"
                                                             placeholder="jaypee quintana" required>
@@ -105,14 +108,26 @@
                                                             class="form-control text-white mt-2" placeholder="Teacher" required>
                                                     </h6>
                                                 </td>
+                                                <td width='100'>
+                                                    {{-- {{ $facilities }} --}}
+                                                    <h6 class="font-size-13">
+                                                        <i
+                                                            class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
+                                                        <span class="text-secondary">Please Enter your facilities.</span>
+                                                        <select id="floor-selected" name="teachers_located[]" class="form-control text-white mt-2">
+                                                            @foreach ($facilities as $facility)
+                                                                <option value="{{ $facility->id }}">{{ $facility->facilities }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </h6>
+                                                </td>
                                             </tr>
                                             <!-- end -->
                                         </tbody><!-- end tbody -->
                                     </table> <!-- end table -->
-                                    <button type="button" class="btn btn-secondary" id="addInputField">Add Input
-                                        Field</button>
-                                    <button type="submit" class="btn btn-primary" id="saveTeacher">Save
-                                        Question</button>
+                                    <button type="button" class="btn btn-secondary" id="addInputField">
+                                        Add Input Field</button>
+                                    <button type="submit" class="btn btn-primary" id="saveTeacher">Save</button>
                                 </form>
                             </div>
                         </div><!-- end card -->
@@ -126,7 +141,9 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-
+                            <div class="dropdown float-end">
+                                <input type="text" class="dropdown-toggle form-control arrow-none search" placeholder="Search Teachers..." id="search-input" />
+                            </div>
                             <h4 class="card-title mb-4">Update Teacher's Information</h4>
 
                             <div class="table-responsive">
@@ -139,6 +156,7 @@
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Position</th>
+                                                <th>Located</th>
                                                 {{-- <th width='30'>Action</th> --}}
                                             </tr>
                                         </thead><!-- end thead -->
@@ -173,6 +191,21 @@
                                                                     placeholder="who is navi team?"
                                                                     value="{{ $teacher->position }}">
 
+                                                            </div>
+                                                        </h6>
+                                                    </td>
+                                                    <td width='200'>
+                                                        {{-- {{ $facilities }} --}}
+                                                        <h6 class="font-size-13">
+                                                           
+                                                            <span class="text-secondary"><span
+                                                                class="text-danger">Update</span> facilities.</span>
+                                                            <div class="input-group align-items-center text-danger">
+                                                                <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                                                <input type="text" name="teachers_located[]"
+                                                                    class="form-control text-white mt-2 edit-input"
+                                                                    placeholder="who is navi team?"
+                                                                    value="{{ $teacher->facilities }}">
                                                             </div>
                                                         </h6>
                                                     </td>
@@ -265,15 +298,27 @@
                                                             class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
                                                         <span class="text-secondary">Please Enter your position.</span>
     
-                                                            <div class="input-group d-flex align-items-center text-danger">
-                                                                <input type="text" name="teachers_position[]"
+                                                            <input type="text" name="teachers_position[]"
                                                                     class="form-control text-white mt-2"
                                                                     placeholder="Teacher">
-                                                                <i class="text-danger h3 fas fa-times delete-row" style="margin:15px auto 10px 10px;"></i>
-                                                        </div>
                                                     </h6>
                                                 </td>
                                                 
+                                                <td width='100'>
+                                                    <h6 class="font-size-13">
+                                                        <i
+                                                            class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
+                                                        <span class="text-secondary">Please Enter your facilities.</span>
+                                                        <div class="input-group d-flex align-items-center text-danger">
+                                                            <select id="floor-selected" name="teachers_located[]" class="form-control text-white mt-2">
+                                                                @foreach ($facilities as $facility)
+                                                                    <option value="{{ $facility->id }}">{{ $facility->facilities }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <i class="text-danger h3 fas fa-times delete-row" style="margin:15px auto 10px 10px;"></i>
+                                                        </div>
+                                                    </h6>
+                                                </td>
                                             </tr>`;
 
                 $("#teachers-table").append(newRow);
@@ -293,6 +338,10 @@
             $("#teachers-table-edit").on("change", ".edit-input", function() {
                 makeEditable(this);
             });
+            // Editable input/select functionality using jQuery
+            // $("#teachers-table-edit").on("click", ".edit-select", function() {
+            //     makeEditableSelect(this);
+            // });
 
             $("#teachers-table-edit").on("click", ".cancel-edit", function() {
                 $('#editTeachers').prop('disabled', true);
@@ -302,6 +351,27 @@
                 console.log(originalHTML)
             
                 parentDiv.html(originalHTML);
+            });
+
+            // search
+            $('#search-input').on('input', function() {
+                const searchText = $(this).val().trim().toLowerCase();
+                $('#teachers-table-edit tr').each(function() {
+                    const row = $(this);
+                    const inputs = row.find('input.edit-input'); // Adjust the selector as needed
+
+                    // Check if any of the input fields contain the search text
+                    const matches = inputs.filter(function() {
+                        const inputValue = $(this).val().toLowerCase();
+                        return inputValue.includes(searchText);
+                    }).length > 0;
+
+                    if (matches) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
             });
 
             function makeEditable(element) {
@@ -317,6 +387,7 @@
                         $(element).replaceWith(
                         `
                             <i class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
+                            
                             <input type="text" name="${originalName}"
                                 class="form-control text-white mt-2 edited edit-input"
                                 placeholder="who is navi team?"
@@ -332,6 +403,40 @@
 
                 }
             }
+
+            // function makeEditableSelect(element) {
+            //     $('#editTeachers').prop('disabled', false);
+            //     const originalName = $(element).attr("name");
+            //     const isSelect = true; // Since it's a select field
+            //     const selectedOption = $(element);
+            
+            //     if (selectedOption.val() !== "") {
+            //         const originalHTML = $(element).prop("outerHTML");
+            //         if (!$(element).hasClass("edited")) {
+            //             // Revert any previously edited element
+                        
+            //             // Use Blade templating to populate the select options
+            //             const selectElement = `
+            //                 <i class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
+            //                 <select id="floor-selected" name="${originalName}" class="form-control text-white mt-2 edited edit-select">
+            //                     <option value="${selectedOption.val()}">${selectedOption.val()}</option>
+            //                     @foreach ($facilities as $facility)
+            //                         <option value="{{ $facility->id }}">{{ $facility->facilities }}</option>
+            //                     @endforeach
+            //                 </select>
+            //                 <i class="text-danger h3 fas fa-times cancel-edit" style="margin:15px auto 10px 10px;"></i>`;
+
+            //             $(element).replaceWith(selectElement);
+            //         } else {
+            //             $(element).removeClass('edited');
+            //         }
+
+            //         const parentDiv = $(`[name='${originalName}']`).closest(".input-group");
+            //         parentDiv.data("original-html", originalHTML);
+            //     }
+            // }
+
+
         })
     </script>
 

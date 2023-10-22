@@ -2,18 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UpdateSystem;
-use App\Models\EastwoodsFacilities;
-use App\Models\Frequently;
 use App\Models\Teacher;
+use App\Models\Frequently;
+use App\Events\UpdateSystem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\EastwoodsFacilities;
+use App\Models\Update;
 
 class TeacherController extends Controller
 {
     public function teachers()
     {
-        $teachers = Teacher::get();
-        return view('admin.contents.teacher')->with(['teachers' => $teachers]);
+        // $teachers = Teacher::get();
+        $facilities = EastwoodsFacilities::get();
+        $teachers = DB::table('teachers')
+        ->select('teachers.*', 'f1.facilities AS facilities')
+        ->join('eastwoods_facilities AS f1', 'teachers.facilities_id', '=', 'f1.id')
+        ->get();
+
+        // dd($teachers);
+        return view('admin.contents.teacher')->with(['teachers' => $teachers, 'facilities'=>$facilities]);
     }
 
     public function teachersManage(Request $request)
@@ -21,6 +30,7 @@ class TeacherController extends Controller
         // dd($request);
         $inputs = $request->input('teachers_name', []);
         $inputsPosition = $request->input('teachers_position', []);
+        $inputsLocated = $request->input('teachers_located', []);
         $ids = $request->input('ids', []);
         $req = $request->input('action');
         // dd($req);
@@ -35,21 +45,26 @@ class TeacherController extends Controller
             for ($i = 0; $i < count($inputs); $i++) {
                 switch ($req) {
                     case 'add':
-                        $input = Teacher::create(['name' => $inputs[$i], 'position' => $inputsPosition[$i]]);
+                        $input = Teacher::create(['name' => $inputs[$i], 'position' => $inputsPosition[$i], 'facilities_id' => $inputsLocated[$i]]);
                         $insertedNotif[] = $input;
                         $actionText = 'Added';
                         $actionType = 'success';
                         $actionName = "Teacher";
-                       
+                        Update::create(['from' => "Teachers Information", 'list' => 'You have added a new information.','status'=>0,'action'=>'added']);
                         break;
                     case 'update':
                         $input = Teacher::where('id', $ids[$i])->first();
-                        if ($input) {
+                        $located = EastwoodsFacilities::where('facilities', $inputsLocated[$i])->first();
+                        // dd($located->id);
+                        if ($input && $located) {
                             if ($input->name !== $inputs[$i]) {
                                 $input->name = $inputs[$i];
                             }
                             if ($input->position !== $inputsPosition[$i]) {
                                 $input->position = $inputsPosition[$i];
+                            }
+                            if ($input->facilities_id !== $located->id) {
+                                $input->facilities_id = $located->id;
                             }
                             if ($input->isDirty()) {
                                 $input->save();
@@ -57,7 +72,14 @@ class TeacherController extends Controller
                                 $actionText = 'Updated';
                                 $actionType = 'success';
                                 $actionName = "Teacher";
+                                Update::create(['from' => "Teachers Information", 'list' => 'You have updated a new information.','status'=>0, 'action'=>'updated']);
+                            }else{
+                                $actionType = 'error';
+                                $actionName = "Teacher";
                             }
+                        }else{
+                            $actionType = 'error';
+                            $actionName = "Teacher";
                         }
                         break;
 
@@ -71,6 +93,7 @@ class TeacherController extends Controller
                         $actionText = 'Deleted';
                         $actionType = 'success';
                         $actionName = "Teacher";
+                        Update::create(['from' => "Teachers Information", 'list' => 'You have deleted information.','status'=>0,'action'=>'deleted']);
                         break;
 
                     case 'destroy_ef':
@@ -83,6 +106,7 @@ class TeacherController extends Controller
                         $actionText = 'Deleted';
                         $actionType = 'success';
                         $actionName = "Facility";
+                        Update::create(['from' => "Facilities Information", 'list' => 'You have deleted information.','status'=>0,'action'=>'deleted']);
                         break;
 
                     case 'destroy_f':
@@ -95,6 +119,7 @@ class TeacherController extends Controller
                         $actionText = 'Deleted';
                         $actionType = 'success';
                         $actionName = "Frequently";
+                        Update::create(['from' => "Frequently Ask Question", 'list' => 'You have deleted information.','status'=>0,'action'=>'deleted']);
                         break;
                     default:
                         # code...
@@ -103,7 +128,7 @@ class TeacherController extends Controller
             }
         }
         // Build the success message
-        $message = 'Successfully ' . $actionText . ' ' . count($insertedNotif) .' '.$actionName. ' record(s)!';
+        $message = $actionText . ' ' . count($insertedNotif) .' '.$actionName. ' record(s)!';
         // Prepare the toast notification data
         $notification = [
             'status' => $actionType,
@@ -112,10 +137,8 @@ class TeacherController extends Controller
         // Convert the notification to JSON
         $notificationJson = json_encode($notification);
 
-        $tableUpdates = "Maintenance Notice!.The system will be temporarily unavailable for improvements!!. Sorry for any inconvenience.! Thank you for your patience! Countdown!!! 3.! 2.! 1.!. 
-        ";
-        // for static response only 
-        event(new UpdateSystem($tableUpdates));
+       
+        
         // Redirect back with a success message and the inserted products
         return back()->with('notification', $notificationJson);
     }

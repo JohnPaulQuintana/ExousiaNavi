@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Update;
 use App\Events\UpdateSystem;
-use App\Models\EastwoodsFacilities;
 use Illuminate\Http\Request;
+use App\Models\EastwoodsFacilities;
 
 class FacilityController extends Controller
 {
@@ -40,7 +41,7 @@ class FacilityController extends Controller
                         $actionText = 'Added';
                         $actionType = 'success';
                         $actionName = "Facilities";
-                       
+                        Update::create(['from' => "Facilities", 'list' => 'You have added a new Facilities.','status'=>0,'action'=>'added']);
                         break;
                     case 'update':
                         $input = EastwoodsFacilities::where('id', $ids[$i])->first();
@@ -60,6 +61,7 @@ class FacilityController extends Controller
                                 $actionText = 'Updated';
                                 $actionType = 'success';
                                 $actionName = "Facilities";
+                                Update::create(['from' => "Facilities", 'list' => 'You have updated a Facilities.','status'=>0,'action'=>'updated']);
                             }
                         }
                         break;

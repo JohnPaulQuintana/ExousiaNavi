@@ -476,13 +476,13 @@
         }
 
         .browseCard {
-        width: 100px;
+        width: 150px;
         height: 60px;
         border-top-left-radius: 10px;
         background: transparent;
         transition: .4s ease-in-out, .2s background-color ease-in-out, .2s background-image ease-in-out;
         box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-        backdrop-filter: blur(5px);
+        /* backdrop-filter: blur(5px); */
         border: 1px solid transparent;
         -webkit-backdrop-filter: blur(5px);
         display: flex;
@@ -493,6 +493,10 @@
         margin: .2em;
         border-radius: 10px;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        text-shadow: 3px 2px 2px rgb(1, 3, 2);
+        font-weight: 600;
+        text-transform: capitalize;
+        word-spacing:3rem;
         }
 
         .browseCard .facilities {
@@ -577,7 +581,7 @@
         color: white;
         text-align: center;
         font-weight: bold;
-        letter-spacing: 0.33em;
+        letter-spacing: 0.50em;
         z-index: 3;
         }
 
@@ -702,6 +706,38 @@
 
     </style>
 
+    {{-- frequently ask --}}
+    <style>
+        .loading-container.l-ask{
+            max-height: 500px;
+            overflow-y: auto;
+            padding-top: 10px;
+            justify-content:inherit;
+        }
+        .loading-container.l-ask::-webkit-scrollbar{
+            width: 0;
+        }
+        .browseCard-ask{
+            cursor: pointer;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.034);
+            display:flex;
+            gap: 10px;
+            word-break: break-all;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 4px;
+            margin-top: 4px;
+            color: white;
+            text-shadow: 3px 2px 2px rgb(1, 3, 2);
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .browseCard-ask i{
+            color: green;
+        }
+    </style>
 @endsection
 
 @section('contents')
@@ -723,6 +759,7 @@
     </div>
 
     <main>
+        {{-- {{ $systems }} --}}
         <span id="svg-title" class="text-white">
             <b>
                 <svg class="icons" data-id="search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -740,7 +777,7 @@
                     </path>
                 </svg></b>
         </span>
-        <span id="svg-title" class="text-white">
+        {{-- <span id="svg-title" class="text-white">
             <b><svg class="icons" data-id="mic" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                     viewBox="0 0 24 24">
                     <path
@@ -750,9 +787,17 @@
                         d="M8 12c0 2.206 1.794 4 4 4s4-1.794 4-4h-2v-2h2V8h-2V6h2c0-2.217-1.785-4.021-3.979-4.021a.933.933 0 0 0-.209.025A4.006 4.006 0 0 0 8 6h4v2H8v2h4v2H8z">
                     </path>
                 </svg></b>
-        </span>
+        </span> --}}
+        @php
+            $auth =  $systems[0]->status;
+            if ($auth) {
+                $className = 'icons';
+            }else{
+                $className = 'disabled';
+            }
+        @endphp
         <span id="svg-title" class="text-white">
-            <b><svg class="icons" data-id="speech" xmlns="http://www.w3.org/2000/svg" width="30" height="40"
+            <b><svg class="{{ $className }}" data-id="speech" xmlns="http://www.w3.org/2000/svg" width="30" height="40"
                     viewBox="0 0 24 24">
                     <path
                         d="M8 12.052c1.995 0 3.5-1.505 3.5-3.5s-1.505-3.5-3.5-3.5-3.5 1.505-3.5 3.5 1.505 3.5 3.5 3.5zM9 13H7c-2.757 0-5 2.243-5 5v1h12v-1c0-2.757-2.243-5-5-5zm9.364-10.364L16.95 4.05C18.271 5.373 19 7.131 19 9s-.729 3.627-2.05 4.95l1.414 1.414C20.064 13.663 21 11.403 21 9s-.936-4.663-2.636-6.364z">
@@ -762,8 +807,16 @@
                     </path>
                 </svg></b>
         </span>
+        @php
+            $auth =  $systems[2]->status;
+            if ($auth) {
+                $className = 'icons';
+            }else{
+                $className = 'disabled';
+            }
+        @endphp
         <span id="svg-title" class="text-white">
-            <b><svg class="icons" data-id="scanner" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+            <b><svg class="{{ $className }}" data-id="scanner" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                     viewBox="0 0 24 24">
                     <path d="M4 4h4.01V2H2v6h2V4zm0 12H2v6h6.01v-2H4v-4zm16 4h-4v2h6v-6h-2v4zM16 4h4v4h2V2h-6v2z"></path>
                     <path
@@ -773,12 +826,20 @@
         </span>
     </main>
 
+    @php
+        $auth =  $systems[1]->status;
+        if ($auth) {
+            $className = '';
+        }else{
+            $className = 'hidden';
+        }
+    @endphp
     <main-form id="in">
         <div id="chat_container" hidden></div>
         <form>
             <input type="text" id="key" value="" name="id" hidden>
             <input type="text" id="query" value="" name="query" hidden>
-            <textarea id="input" name="prompt" rows="1" cols="1" class="form-control"
+            <textarea id="input" name="prompt" rows="1" cols="1" class="form-control" {{ $className }}
                 placeholder="Enter your query or use the mic button"></textarea>>
             <!-- <button type="submit"><img src="assets/send.svg" alt="send" /> -->
         </form>
@@ -786,18 +847,28 @@
 
     <section>
         <!-- frrequently ask -->
-        <div class="container" id="popupask">
+        <div class="popup" id="popup-ask">
+            <div class="loading-container l-ask">
+                @foreach ($frequentlies as $frequently)
+                    <div class="browseCard-ask" id="frequently-question" data-id="{{ $frequently->frequently }}">
+                        <i class="ri-question-fill"></i>
+                        <span 
+                            >{{ $frequently->frequently }}</span>
+                    </div>
+                @endforeach
+                
+            </div>
+         </div>
+        {{-- <div class="container" id="popupask">
             <div class="content">
                 <div id="frequently-ask">
                     @foreach ($frequentlies as $frequently)
                         <span data-id="{{ $frequently->frequently }}"
                             id="frequently-question">{{ $frequently->frequently }}</span>
                     @endforeach
-
-                    <!-- <span>Where is the library?</span>   -->
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- location popups -->
         <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -898,10 +969,10 @@
                             <box-icon type='solid' name='user-rectangle' class="teachers" data-value="teachers"></box-icon>
                             <p class="label">Teachers</p> <!-- Add label for teachers -->
                         </div>
-                        <div class="browseCard" data-value="events" data-model="Event">
+                        {{-- <div class="browseCard" data-value="events" data-model="Event">
                             <box-icon type='solid' name='calendar-event' class="events" data-value="events"></box-icon>
                             <p class="label">Events</p> <!-- Add label for events -->
-                        </div>
+                        </div> --}}
                         <p class="text"></p>
                         <div class="main_back"></div>
                     </div>
@@ -1003,6 +1074,7 @@
             const input = $('#input')
             let loadInterval;
             let updates = localStorage.getItem('updates') || false;
+           
              // Enable pusher logging - don't include this in production
              Pusher.logToConsole = true;
 
@@ -1022,15 +1094,15 @@
                         if (finished) {
                                 // Speech finished
                             console.log(finished)
-                            $('#overlay-updates').css('display', 'block');
-                            $('#popup').css({'display':'block', 'opacity':'1'});
+                            $('#overlay-updates').toggleClass('active');
+                            $('#popup').toggleClass('active');
                             // Call the animateCube function to start the animation
                             animateCube();  
 
                             setTimeout(() => {
                                  // Display the overlay and popup
-                                $('#overlay-updates').css('display', 'none');
-                                $('#popup').css({'display':'none', 'opacity':'0'});
+                                 $('#overlay-updates').removeClass('active');
+                                $('#popup').removeClass('active');
                                  // Refresh the page
                                 var currentURL = window.location.href;
                                 window.location.href = currentURL;
@@ -1133,12 +1205,12 @@
                 switch (svg) {
                     // frequently ask
                     case 'ask':
-                        $('#popupask').toggleClass('active');
+                        $('#popup-ask').toggleClass('active');
                         $('#popup-searching').removeClass('active');
                         break;
                     // browsing
                     case 'search':
-                        $('#popupask').removeClass('active');
+                        $('#popup-ask').removeClass('active');
                         $('#popup-searching').toggleClass('active');
                         break;
                 
@@ -1179,7 +1251,7 @@
                         // nothing to add if true for now
                     } else {
                        
-                        $('#popupask').removeClass('active')
+                        $('#popup-ask').removeClass('active')
                         // startToSpeak(parsedData.answer)
 
                         startToSpeak(parsedData.answer)
@@ -1490,6 +1562,8 @@
                                 // console.log()
                                 // starting point x, y  target x,y
                                 dijkstra(startingX, startingY, targetX, targetY);
+                                
+                               
 
                                 // speak the guidelines
                                 startToSpeak(responseData.navigationMessage[floorIndex])

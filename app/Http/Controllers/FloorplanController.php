@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Update;
 use App\Models\Floorplan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class FloorplanController extends Controller
           $floorplan->gridSize = $request->gridDetails['gridSize'];
           $floorplan->gridDetails = $request->gridDetails['gridDetails'];
           $floorplan->save();
-          
+          Update::create(['from' => "Floor Plan", 'list' => 'You have Added a new layout.','status'=>0,'action'=>'added']);
           return response()->json(['status' => 'success']);
       } catch (\Exception $e) {
           // Handle any exceptions that occur during the save operation

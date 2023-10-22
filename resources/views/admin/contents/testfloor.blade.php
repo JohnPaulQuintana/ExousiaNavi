@@ -122,7 +122,7 @@
             /* Dark green for passed rooms */
             color: white;
         
-            animation: animatePath 4s linear infinite;
+            /* animation: animatePath 4s linear infinite; */
             /* Animation settings */
         }
 
@@ -167,47 +167,6 @@
             border: 2px solid #fff; /* Add a border to each grid point */
         }
 
-
-        /* Define the animation */
-        @keyframes animatePath {
-            0% {
-                border: none;
-                color: #06df59;
-                /* background-color: green; */
-                /* transform: translateZ(2px); Translate along the Z-axis to create elevation */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.0);
-                /* background-image: url(''); */
-                /* Add a subtle shadow */
-            }
-
-            25% {
-                /* background-color: rgb(11, 196, 66); */
-                /* transform: translateZ(20px); Translate along the Z-axis to create elevation */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-                /* Add a subtle shadow */
-            }
-
-            50% {
-                /* background-color: rgb(15, 226, 61); */
-                /* transform: translateZ(5px); Translate along the Z-axis to create elevation */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-                /* Add a subtle shadow */
-            }
-
-            75% {
-                /* background-color: rgb(32, 88, 209); */
-                /* transform: translateZ(15px); Translate along the Z-axis to create elevation */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-                /* Add a subtle shadow */
-            }
-
-            100% {
-                /* background-color: green; */
-                /* transform: translateZ(10px); Translate along the Z-axis to create elevation */
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-                /* Add a subtle shadow */
-            }
-        }
     </style>
 @endsection
 
@@ -375,6 +334,11 @@
             let startingPoint;
             let highestX = -Infinity; // Start with negative infinity as the initial value
             let highestY = -Infinity;
+            var targetX;
+                var targetY;
+                // default starting point
+                var startingX;
+                var startingY;
             // Function to create and append points to the grid
             // width and hieght is the row and columns
             // x = horizontal, y = vertical line 
@@ -382,11 +346,11 @@
                 console.log(target, key)
                 var targetFacilities = target;
                 var targetSelection = '';
-                var targetX;
-                var targetY;
-                // default starting point
-                var startingX;
-                var startingY;
+                // var targetX;
+                // var targetY;
+                // // default starting point
+                // var startingX;
+                // var startingY;
 
                 gridContainer.empty(); // Clear the existing grid using jQuery
                
@@ -587,6 +551,7 @@
                                 const neighborNode = grid[y][x];
 
                                 // Check if the neighbor is not a block
+                                //working add to if to enabled option path && !neighborNode.classList.contains("passed")
                                 if (!neighborNode.classList.contains("blocked")) {
                                     const distanceToNeighbor = calculateDistance(
                                         grid[currentY][currentX],
@@ -669,56 +634,69 @@
 
                     // Highlight the shortest path in the grid
                     async function animateShortestPath(shortestPath) {
-                        for (let i = 1; i < shortestPath.length; i++) {
+                        return new Promise(async (resolve)=>{
+                            for (let i = 1; i < shortestPath.length; i++) {
 
-                            const { x: currentX, y: currentY } = shortestPath[i - 1];
-                            const { x: nextX, y: nextY } = shortestPath[i];
+                                const { x: currentX, y: currentY } = shortestPath[i - 1];
+                                const { x: nextX, y: nextY } = shortestPath[i];
 
-                            const node = grid[currentY][currentX];
-                            node.classList.add("passed"); // Highlight the current node as passed
+                                const node = grid[currentY][currentX];
+                                node.classList.add("passed"); // Highlight the current node as passed
 
-                            // Determine the direction (up or down)
-                            let directionClass = "";
-                            // if (nextY < currentY) {
-                            //     // alert('yes')
-                            //     directionClass = "left";
-                            // } else {
-                            //     directionClass = "up";
-                            // }
-                            if (nextY < currentY) {
-                                directionClass = "left";
-                            } else if (nextY > currentY) {
-                                directionClass = "right";
-                            } else if (nextX < currentX) {
-                                directionClass = "up";
-                            } else if (nextX > currentX) {
-                                directionClass = "down";
+                                // Determine the direction (up or down)
+                                let directionClass = "";
+                                // if (nextY < currentY) {
+                                //     // alert('yes')
+                                //     directionClass = "left";
+                                // } else {
+                                //     directionClass = "up";
+                                // }
+                                if (nextY < currentY) {
+                                    directionClass = "left";
+                                } else if (nextY > currentY) {
+                                    directionClass = "right";
+                                } else if (nextX < currentX) {
+                                    directionClass = "up";
+                                } else if (nextX > currentX) {
+                                    directionClass = "down";
+                                }
+
+                                // Check if directionClass is not empty before adding it as a class
+                                if (directionClass !== "") {
+                                    // Create the ball element with the direction class
+                                    // const ball = document.createElement("div");
+                                    // ball.classList.add("ball", directionClass);
+                                    node.classList.add(directionClass);
+
+                                    // Append the ball to the grid container
+                                    // node.append(ball);
+
+                                    // Wait for 200 milliseconds (remove the ball after 200ms)
+                                    await new Promise((resolve) => setTimeout(resolve, 400));
+
+                                    // Remove the added class
+                                    // node.classList.remove(directionClass);
+                                }
                             }
-
-                            // Check if directionClass is not empty before adding it as a class
-                            if (directionClass !== "") {
-                                // Create the ball element with the direction class
-                                // const ball = document.createElement("div");
-                                // ball.classList.add("ball", directionClass);
-                                node.classList.add(directionClass);
-
-                                // Append the ball to the grid container
-                                // node.append(ball);
-
-                                // Wait for 200 milliseconds (remove the ball after 200ms)
-                                await new Promise((resolve) => setTimeout(resolve, 400));
-
-                                // Remove the ball element
-                                // ball.remove();
-                            }
-                        }
+                             // Animation is complete, resolve the promise
+                            resolve();
+                        })
 
                         // Repeat the animation infinitely
-                        animateShortestPath(shortestPath);
+                        // animateShortestPath(shortestPath);
+                    }
+                    // Initialize a flag to track if animation is running
+                    let isAnimationRunning = false;
+                    // Run animation recursively with a delay
+                    async function runAnimation() {
+                        await animateShortestPath(shortestPath);
+                            console.log("Animation is complete");
+                            
+                            dijkstra(startingX, startingY, targetX, targetY);
                     }
 
                     // Start the animation
-                    animateShortestPath(shortestPath);
+                    runAnimation();
 
                 } catch (error) {
                    

@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Teacher extends Model
+class Update extends Model
 {
+    public $fillable = ['from','list','status','action'];
     use HasFactory;
-    public $fillable = ['name', 'position','facilities_id'];
 }

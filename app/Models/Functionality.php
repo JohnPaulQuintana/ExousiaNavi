@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Teacher extends Model
+class Functionality extends Model
 {
+    public $fillable = ['function','status'];
     use HasFactory;
-    public $fillable = ['name', 'position','facilities_id'];
 }

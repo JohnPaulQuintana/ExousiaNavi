@@ -33,8 +33,8 @@
                 <ul class="sub-menu" aria-expanded="false">
                     <li><a href="{{ route('admin.table', ['parameter' => 'teachers', 'actions'=>'destroy_t', 'routes'=>'admin.teachers']) }}">Teacher's</a></li>
                     <li><a href="{{ route('admin.table', ['parameter' => 'eastwoods_facilities', 'actions'=>'destroy_ef', 'routes'=>'admin.facilities']) }}">Facilities</a></li>
-                    <li><a href="{{ route('admin.table', ['parameter' => 'teachers', 'actions'=>'destroy_e']) }}">Events</a></li>
-                    <li><a href="{{ route('admin.table', ['parameter' => 'frequentlies', 'actions'=>'destroy_f']) }}">Frequently Ask</a></li>
+                    {{-- <li><a href="{{ route('admin.table', ['parameter' => 'teachers', 'actions'=>'destroy_e']) }}">Events</a></li> --}}
+                    <li><a href="{{ route('admin.table', ['parameter' => 'frequentlies', 'actions'=>'destroy_f', 'routes'=>'admin.frequently']) }}">Frequently Ask</a></li>
                 </ul>
             </li>
 
@@ -77,13 +77,10 @@
             <li>
                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                     <i class="ri-account-circle-line"></i>
-                    <span>Authentication</span>
+                    <span>Functionality</span>
                 </a>
                 <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="auth-login.html">Login</a></li>
-                    <li><a href="auth-register.html">Register</a></li>
-                    <li><a href="auth-recoverpw.html">Recover Password</a></li>
-                    <li><a href="auth-lock-screen.html">Lock Screen</a></li>
+                    <li><a href="{{ route('func.manage') }}">Manage System</a></li>
                 </ul>
             </li>
 

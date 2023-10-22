@@ -122,7 +122,9 @@
                     <div class="card">
                         <div class="card-body">
 
-                            <h4 class="card-title mb-4">Frequently Ask Questions</h4>
+                            <h4 class="card-title mb-4">
+                                <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                Deployed Questions</h4>
 
                             <div class="table-responsive">
                                 <form action="{{ route('bulk.manage.frequently') }}" method="POST">

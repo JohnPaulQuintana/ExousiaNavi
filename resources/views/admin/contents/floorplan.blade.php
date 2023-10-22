@@ -999,7 +999,7 @@
                 const gridPoints = document.querySelectorAll('.grid-point');
 
                 gridPoints.forEach(point => {
-                    point.addEventListener('click', () => {
+                    point.addEventListener('dblclick', () => {
                         point.classList.toggle('wall');
                     });
                 });
@@ -1077,7 +1077,7 @@
             });
 
 
-            // gridMerge()
+            gridMerge()
        })
 
     </script>

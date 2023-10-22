@@ -12,7 +12,10 @@ app.use(cors());
 app.use(express.json());
 
 const badWords = new Filter();
-
+//hello message
+app.get('/', async (req, sendToClient) => {
+    sendToClient.status(200).send({ navi: 'Welcome to Exousia Navi!' });
+})
 app.post("/nlp", async (req, sendToClient) => {
     try {
         const question = req.body.prompt;

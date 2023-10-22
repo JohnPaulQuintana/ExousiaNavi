@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Update;
 use App\Models\Frequently;
 use Illuminate\Http\Request;
 
@@ -25,6 +26,7 @@ class FrequentlyController extends Controller
                     case 'add':
                         $input = Frequently::create(['frequently' => $inputs[$i]]);
                         $insertedNotif[] = $input;
+                        Update::create(['from' => "Frequently Ask Question", 'list' => 'You have added a new Question.','status'=>0,'action'=>'added']);
                         break;
                     case 'update':
                         $input = Frequently::where('id', $ids[$i])->first();
@@ -36,6 +38,7 @@ class FrequentlyController extends Controller
                                 $input->save();
                                 $insertedNotif[] = $input;
                             }
+                            Update::create(['from' => "Frequently Ask Question", 'list' => 'You have updated a new Question.','status'=>0,'action'=>'updated']);
                         }
                         break;
                     

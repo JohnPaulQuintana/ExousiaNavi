@@ -60,24 +60,26 @@
                         <div class="card-body">
 
                             <div class="dropdown float-end">
-                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <!-- item-->
-                                    <a href="{{ route($going) }}" class="dropdown-item">
-                                        <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                        Manage
-                                    </a>
-                                    
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item text-danger" disabled>
-                                        <i class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
-                                        Event's
-                                    </a>
+                                <div class="input-group"> <!-- Wrap the input and button in an input group -->
+                                    <input type="text" class="form-control arrow-none search" placeholder="Search Teachers..." id="search-input" />
+                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <!-- item-->
+                                        <a href="{{ route($going) }}" class="dropdown-item">
+                                            <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                            Manage
+                                        </a>
+                                        <!-- item-->
+                                        <a href="javascript:void(0);" class="dropdown-item text-danger" disabled>
+                                            <i class="ri-checkbox-blank-circle-fill font-size-10 text-danger align-middle me-2"></i>
+                                            Event's
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
+                            
 
                             <h4 class="card-title mb-4 text-capitalize">{{ $title }} Information</h4>
                             <div class="table-responsive">
@@ -107,7 +109,7 @@
                                                                     <i
                                                                         class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
                                                                     <input type="text"
-                                                                        class="form-control mt-2 text-capitalize"
+                                                                        class="form-control mt-2 text-capitalize srh"
                                                                         value="{{ $data->$column }}" readonly>
                                                                 </div>
                                                             </h6>
@@ -115,7 +117,7 @@
                                                     @endforeach
                                                     <td class="text-center" width="100">
                                                         <div class="form-check form-switch mt-1 h4" dir="ltr">
-                                                            <input type="checkbox" class="form-check-input custom-switch"
+                                                            <input type="checkbox" class="form-check-input custom-switch srh"
                                                                 id="customSwitch1" data-id="{{ $data->id }}">
                                                         </div>
                                                     </td>
@@ -214,6 +216,26 @@
                 $('#delete_id').val(ids.join(',')); // Set the value as a comma-separated string
             });
 
+            // search
+            $('#search-input').on('input', function() {
+                const searchText = $(this).val().trim().toLowerCase();
+                $('#teachers-table tr').each(function() {
+                    const row = $(this);
+                    const inputs = row.find('input.srh'); // Adjust the selector as needed
+
+                    // Check if any of the input fields contain the search text
+                    const matches = inputs.filter(function() {
+                        const inputValue = $(this).val().toLowerCase();
+                        return inputValue.includes(searchText);
+                    }).length > 0;
+
+                    if (matches) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            });
             // Function to set the value of the ids[] input field when the form is submitted
             // $('form').submit(function () {
             //     alert('yes')

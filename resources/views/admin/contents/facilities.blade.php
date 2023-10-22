@@ -127,8 +127,7 @@
                                     </table> <!-- end table -->
                                     <button type="button" class="btn btn-secondary" id="addInputField">Add Input
                                         Field</button>
-                                    <button type="submit" class="btn btn-primary" id="saveTeacher">Save
-                                        Question</button>
+                                    <button type="submit" class="btn btn-primary" id="saveTeacher">Save</button>
                                 </form>
                             </div>
                         </div><!-- end card -->
@@ -143,13 +142,17 @@
                     <div class="card">
                         <div class="card-body">
 
+                            <div class="dropdown float-end">
+                                <input type="text" class="dropdown-toggle form-control arrow-none search" placeholder="Search Facilities..." id="search-input" />
+                            </div>
+
                             <h4 class="card-title mb-4">Update Facilitie's Information</h4>
 
                             <div class="table-responsive">
                                 <form action="{{ route('bulk.manage.facilities') }}" method="POST">
                                     @csrf
                                     <input type="text" name="action" value="update" id="action" hidden>
-                                    <table class="table table-centered mb-0 align-middle table-hover table-nowrap">
+                                    <table id="facility-table" class="table table-centered mb-0 align-middle table-hover table-nowrap">
 
                                         <thead class="table-light">
                                             <tr>
@@ -247,7 +250,7 @@
 
 
     <!-- apexcharts -->
-    <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script> --}}
 
     <!-- jquery.vectormap map -->
     <script src="{{ asset('backend/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}">
@@ -264,7 +267,7 @@
     <script src="{{ asset('backend/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}">
     </script>
 
-    <script src="{{ asset('backend/assets/js/pages/dashboard.init.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/js/pages/dashboard.init.js') }}"></script> --}}
 
     <!-- toastr plugin -->
     <script src="{{ asset('backend/assets/libs/toastr/build/toastr.min.js') }}"></script>
@@ -343,6 +346,27 @@
                 console.log(originalHTML)
             
                 parentDiv.html(originalHTML);
+            });
+
+            // search
+            $('#search-input').on('input', function() {
+                const searchText = $(this).val().trim().toLowerCase();
+                $('#teachers-table-edit tr').each(function() {
+                    const row = $(this);
+                    const inputs = row.find('input.edit-input'); // Adjust the selector as needed
+
+                    // Check if any of the input fields contain the search text
+                    const matches = inputs.filter(function() {
+                        const inputValue = $(this).val().toLowerCase();
+                        return inputValue.includes(searchText);
+                    }).length > 0;
+
+                    if (matches) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
             });
 
             function makeEditable(element) {

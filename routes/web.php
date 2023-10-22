@@ -10,6 +10,8 @@ use App\Http\Controllers\TableController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\FrequentlyController;
+use App\Http\Controllers\FunctionalityController;
+use App\Http\Controllers\UpdateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +57,14 @@ Route::middleware('auth')->group(function () {
     // send coordinates to server
     Route::post('/building-layouts/coordinates',[FloorplanController::class, 'floorPlanLayoutSave'])->name('admin.building.layouts.save');
     Route::get('/coordinates',[FloorplanController::class, 'floorPlanLayoutGet'])->name('admin.building.layouts.get');
+
+    // get updates
+    Route::get('/updates',[UpdateController::class,'getUpdates']);
+    Route::get('/initialize-updates',[UpdateController::class,'updatedSystem'])->name('admin.updates');
+
+    // functionality
+    Route::get('/functionality',[FunctionalityController::class,'manage'])->name('func.manage');
+    Route::post('/functionality-updates',[FunctionalityController::class,'update'])->name('func.update');
 });
 
 // navi route

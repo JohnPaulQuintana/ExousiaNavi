@@ -57,6 +57,48 @@
                 </div>
             </div> --}}
 
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="ri-notification-3-line"></i>
+                    <span class="noti-dot"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                    aria-labelledby="page-header-notifications-dropdown">
+                    <div class="p-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0"> Notifications </h6>
+                            </div>
+                            <div class="col-auto">
+                                {{-- <p class="text-primary"> New updates</p> --}}
+                            </div>
+                        </div>
+                    </div>
+                    <div data-simplebar style="max-height: 230px; overflow-y:auto;" class="notif-container">
+                        <a class="text-reset notification-item">
+                            <div class="d-flex">
+                                <img src="{{ asset('icons/uptodate.png') }}"
+                                    class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                <div class="flex-1">
+                                    <h6 class="mb-1 text-success">Exousia-Navi is up to date.</h6>
+                                    <div class="font-size-12 text-muted">
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> No updates available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="p-2 border-top">
+                        <div class="d-grid">
+                            <a class="btn btn-sm btn-link font-size-14 text-center updates-btn" href="{{ route('admin.updates') }}">
+                                <i class="mdi mdi-arrow-right-circle me-1"></i> Update System Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="dropdown d-none d-lg-inline-block ms-1">
                 <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
                     <i class="ri-fullscreen-line"></i>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grid with jQuery</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .grid {
+            max-width: 600px;
+            height: 400px;
+            margin: 100px auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 2px;
+            border: 1px solid #000;
+            padding: 2px;
+        }
+
+        .cell {
+            /* border: 2px solid #000; */
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 2px;
+        }
+
+        .cell:hover{
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Customize the shadow style */
+            transform: scale(1.1); /* Apply a scale transformation on hover */
+            border-color: #464444;
+        }
+        
+        .subcell {
+            border: 1px solid #746868;
+            /* color: transparent; */
+            text-align: center;
+            padding: 5px;
+            transition:.3s;
+        }
+        .subcell:hover{
+            border-radius: 2px;
+            transform: scale(1.5);
+            cursor: pointer;
+        }
+        /* .top {
+            background-color: lightblue;
+        }
+        
+        .bottom {
+            background-color: lightpink;
+        } */
+        .blocked{
+            background-color: #000;
+            color: aliceblue;
+        }
+        .passed{
+            background-color: green;
+            /* width: 50px; */
+        }
+        .target{
+            background-color: blue;
+            color: #f0eded;
+        }
+    </style>
+    <style>
+        body{
+            position: relative;
+        }
+        .drag-container{
+            width: fit-content;
+            padding: 10px;
+            position: absolute;
+        }
+        .drag-content{
+            width: 35px;
+            margin-top: 2px;
+            padding: 10px;
+            word-break: break-all;
+            border: 1px solid grey;
+        }
+        .zone.dragover {
+            /* Add a shadow style when dragging over */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Customize the shadow style */
+            transform: scale(1.1); /* Apply a scale transformation on hover */
+            border-color: #f0eded;
+        }
+    </style>
+</head>
+<body>
+    <div class="drag-container">
+        <div class="drag-item wall-point" id="wall-point" data-name="wall" data-label="wall" draggable="true">
+            <div class="drag-content">
+                Wall
+            </div>
+        </div>
+        <div class="drag-item wall-point" id="wall-point" data-name="room1" data-label="room1" draggable="true">
+            <div class="drag-content">
+                room1
+            </div>
+        </div>
+        <div class="drag-item wall-point" id="wall-point" data-name="room2" data-label="room2" draggable="true">
+            <div class="drag-content">
+                room2
+            </div>
+        </div>
+        <div class="drag-item wall-point" id="wall-point" data-name="room3" data-label="room3" draggable="true">
+            <div class="drag-content">
+                room3
+            </div>
+        </div>
+        <button type="button" class="start">Start</button>
+    </div>
+    <div class="grid" id="grid-container"></div>
+
+    <script>
+        $(document).ready(function() {
+            let highestX = -Infinity; // Start with negative infinity as the initial value
+            let highestY = -Infinity;
+            // Initialize grid dimensions
+            const gridWidth = 5;
+            const gridHeight = 5;
+
+            var subcellCount = 1;
+            var topCount = 1;
+            var bottomCount = 11; // Initialize bottom count
+            // Create a 2D array to store subcells
+            var subcellGrid = new Array(gridWidth);
+            for (var i = 0; i < gridWidth; i++) {
+                subcellGrid[i] = new Array(gridHeight);
+            }
+
+            for (var i = 0; i < gridWidth; i++) {
+                for (var j = 0; j < gridHeight; j++) {
+                    subcellGrid[i][j] = [];
+                    var cell = $(`<div data-x='${i}' data-y='${j}'></div>`).addClass("cell");
+                    var x = i;
+                    var y = j;
+
+                    for (var subY = 1; subY <= 2; subY++) {
+                        for (var subX = 1; subX <= 2; subX++) {
+                            var count = subY === 1 ? topCount : bottomCount;
+                            var subcell = $(`<div data-inx='${count}' data-iny='${count}'></div>`).addClass("subcell zone");
+                           
+                            subcell.text(`${count}`);
+                            subcellCount++;
+                            cell.append(subcell);
+                
+
+                            if (subY === 1) {
+                                subcell.addClass('top');
+                                topCount++;
+                            } else {
+                                subcell.addClass('bottom');
+                                bottomCount++;
+                            }
+                        }
+                    }
+
+
+                    if (i > highestX) {
+                        highestX = i;
+
+                    }
+
+                    if (y > highestY) {
+                        highestY = y;
+                    }
+
+                    $("#grid-container").append(cell);
+                   
+                }
+                // Increment top and bottom counts for the next row
+                topCount += 10;
+                bottomCount += 10;
+                
+            }
+
+            // Dijkstra's Algorithm
+            async function dijkstra(startX, startY, endX, endY) {
+                    console.log(startX, startY, endX, endY)
+                    try {
+                        const startNode = subcellGrid[startX][startY][0];
+                        const endNode = subcellGrid[endX][endY][0];
+
+                        const width = gridWidth;
+                        const height = gridHeight;
+
+                        // Create a 2D array to represent the grid
+                        const grid = new Array(height);
+                       
+                        for (let y = 0; y < height; y++) {
+                            grid[y] = new Array(width);
+                           
+                            for (let x = 0; x < width; x++) {
+                                grid[y][x] = document.querySelector(
+                                    `[data-x="${x}"][data-y="${y}"]`
+                                );
+                                
+                            }
+                        }
+
+                        // Helper function to calculate the distance between two grid points
+                        function calculateDistance(node1, node2) {
+                            const dx = Math.abs(node1.dataset.x - node2.dataset.x);
+                            const dy = Math.abs(node1.dataset.y - node2.dataset.y);
+                            return Math.sqrt(dx * dx + dy * dy);
+                        }
+
+                        // Initialize distance array with Infinity and visited array with false
+                        const distances = new Array(height)
+                            .fill(null)
+                            .map(() => new Array(width).fill(Infinity));
+                        const visited = new Array(height)
+                            .fill(null)
+                            .map(() => new Array(width).fill(false));
+
+                        // Set the distance of the starting point to 0
+                        distances[startY][startX] = 0;
+
+                        // Dijkstra's algorithm
+                        while (!visited[endY][endX]) {
+                            let currentMinDistance = Infinity;
+                            let currentX = null;
+                            let currentY = null;
+
+                            // Find the unvisited node with the smallest distance
+                            for (let y = 0; y < height; y++) {
+                                for (let x = 0; x < width; x++) {
+                                    if (!visited[y][x] && distances[y][x] < currentMinDistance) {
+                                        currentMinDistance = distances[y][x];
+                                        currentX = x;
+                                        currentY = y;
+                                    }
+                                }
+                            }
+
+                            // Mark the current node as visited
+                            visited[currentY][currentX] = true;
+
+                            // Explore neighbors
+                            const neighbors = [{
+                                    x: currentX - 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX + 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY - 1
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY + 1
+                                },
+                            ];
+
+                            for (const neighbor of neighbors) {
+                                const {
+                                    x,
+                                    y
+                                } = neighbor;
+
+                                // Check if the neighbor is within the grid
+                                if (x >= 0 && x < width && y >= 0 && y < height) {
+                                    const neighborNode = grid[y][x];      
+
+                                    //  // Access the subcells in the neighborNode using jQuery
+                                    // const neighborSubcells = $(neighborNode).find('.subcell');
+                                   
+                                    // const subcells = $(neighborNode).find('.subcell');
+                                    // subcells.each(function(index, subcell) {
+                                       
+                                    //     console.log(this);
+                                    // });
+
+                                    // Check if the neighbor is not a block
+                                    if (!neighborNode.classList.contains("blocked")) {
+                                        const distanceToNeighbor = calculateDistance(
+                                            grid[currentY][currentX],
+                                            neighborNode
+                                        );
+
+                                        // Update the distance if a shorter path is found
+                                        if (
+                                            !visited[y][x] &&
+                                            distances[currentY][currentX] + distanceToNeighbor <
+                                            distances[y][x]
+                                        ) {
+                                            distances[y][x] =
+                                                distances[currentY][currentX] + distanceToNeighbor;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Backtrack to find the shortest path
+                        const shortestPath = [];
+                        let currentX = endX;
+                        let currentY = endY;
+
+                        while (currentX !== startX || currentY !== startY) {
+                            shortestPath.unshift({
+                                x: currentX,
+                                y: currentY
+                            });
+                            const neighbors = [{
+                                    x: currentX - 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX + 1,
+                                    y: currentY
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY - 1
+                                },
+                                {
+                                    x: currentX,
+                                    y: currentY + 1
+                                },
+                            ];
+
+                            for (const neighbor of neighbors) {
+                                const {
+                                    x,
+                                    y
+                                } = neighbor;
+
+                                // Check if the neighbor is within the grid
+                                if (x >= 0 && x < width && y >= 0 && y < height) {
+                                    const neighborNode = grid[y][x];
+                                    const distanceToNeighbor = calculateDistance(
+                                        grid[currentY][currentX],
+                                        neighborNode
+                                    );
+
+                                    if (
+                                        distances[y][x] + distanceToNeighbor ===
+                                        distances[currentY][currentX]
+                                    ) {
+                                        currentX = x;
+                                        currentY = y;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Add the starting point to the shortest path
+                        shortestPath.unshift({
+                            x: startX,
+                            y: startY
+                        });
+
+                        // Highlight the shortest path in the grid
+                    async function animateShortestPath(shortestPath) {
+                        for (let i = 1; i < shortestPath.length; i++) {
+
+                            const { x: currentX, y: currentY } = shortestPath[i - 1];
+                            const { x: nextX, y: nextY } = shortestPath[i];
+
+                            const node = grid[currentY][currentX];
+                            node.classList.add("passed"); // Highlight the current node as passed
+                            // console.log(node)
+                            // we can check here if any box is a blocks or facilities
+                            const subcells = $(node).find('.subcell');
+                           
+                            subcells.each(function() {
+                                if (!$(this).hasClass('blocked')) {
+                                    $(this).addClass('passed');
+                                }
+                                if($(this).data('label') == 'room2'){
+                                    $(this).addClass('target')
+                                }
+                            });
+                            // Determine the direction (up or down)
+                            let directionClass = "";
+                            if (nextY < currentY) {
+                                directionClass = "left";
+                            } else if (nextY > currentY) {
+                                directionClass = "right";
+                            } else if (nextX < currentX) {
+                                directionClass = "up";
+                            } else if (nextX > currentX) {
+                                directionClass = "down";
+                            }
+
+                            // Check if directionClass is not empty before adding it as a class
+                            if (directionClass !== "") {
+                                node.classList.add(directionClass);
+
+                                // Wait for 200 milliseconds (remove the ball after 200ms)
+                                await new Promise((resolve) => setTimeout(resolve, 400));
+                            }
+                        }
+
+                        // Repeat the animation infinitely
+                        // animateShortestPath(shortestPath);
+                    }
+
+                    // Start the animation
+                    animateShortestPath(shortestPath);
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+                
+
+                function interaction(){
+                $(".drag-item").on("dragstart", function () {
+                    $(this).addClass("dragging");
+                });
+
+                $(".drag-item").on("dragend", function () {
+                    $(this).removeClass("dragging");
+                    $(this).css("transform", "translate(0px, 0px)");
+                    $(this).attr("data-x", 0);
+                    $(this).attr("data-y", 0);
+                });
+
+                $(".zone").on("dragover", function (e) {
+                    e.preventDefault();
+                    $(this).addClass("dragover");
+                });
+
+                $(".zone").on("dragleave", function () {
+                    $(this).removeClass("dragover");
+                });
+
+                $(".zone").on("drop", function (e) {
+                    e.preventDefault(); // Prevent the default behavior of a drop event
+                    const box = $(".dragging")[0];
+                    const computedStyle = getComputedStyle(box);
+                    const label = $(box).attr("data-label");
+
+                    // Get CSS properties from computed style
+                    const color = computedStyle.color;
+                    const border = computedStyle.border;
+                    // const dataId = $(box).attr("data-id");
+                    // addClass(dataId)
+                    $(e.target).addClass("blocked").text(label).attr("data-label", label).css({"color":'white',"border":border});
+                    
+                   
+
+                   
+
+                    // Remove the dragover class when the drop event occurs
+                    $(this).removeClass("dragover");
+
+                    // Reset the position of the dragged item
+                    $(box).css("transform", "translate(0px, 0px)").attr("data-x", 0).attr("data-y", 0);
+                });
+            }
+
+            interaction()
+
+            $(document).on('click','.start',function(){
+                dijkstra(4,4, 0,0)
+            })
+
+            //clicked outer grid
+            $(document).on('click','.cell',function(){
+                $(this).css({border: '2px solid #000'})
+            })
+        });
+    </script>
+</body>
+</html>

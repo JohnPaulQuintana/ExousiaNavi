@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-gap: 1px;
+            margin: 20px;
+            width: 250px;
+            margin: 100px auto;
+        }
+
+        .grid-item {
+            display: inline-grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 0; /* No gap */
+            width: 70px;
+            height: 70px;
+            background-color: rgb(221, 220, 220);
+            /* border: 1px dashed #e22c2c; */
+            /* display: flex; */
+            /* align-items: center; */
+            /* justify-content: center; */
+            cursor: pointer;
+        }
+
+        .F{
+            display: grid;
+            /* gap: 2px; */
+            width: auto;
+            height: 32px;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr); 
+            border: 1px solid #2e8585;
+            
+        }
+        
+        /* Hover effect for grid items */
+        .grid-item:hover {
+            transform: scale(1.1);
+        }
+        /* Hover effect for grid items */
+        .small-grid:hover {
+            transform: scale(1.1);
+        }
+        .path {
+            background-color: lightblue;
+        }
+        .blocked{
+            /* width: 30%; */
+            background-color: rgb(9, 39, 48);
+            color: transparent;
+        }
+
+    </style>
+</head>
+<body>
+   <div class="grid-container" id="grid-container"></div>
+   <button type="button">Run A*</button>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const gridSize = 10;
+        const btn = document.querySelector('button')
+        // Function to create the grid layout
+        function createGrid() {
+            const gridContainer = document.getElementById("grid-container");
+            
+            // Loop through rows and columns to create grid items
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const gridItem = document.createElement("div");
+                    gridItem.className = "grid-item";
+                    gridItem.textContent = `${x}:${y}`;
+
+                    // // Create two new grid items inside the current grid item
+                    // const newGridItem1 = document.createElement("div");
+                    // newGridItem1.className = "grid-item F";
+                    // newGridItem1.textContent = `${x}:${y}`;
+
+                    // const newGridItem2 = document.createElement("div");
+                    // newGridItem2.className = "grid-item blocked";
+                    // newGridItem2.textContent = "W";
+
+                    // gridItem.appendChild(newGridItem1);
+                    // gridItem.appendChild(newGridItem2);
+                    
+                    gridContainer.appendChild(gridItem);
+
+                    // Randomly add the "blocked" class to some grid items
+                    // if (Math.random() < 0.2) {
+                    //     gridItem.classList.add("blocked");
+                    // }
+
+                    btn.addEventListener('click', () => {
+                        // const [startX, startY] = getCoordinates(gridItem.textContent);
+                        const [startX, startY] = [0, 0];
+                        const [endX, endY] = [6, 9];
+
+                        const path = findPath(startX, startY, endX, endY);
+
+                        visualizePath(path);
+                    })
+                    // Double-click event listener for finding a path
+                    // Attach double-click event handler to grid items
+                    gridItem.addEventListener("dblclick", function() {
+                        var gridItem = $(this);
+
+                        // Ask the user if they want to divide the grid item
+                        var userResponse = confirm("Do you want to divide this grid item into two smaller grids?");
+
+                        if (userResponse) {
+                            // Create two new grid items inside the current grid item
+                            var newGridItem1 = $("<div class='grid-item F'></div>");
+                            var newGridItem2 = $("<div class='grid-item F blocked'></div>");
+                            var newGridItem3 = $("<div class='grid-item F'></div>");
+                            var newGridItem4 = $("<div class='grid-item F blocked'></div>");
+
+
+                            // Set X and Y values to the new grid items
+                            newGridItem1.text(`${x}:${y}`);
+                            newGridItem2.text(`${x}:${y}`);
+                            newGridItem3.text(`${x}:${y}`);
+                            newGridItem4.text(`${x}:${y}`);
+                            // gridItem.textContent = `${x}:${y}`;
+
+                            gridItem.empty().append(newGridItem1, newGridItem2, newGridItem3, newGridItem4);
+                        }
+                    });
+
+                }
+            }
+        }
+
+           
+        // A* algorithm for finding a non-diagonal path
+        function findPath(startX, startY, endX, endY) {
+            const openList = [];
+            const closedList = [];
+
+            const startNode = { x: startX, y: startY, g: 0, h: 0, parent: null };
+            openList.push(startNode);
+
+            while (openList.length > 0) {
+                openList.sort((a, b) => a.g + a.h - (b.g + b.h));
+                const currentNode = openList.shift();
+
+                if (currentNode.x === endX && currentNode.y === endY) {
+                    const path = [];
+                    let current = currentNode;
+                    while (current) {
+                        path.unshift([current.x, current.y]);
+                        current = current.parent;
+                    }
+                    return path;
+                }
+
+                closedList.push(currentNode);
+
+                const neighbors = getNeighbors(currentNode);
+                for (const neighbor of neighbors) {
+                    if (closedList.some((node) => node.x === neighbor.x && node.y === neighbor.y)) {
+                        continue;
+                    }
+
+                    const g = currentNode.g + 1;
+                    const h = Math.abs(neighbor.x - endX) + Math.abs(neighbor.y - endY);
+
+                    if (!openList.some((node) => node.x === neighbor.x && node.y === neighbor.y) || g < neighbor.g) {
+                        neighbor.g = g;
+                        neighbor.h = h;
+                        neighbor.parent = currentNode;
+                        if (!openList.includes(neighbor)) {
+                            openList.push(neighbor);
+                        }
+                    }
+                }
+            }
+
+            return [];
+        }
+
+        // Get neighboring cells for pathfinding
+        function getNeighbors(node) {
+            const neighbors = [
+                { x: node.x - 1, y: node.y },
+                { x: node.x + 1, y: node.y },
+                { x: node.x, y: node.y - 1 },
+                { x: node.x, y: node.y + 1 }
+            ];
+
+            return neighbors.filter((neighbor) => {
+                return neighbor.x >= 0 && neighbor.x < gridSize && neighbor.y >= 0 && neighbor.y < gridSize
+                    && !isBlocked(neighbor.x, neighbor.y);
+            });
+        }
+
+        // Check if a cell is blocked
+        function isBlocked(x, y) {
+            const gridItems = document.getElementsByClassName("grid-item");
+            for (const gridItem of gridItems) {
+                if (getCoordinates(gridItem.textContent)[0] === x && getCoordinates(gridItem.textContent)[1] === y
+                    && gridItem.classList.contains("blocked")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Extract X and Y coordinates from grid item text
+        function getCoordinates(text) {
+            return text.split(":").map(Number);
+        }
+
+        // Visualize the path by adding the "path" class to grid items
+        function visualizePath(path) {
+            const gridItems = document.getElementsByClassName("grid-item");
+
+            for (const gridItem of gridItems) {
+                gridItem.classList.remove("path");
+            }
+
+            for (const [x, y] of path) {
+                for (const gridItem of gridItems) {
+                    if (getCoordinates(gridItem.textContent)[0] === x && getCoordinates(gridItem.textContent)[1] === y) {
+                        gridItem.classList.add("path");
+                    }
+                }
+            }
+        }
+
+        // Call the function to create the grid layout
+        createGrid();
+    </script>
+    
+</body>
+</html>

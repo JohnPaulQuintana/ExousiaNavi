@@ -74,6 +74,8 @@ Route::post('/navi/process/information',[Navi::class, 'naviProcessInformationReq
 Route::post('/navi/process/search',[Navi::class, 'naviProcessInformationSearch'])->name('navi.server.process.search');
 Route::post('/navi/process/navigation',[Navi::class, 'naviProcessNavigation'])->name('navi.server.process.navigation');
 
+Route::post('/available',[Navi::class,'designatedTeacher'])->name('available');
+
 
 
 require __DIR__.'/auth.php';

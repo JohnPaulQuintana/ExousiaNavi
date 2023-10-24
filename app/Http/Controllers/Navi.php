@@ -735,4 +735,20 @@ class Navi extends Controller
         
         return $randomResponse;
     }
+
+    //valiable
+    public function designatedTeacher(Request $request){
+        // dd($request);
+        $faci = $request->input('designated');
+        $result = EastwoodsFacilities::where('facilities', $faci)->first();
+        
+        $resultAll = Teacher::where('facilities_id', $result->id)->get();
+
+        $response = [
+            'facility' => $result,
+            'teachers' => $resultAll,
+        ];
+        // dd($resultAll);
+        return response()->json(['result'=>$response]);
+    }
 }

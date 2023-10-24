@@ -246,15 +246,11 @@
         }
 
         .wall {
-            /* background-color: #ccc; Set the background color for the grid points */
             color: transparent;
             /* width: 15px; */
-            /* margin: auto; */
-            /* height: 20px; Set the height of each grid point */
-            display: inline-block; /* Display the grid points in a row */
-            /* margin: 2px; */
-            border: 2px solid transparent; Add a border to each grid point
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+            display: inline-block;
+            border: 2px solid transparent;
+            
         }
 
         /* Define the animation */
@@ -859,6 +855,15 @@
                 
             </div>
          </div>
+        <!-- Designated -->
+        <div class="popup" id="popup-designated">
+            <div class="loading-container l-ask">
+                <div class="browseCard-ask" data-id="">
+                    <i class="ri-question-fill"></i>
+                    <span>Designated</span>
+                </div>
+            </div>
+         </div>
         {{-- <div class="container" id="popupask">
             <div class="content">
                 <div id="frequently-ask">
@@ -879,7 +884,21 @@
                             <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i> 
                             Navigation Guide <span id="span-floor"></span>
                         </h5>
-                        <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="row">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-success" id="back-floor-button">
+                                    <i class="bi bi-arrow-left"></i> Back
+                                </button>
+                            </div>
+                            <div class="col-auto mx-2"> <!-- Add mx-2 class for horizontal margin -->
+                                <button type="button" class="btn btn-success" id="next-floor-button">
+                                    Next <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="col-auto mx-2"> <!-- Add mx-2 class for horizontal margin -->
+                                <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                        </div>                       
                     </div>
                     <div class="modal-body">
                         <div class="col-xl-10">
@@ -1439,6 +1458,8 @@
 
             // process facilities navigation
             const processFacilitiesNavigation = async (floor, facility) => {
+                $('#next-floor-button').hide();
+                $('#back-floor-button').hide();
                 const response = await fetch('/navi/process/navigation', {
                     method: 'POST',
                     headers: {
@@ -1473,9 +1494,10 @@
                             // default starting point
                 var startingX;
                 var startingY;
-
-                    function createGridPoints(target) {
+                    function createGridPoints(target, prevBool) {
                         if(floorIndex < len){
+                            // $('#next-floor-button').hide();
+                            // $('#back-floor-button').hide();
                             console.log('count', floorIndex, '<', len)
                             console.log(serverResponds[floorIndex]['gridDetails'])
                             $('#span-floor').text(serverResponds[floorIndex]['floor'])
@@ -1523,7 +1545,7 @@
                                         // point.text(`${parseInt(coordinates.x)},${parseInt(coordinates.y)}`); // Optionally, you can label points with their coordinates
                                          // Use a ternary operator to set the text based on coordinates.label
                                         point.text(coordinates.label !== null ? truncateText(coordinates.label, 7) : '');
-                                        gridContainer.append(point); // Append the point to the grid container using jQuery
+                                        gridContainer.append(point).fadeIn('slow'); // Append the point to the grid container using jQuery
                                         // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
                                         if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front' && coordinates.label !== 'stair-in' && coordinates.label !== 'wall') {
                                             point.addClass('blocked');
@@ -1567,13 +1589,70 @@
 
                                 // speak the guidelines
                                 startToSpeak(responseData.navigationMessage[floorIndex])
-                                floorIndex++; // Move to the next floor
-                                setTimeout(() => createGridPoints(facility), 10000); // Display the next floor after 10 seconds
+                                
+                                if(!prevBool){
+                                    floorIndex++; // Move to the next floor
+                                    setTimeout(() => createGridPoints(facility, false), 10000); // Display the next floor after 10 seconds
+                                }
+                                
+                                
                             } else {
                                 console.log('gridDetails is null or not an array');
                             }
+                        }else{
+                            $('#next-floor-button').fadeIn('slow');
+                            $('#back-floor-button').fadeIn('slow');
                         }
                     }
+
+                    // Back button preview
+                    $(document).on('click', '#back-floor-button', function(){
+                        if (floorIndex > 0) {
+                            console.log(floorIndex);
+                            floorIndex--; // Decrement floorIndex
+                            const gridContainer = $("#grid-container");
+                            // Clear the grid points and reset variables
+                            gridContainer.empty();
+                            gridPoints = [];
+                            highestX = -Infinity;
+                            highestY = -Infinity;
+                            isTargetFound = false;
+                            targetFacilities = '';
+                            targetX = 0;
+                            targetY = 0;
+                            startingX = 0;
+                            startingY = 0;
+                            createGridPoints(facility, true);
+                        } else {
+                            $(this).prop("disabled", true).addClass('btn btn-secondary');
+                            $('#next-floor-button').prop("disabled", false);
+                        }
+                    });
+
+                    // Next button preview
+                    $(document).on('click', '#next-floor-button', function(){
+                        if (floorIndex < 1) {
+                            console.log(floorIndex);
+                            floorIndex++; // Increment floorIndex
+                            const gridContainer = $("#grid-container");
+                            // Clear the grid points and reset variables
+                            gridContainer.empty();
+                            gridPoints = [];
+                            highestX = -Infinity;
+                            highestY = -Infinity;
+                            isTargetFound = false;
+                            targetFacilities = '';
+                            targetX = 0;
+                            targetY = 0;
+                            startingX = 0;
+                            startingY = 0;
+                            createGridPoints(facility, true);
+                        } else {
+                            $(this).prop("disabled", true).addClass('btn btn-secondary');
+                            $('#back-floor-button').prop("disabled", false);
+                        }
+                    });
+
 
                     // Function to truncate text if it exceeds a specified length
                     function truncateText(text, maxLength) {
@@ -1600,7 +1679,7 @@
                         return text; // Text is within the maxLength limit
                     }
                      // Call the function to create a 10x10 grid of points
-                    createGridPoints(facility);
+                    createGridPoints(facility, false);
                 
 
                
@@ -1902,13 +1981,29 @@
                 console.log('nothing to say')
             }
 
-            $(document).on('click', '.blocked, .targetFacilities', function() {
+            $(document).on('click', '.targetFacilities', async function() {
                 // Inside this function, 'this' refers to the clicked element
                 var clickedElement = $(this).text();
 
+                const responses = await fetch('/available', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        designated: `${clickedElement}`,
+                    }),
+
+                });
+     
+                const designatedTeachers = await responses.json();
+                console.log(designatedTeachers)
+                // $('#popup-designated').toggleClass('active')
                 // Your click event handler code here
                 // You can use 'clickedElement' to refer to the clicked element if needed
-                alert(clickedElement);
+                // alert(clickedElement);
+
             });
 
 

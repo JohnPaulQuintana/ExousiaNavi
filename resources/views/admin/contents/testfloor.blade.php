@@ -119,11 +119,11 @@
                 background-repeat: no-repeat;
                 background-size: 20px 20px; /* Width x Height in pixels */
                 transform: rotate(-90deg); /* Rotate the background image 90 degrees counter-clockwise */
-            /* Dark green for passed rooms */
-            color: white;
+                /* Dark green for passed rooms */
+                color: white;
         
-            /* animation: animatePath 4s linear infinite; */
-            /* Animation settings */
+                transition: transform ease-in-out; Apply the rotation animation over 3 seconds
+                opacity: 0; /* Initially hide the background image */
         }
 
         .grid-point.passed.up:not(.targetFacilities):not(.starting-point){
@@ -135,6 +135,8 @@
         .grid-point.passed.down:not(.targetFacilities):not(.starting-point){
             transform: rotate(180deg); /* Rotate the background image 90 degrees clockwise */
         }
+
+       
         /* starting point */
         .starting-point {
             /* background-color: #4434db; */
@@ -679,7 +681,7 @@
                                 }
                             }
                              // Animation is complete, resolve the promise
-                            resolve();
+                            // resolve();
                         })
 
                         // Repeat the animation infinitely

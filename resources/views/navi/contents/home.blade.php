@@ -200,7 +200,8 @@
                 transform: rotate(-90deg); /* Rotate the background image 90 degrees counter-clockwise */
             /* Dark green for passed rooms */
             color: white;
-        
+            transition: transform ease-in-out; Apply the rotation animation over 3 seconds
+                opacity: 0; /* Initially hide the background image */
             animation: animatePath 2s linear infinite;
             /* Animation settings */
         }
@@ -857,10 +858,14 @@
          </div>
         <!-- Designated -->
         <div class="popup" id="popup-designated">
-            <div class="loading-container l-ask">
-                <div class="browseCard-ask" data-id="">
-                    <i class="ri-question-fill"></i>
-                    <span>Designated</span>
+            <span class="text-white" style="text-shadow: 3px 2px 2px rgb(1, 3, 2);font-size: 18px;font-weight: 600;text-transform: capitalize;">
+                Available Teacher's on <span class="at"></span>     
+            </span>
+            <button type="button" class="btn-close bg-danger" id="preview-Cancel" style="float: right;"></button>
+            <div class="loading-container l-des mt-2">
+                <div class="browseCard-ask">
+                    <i class="fas fa-question-circle fa-3x"></i>
+                    <span class="me-auto">Look's like there is no record here.</span>
                 </div>
             </div>
          </div>
@@ -971,6 +976,23 @@
             </div>
          </div>
 
+         <!-- waiting for answer systems popups for teachers-->
+         <div class="popup" id="popup-continuation-teacher">
+            <div class="loading-container">
+                <div class="title">
+                    <div id="title" class="text-center text-white h1"><b>EXOUSIA-NAVI</b></div>
+                    <span id="sec-title" class="text-white"><b>Eastwoods Professional College</b></span>
+                </div>
+                <span id="title sec-title" class="text-white text-center mb-2" style="text-shadow:3px 2px 2px rgb(1, 3, 2); text-transform:capitalize; ">
+                    <b>Would you like it to know where its located?</b>
+                </span>
+                <div class="answer-handler">
+                    <button type="button" class="btn btn-success answerbtnT" data-value="yes">Yes</button>
+                    <button type="button" class="btn btn-danger answerbtnT" data-value="no">No</button>
+                </div>
+            </div>
+         </div>
+
          <!-- searching popups options-->
          <div class="popup" id="popup-searching">
             <div class="loading-container">
@@ -1028,7 +1050,7 @@
     </section>
 
     <footer>
-        <span>Capstone1-40%</span>
+        <span>Capstone2-80%</span>
     </footer>
 
     <!-- Modal -->
@@ -1091,6 +1113,7 @@
             const conT = $('#title');
             const location = $('#popuplocation');
             const input = $('#input')
+            let currentUtterance = null; // Store the current utterance
             let loadInterval;
             let updates = localStorage.getItem('updates') || false;
            
@@ -1216,6 +1239,27 @@
                 // const responseData = await response.json();
                 handleResponse(response)
             })
+            // answer by yes or no for teachers
+            $(document).on('click', '.answerbtnT', async function(){
+                var a = $(this).data('value')
+                const response = await fetch('/navi/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        prompt: `${a}`,
+                    }),
+
+                });
+                $('#overlay-updates').removeClass('active');
+                $('#popup-continuation').removeClass('active');
+              
+                $('#popup-continuation-teacher').removeClass('active');
+                // const responseData = await response.json();
+                handleResponse(response)
+            })
 
             // svg clicked handler
             $(document).on('click', 'svg', function(){
@@ -1289,6 +1333,8 @@
                                     }else if(responseData.continuation !== 'information'){
                                         $('#overlay-updates').toggleClass('active');
                                         $('#popup-continuation').toggleClass('active');
+                                    }else{
+                                        $('#popup-continuation-teacher').toggleClass('active');
                                     }
                                     // $("#myModal").modal("show");
                                 }
@@ -1325,7 +1371,7 @@
                                 break;
                             case "Teacher":
                                 html += `
-                                    <span class="grid-item" data-info-model="${responseData.modelClass}" data-info-id="${info.id}" data-info-search="${info.name}">${info.name.toUpperCase()}</span>
+                                    <span class="grid-item" data-info-model="${responseData.modelClass}" data-flo="${info.floor}" data-faci="${info.facility_name}" data-info-id="${info.id}" data-info-search="${info.name}">${info.name.toUpperCase()}</span>
                                 `
                                 break;
                         
@@ -1354,6 +1400,8 @@
                     $(document).off('click', '.grid-item').on('click', '.grid-item', async function(){
                         var infoModel = $(this).data('info-model')
                         var infoId = $(this).data('info-id')
+                        var dataFaci = $(this).data('faci')
+                        var dataFlo = $(this).data('flo')
                         // just for now
                         var prompt = $(this).data('info-search')
                         
@@ -1370,6 +1418,8 @@
                                 infoModel: `${infoModel}`,
                                 infoId: `${infoId}`,
                                 prompt: `${prompt}`,
+                                teacherLocation: dataFaci,
+                                locationFloor: dataFlo,
                             }),
 
                         });
@@ -1393,9 +1443,17 @@
                 }
             }
 
+            // Function to stop the current speech synthesis
+            const stopSpeaking = () => {
+                if (currentUtterance) {
+                    speechSynthesis.cancel(); // Cancel the current utterance
+                    currentUtterance = null; // Clear the current utterance reference
+                }
+            };
             // speak
             const startToSpeak = async (sentence) => {
-                console.log(sentence);
+               // Stop any ongoing speech before starting a new one
+                stopSpeaking();
                 // speak
                 input.hide()
                 if ('speechSynthesis' in window) {
@@ -1406,6 +1464,8 @@
                         utterance.pitch = 1;
                         utterance.text = sentence;
 
+                         // Store the current utterance
+                        currentUtterance = utterance;
                         var index = 1;
                         for (index; index < window.speechSynthesis.getVoices().length; index++) {
                             if (window.speechSynthesis.getVoices()[index].voiceURI.search('Zeera') != -1) {
@@ -1420,6 +1480,7 @@
 
                         utterance.addEventListener('end', () => {
                             console.log('Speech finished');
+                            currentUtterance = null; // Clear the current utterance reference when speech finishes
                             // loader
                             $('.loader').hide();
                             const afterElement = circle.find('.circle-after');
@@ -1999,14 +2060,36 @@
      
                 const designatedTeachers = await responses.json();
                 console.log(designatedTeachers)
-                // $('#popup-designated').toggleClass('active')
-                // Your click event handler code here
-                // You can use 'clickedElement' to refer to the clicked element if needed
-                // alert(clickedElement);
+                $("#myModal").modal("hide");
+                
+                $('.at').text(designatedTeachers.result.facility.facilities);
+                var teach = ''
+                
+                    designatedTeachers.result.teachers.forEach(ts => {
+                    
+                            teach += `
+                                <div class="browseCard-ask">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <span class="me-auto">${ts.name}</span>
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>${ts.position}</span>
+                                </div>
+                            `;
+                        
+                    });
+                
+
+                $('.l-des').html(teach)
+                $('#popup-designated').toggleClass('active')
 
             });
 
+            $('#preview-Cancel').on('click', function(){
+                $("#myModal").modal("show");
+                $('#popup-designated').removeClass('active')
+            })
 
+            // $('#popup-designated').toggleClass('active')
         });
     </script>
 @endsection

@@ -237,11 +237,19 @@ class Navi extends Controller
         try {
             $reqInfo = $request->input('requestInfo');
             $modelClass = 'App\Models\\' . $request->input('modelClass');
-            $informations = $modelClass::get();
+            
+           if($reqInfo !== 'facilities'){
+                $informations = $modelClass::join('eastwoods_facilities', 'eastwoods_facilities.id', '=', 'teachers.facilities_id')
+                ->select('teachers.*', 'eastwoods_facilities.facilities as facility_name', 'eastwoods_facilities.floor' )
+                ->get();
+           }else{
+                $informations = $modelClass::get();  
+           }
             // dd($informations);
             return response()->json(['informations'=>$informations, 'modelClass'=>$request->input('modelClass')]);
         } catch (\Throwable $th) {
             //throw $th;
+            dd($th);
         }
     }
 
@@ -305,8 +313,9 @@ class Navi extends Controller
                     "query" => "persons.found",
                     "data" => $findInformation,
                 ];
+                session(['floor' => $request->input('locationFloor'), 'facility' => $request->input('teacherLocation')]);
                 $continuation = 'information';
-                return response()->json(['response' => $this->generateText($response),'floor'=>$findInformation->floor, 'facility'=>$findInformation->facilities, 'continuation'=>$continuation]);
+                return response()->json(['response' => $this->generateText($response),'floor'=>$request->input('locationFloor'), 'facility'=>$request->input('teacherLocation'), 'continuation'=>$continuation]);
                 
             
             default:

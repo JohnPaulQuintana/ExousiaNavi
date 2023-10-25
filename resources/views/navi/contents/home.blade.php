@@ -837,7 +837,7 @@
             <input type="text" id="key" value="" name="id" hidden>
             <input type="text" id="query" value="" name="query" hidden>
             <textarea id="input" name="prompt" rows="1" cols="1" class="form-control" {{ $className }}
-                placeholder="Enter your query or use the mic button"></textarea>>
+                placeholder="Enter your query or use the mic button"></textarea>
             <!-- <button type="submit"><img src="assets/send.svg" alt="send" /> -->
         </form>
     </main-form>
@@ -1276,7 +1276,29 @@
                         $('#popup-ask').removeClass('active');
                         $('#popup-searching').toggleClass('active');
                         break;
-                
+                    case 'speech':
+                       if($(this).hasClass('disabled')){
+                        var mess = "We apologize, but our speech recognition service is currently temporary unavailable. The icons have been highlighted in red to indicate this issue. Please try again at a later time. Thank you for your understanding.";
+                        startToSpeak(mess)
+                        .then((finished) => {
+                            if (finished) {
+                                // Speech finished
+                                console.log(finished)
+                            }  
+                        });
+                       }
+                    case 'scanner':
+                       if($(this).hasClass('disabled')){
+                        var scannerMess = "We apologize, but there is currently a scanner issue. Scanning functionality is temporarily unavailable. The icons have been highlighted in red to indicate this issue. Please try again at a later time. Thank you for your understanding.";
+
+                        startToSpeak(scannerMess)
+                        .then((finished) => {
+                            if (finished) {
+                                // Speech finished
+                                console.log(finished)
+                            }  
+                        });
+                       }
                     default:
                         break;
                 }

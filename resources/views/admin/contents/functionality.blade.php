@@ -91,10 +91,10 @@
                                                             $auth =  $systems[2]->status;
                                                             if (!$auth) {
                                                                 $className = 'btn-info';
-                                                                $text = "Enabled";
+                                                                $text = "Enable";
                                                             }else{
                                                                 $className = 'btn-danger';
-                                                                $text = "Disabled";
+                                                                $text = "Disable";
                                                             }
                                                         @endphp
                                                         <button type="button" class="btn {{ $className }} form-control btn-system" data-action="{{ $systems[2]->status  }}" data-id="{{ $systems[2]->id }}">{{ $text }}</button>
@@ -144,10 +144,10 @@
                                                             $auth =  $systems[0]->status;
                                                             if (!$auth) {
                                                                 $className = 'btn-info';
-                                                                $text = "Enabled";
+                                                                $text = "Enable";
                                                             }else{
                                                                 $className = 'btn-danger';
-                                                                $text = "Disabled";
+                                                                $text = "Disable";
                                                             }
                                                         @endphp
                                                         <button type="button" class="btn {{ $className }} form-control btn-system" data-action="{{ $systems[0]->status  }}" data-id="{{ $systems[0]->id }}">{{ $text }}</button>
@@ -197,10 +197,10 @@
                                                             $auth =  $systems[1]->status;
                                                             if (!$auth) {
                                                                 $className = 'btn-info';
-                                                                $text = "Enabled";
+                                                                $text = "Enable";
                                                             }else{
                                                                 $className = 'btn-danger';
-                                                                $text = "Disabled";
+                                                                $text = "Disable";
                                                             }
                                                         @endphp
                                                         <button type="button" class="btn {{ $className }} form-control btn-system" data-action="{{ $systems[1]->status  }}" data-id="{{ $systems[1]->id }}">{{ $text }}</button>

@@ -53,7 +53,11 @@
             text-align: center;
             /* background-color: #ffc107; Yellow background for draggable item */
             border: 1px solid #999;
+            box-shadow: rgba(10, 10, 10, 0.1) 0px 2px 4px, rgba(0, 0, 0, 0.5) 0px 7px 13px -3px, rgba(0, 0, 0, 0.5) 0px -3px 0px inset;
+            font-weight: 600;
+            text-shadow: 2px 2px 3px rgba(7, 7, 7, 0.8);
             display: flex;
+            
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif; /* Specify a common font */

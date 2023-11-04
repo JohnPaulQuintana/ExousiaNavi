@@ -11,6 +11,8 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     {{-- toast css --}}
     <link rel="stylesheet" type="text/css" href="{{ asset('backend/assets/libs/toastr/build/toastr.min.css') }}">
     <!-- jquery.vectormap css -->
@@ -30,10 +32,12 @@
         type="text/css" />
     <!-- Icons Css -->
     <link href="{{ asset('backend/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    
     <!-- App Css-->
     <link href="{{ asset('backend/assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
     <style>
+        
         /* Style for the grid container */
         .grid-container {
             padding: 10px;
@@ -91,7 +95,7 @@
         .grid-point:hover {
             transform: translateZ(10px);
             /* Translate along the Z-axis to create elevation */
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); */
             /* Add a subtle shadow */
         }
 
@@ -99,11 +103,12 @@
         .blocked {
             /* background-color: transparent; */
             /* Dark background color for walls */
-            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+            box-shadow: rgba(10, 10, 10, 0.1) 0px 2px 4px, rgba(0, 0, 0, 0.5) 0px 7px 13px -3px, rgba(0, 0, 0, 0.5) 0px -3px 0px inset;
             color: greenyellow;
-            border: 1px solid white;
+            border: 1px solid transparent;
             transform: translateZ(20px);
             cursor: pointer;
+            
         }
 
         .grid-point.block::after {
@@ -118,7 +123,7 @@
                 background-position:center;
                 background-repeat: no-repeat;
                 background-size: 20px 20px; /* Width x Height in pixels */
-                transform: rotate(-90deg); /* Rotate the background image 90 degrees counter-clockwise */
+                transform: rotate(-90deg); 
                 /* Dark green for passed rooms */
                 color: white;
         
@@ -140,33 +145,38 @@
         /* starting point */
         .starting-point {
             /* background-color: #4434db; */
-            border: 1px solid green;
+            border: 1px solid rgb(11, 93, 234);
             transform: translateZ(20px);
             /* Dark background color for walls */
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-            color: white;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px, rgba(0, 0, 0, 0.5) 0px 7px 13px -3px, rgba(0, 0, 0, 0.5) 0px -3px 0px inset;
+            color: rgb(11, 93, 234);
         }
 
         /* starting point */
         .targetFacilities {
-            background-color: #044214;
-            border: 1px solid green;
+            border: 1px solid rgb(11, 93, 234);
+            /* border: 1px solid green; */
             /* Dark background color for walls */
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-            color: white;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px, rgba(0, 0, 0, 0.5) 0px 7px 13px -3px, rgba(0, 0, 0, 0.5) 0px -3px 0px inset;
+            color: rgb(11, 93, 234);
             transform: translateZ(20px);
             cursor: pointer;
+            text-shadow: 2px 2px 3px rgba(7, 7, 7, 0.8);
+            font-weight: 600;
         }
 
         .wall {
-            background-color: #ccc; /* Set the background color for the grid points */
-            color: #ccc;
+            background-color: transparent; /* Set the background color for the grid points */
+            /* color: transparent; */
             /* width: 15px; */
             /* margin: auto; */
             /* height: 20px; Set the height of each grid point */
-            display: inline-block; /* Display the grid points in a row */
+            /* display: inline-block; Display the grid points in a row */
             /* margin: 2px; */
-            border: 2px solid #fff; /* Add a border to each grid point */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border: .6px solid transparent; /* Add a border to each grid point */
+            /* box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px, rgba(0, 0, 0, 0.3) 0px 1px 3px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
+            transform: translateZ(10px);
         }
 
     </style>
@@ -196,73 +206,39 @@
 
             <div class="row">
 
-                <div class="col-xl-2">
+                <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-
-                            <div class="dropdown float-end">
-                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <!-- item-->
-                                    <a href="{{ route('dashboard') }}" class="dropdown-item">Dashboard</a>
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item">Teacher's</a>
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item">Facilities</a>
-                                    <!-- item-->
-                                    <a href="javascript:void(0);" class="dropdown-item">Event's</a>
+                            
+                            <div class="row mb-2">
+                                <div class="col-md-4">
+                                    <h4 class="card-title mb-4 mt-2">
+                                        <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
+                                        Testing Phase > <span class="text-success">Floor Deployed layout</span> 
+                                    </h4>
+                                </div>
+                                <div class="col-md-4"> <!-- Adjust the column size as needed -->
+                                    <select id="target-floor" class="form-control text-center">
+                                        @foreach ($details as $key => $floor)
+                                            <option value="{{ $key }}">{{ $floor->floor }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 text-end"> <!-- Adjust the column size as needed -->
+                                    <div class="dropdown">
+                                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="mdi mdi-dots-vertical"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="{{ route('dashboard') }}" class="dropdown-item">Dashboard</a>
+                                            <a href="javascript:void(0);" class="dropdown-item">Teacher's</a>
+                                            <a href="javascript:void(0);" class="dropdown-item">Facilities</a>
+                                            <a href="javascript:void(0);" class="dropdown-item">Event's</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <h4 class="card-title mb-4">Target Facilities</h4>
-
-                            <div class="table-responsive">
-                                {{-- {{ $details->floor }} --}}
-                               
-                                <h6 class="font-size-13">
-                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                    <span class="text-secondary">Available Floor</span>
-                                    <div class="input-group d-flex align-items-center text-success">
-                                        <select id="target-floor" class="form-control text-white mt-2">
-                                            @foreach ($details as $key => $floor)
-                                                    <option value="{{ $key }}">{{ $floor->floor }}</option>
-                                               
-                                            @endforeach
-                                        </select>
-                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
-                                    </div>
-                                </h6>
-
-                                <h6 class="font-size-13">
-                                    <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                    <span class="text-secondary">Available Facilities</span>
-                                    <div class="input-group d-flex align-items-center text-success">
-                                        <select id="target-selection" class="form-control text-white mt-2">
-                                            
-                                        </select>
-                                        {{-- <i class="text-danger h3 fas fa-check delete-row" style="margin:15px auto 10px 10px;"></i> --}}
-                                    </div>
-                                </h6>
-
-                                <button class="btn btn-secondary mt-2" id="newTarget">Test</button>
-                            </div>
-                        </div><!-- end card -->
-                    </div><!-- end card -->
-                </div>
-                <!-- end col -->
-
-                <div class="col-xl-10">
-                    <div class="card">
-                        <div class="card-body">
-                            {{-- {{ $details }} --}}
-                            <h4 class="card-title mb-4">
-                                <i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>
-                                Testing Phase > <span class="text-success">Floor Deployed layout</span>
-                            </h4>
-
+                        
                             <div class="table-responsive row">
                                 {{-- all contents --}}
 
@@ -321,6 +297,8 @@
     <script src="{{ asset('backend/assets/js/pages/toastr.init.js') }}"></script>
     <!-- App js -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/fontawesome.min.js" integrity="sha512-64O4TSvYybbO2u06YzKDmZfLj/Tcr9+oorWhxzE3yDnmBRf7wvDgQweCzUf5pm2xYTgHMMyk5tW8kWU92JENng==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
 
     <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.10/dist/interact.min.js"></script>
     {{-- custom --}}
@@ -396,9 +374,11 @@
                     point.addClass("grid-point");
                     point.attr("data-x", parseInt(coordinates.x)); // Set x-coordinate as a data attribute
                     point.attr("data-y", parseInt(coordinates.y)); // Set y-coordinate as a data attribute
+                    point.attr("data-l", coordinates.label !== "wall" ? coordinates.label : null);
                     // point.text(`${parseInt(coordinates.x)},${parseInt(coordinates.y)}`); // Optionally, you can label points with their coordinates
                     // Use a ternary operator to set the text based on coordinates.label
-                    point.text(coordinates.label !== null ? truncateText(coordinates.label, 7) : '');
+                    // point.text(coordinates.label !== null ? truncateText(coordinates.label, 10) : '');//original
+                    point.text(coordinates.label !== null ? coordinates.label : '')
                     gridContainer.append(point); // Append the point to the grid container using jQuery
                     // point.addClass(coordinates.isBlock === 'true' ? 'blocked' : '');
                     if (coordinates.isBlock === 'true' && coordinates.label !== targetFacilities && coordinates.label !== 'front' && coordinates.label !== 'wall') {
@@ -413,7 +393,9 @@
                         startingX = parseInt(coordinates.x);
                         startingY = parseInt(coordinates.y);
                         point.addClass('starting-point');
-                        point.text('Lobby.')
+                        point.text('')
+                        point.append(`<i class="fa-solid fa-street-view fa-2xl"></i>`)
+
 
                         // Create the ball element
                         // const ball = $("<div></div>");
@@ -422,13 +404,35 @@
                         // point.append(ball);
                     } else if(coordinates.label === 'wall'){
                         point.addClass('blocked wall');
+                        point.text('')
+                        point.append(`<i class="fa-regular fa-rectangle-xmark fa-lg" style="color: #511f24;"></i>`)
+                    } 
+                    if(coordinates.label === 'male'){
+                        console.log('yes')
+                        point.text('')
+                        point.append(`<i class="fa-solid fa-person fa-2xl" style="color: #0f56d2;"></i>`)
                     }
-
+                    if(coordinates.label === 'female'){
+                        point.text('')
+                        point.append(`<i class="fa-solid fa-person-dress fa-2xl" style="color: #eb05c1;"></i>`)
+                    }
+                    if(coordinates.label === 'stair-in'){
+                        point.text('')
+                        point.append(`<i class="fa-solid fa-stairs fa-2xl" style="color: #0f56d2;"></i>`)
+                    }
+                    if(coordinates.label === 'guard'){
+                        point.text('')
+                        point.append(`<i class="fa-solid fa-person-military-pointing fa-2xl"></i>`)
+                    }
+                    // console.log(coordinates.label)
                     // Add the point to the gridPoints array
                     gridPoints.push(point);
                     $('#target-selection').html(targetSelection);
                     // starting point x, y  target x,y
-                    dijkstra(startingX, startingY, targetX, targetY);
+                    if(target != 'n/a'){
+                        dijkstra(startingX, startingY, targetX, targetY);
+                    }
+                    
                 });
             }
 
@@ -459,7 +463,7 @@
 
 
             // Call the function to create a 10x10 grid of points
-            createGridPoints('epas', 0);
+            createGridPoints('cashier', 0);
             // console.log(highestX, highestY)
             // Dijkstra's Algorithm
             async function dijkstra(startX, startY, endX, endY) {
@@ -710,47 +714,38 @@
                 return new Promise((resolve) => setTimeout(resolve, ms));
             }
 
-            $(document).on('click', '#newTarget', function(){
-                const selectedValue = $("#target-selection").val();
-                const selectedFloorKey = parseInt($("#target-floor").val());
+            //floor change
+            $(document).on("change", "#target-floor", function(){
+                const selectedFloorKey = parseInt($(this).val());
+                // alert(selectedFloorKey)
                 const gridContainer = $("#grid-container");
                  // Clear the grid points and reset variables
                 gridContainer.empty();
                 gridPoints = [];
                 highestX = -Infinity;
                 highestY = -Infinity;
-                // Call createGridPoints with the new selected values
-                createGridPoints(selectedValue, selectedFloorKey);
+                createGridPoints('n/a', selectedFloorKey);
             })
 
-            // Event listener for changes in the target selection or target floor
-            // $('#target-selection, #target-floor').on('change', function() {
-            //     const selectedValue = $("#target-selection").val();
-            //     const selectedFloorKey = parseInt($("#target-floor").val());
-            //     const gridContainer = $("#grid-container");
-            //      // Clear the grid points and reset variables
-            //     gridContainer.empty();
-            //     gridPoints = [];
-            //     highestX = -Infinity;
-            //     highestY = -Infinity;
-            //     // Call createGridPoints with the new selected values
-            //     createGridPoints(selectedValue, selectedFloorKey);
-            //     // Clear the selected value by resetting the dropdown
-                
-            // });
-
-            // select all blocks and target
-            // Select all elements with class "blocked" or "targetFacilities"
             // Use event delegation to handle clicks on elements with classes "blocked" or "targetFacilities"
             $(document).on('click', '.blocked, .targetFacilities', function() {
                 // Inside this function, 'this' refers to the clicked element
-                var clickedElement = $(this).text();
-
-                // Your click event handler code here
-                // You can use 'clickedElement' to refer to the clicked element if needed
-                alert(clickedElement);
+                if (!$(this).hasClass('wall')) {
+                    var clickedElement = $(this).data('l');
+                    const selectedFloorKey = parseInt($("#target-floor").val());
+                    const gridContainer = $("#grid-container");
+                    // Clear the grid points and reset variables
+                    gridContainer.empty();
+                    gridPoints = [];
+                    highestX = -Infinity;
+                    highestY = -Infinity;
+                    createGridPoints(clickedElement, selectedFloorKey);
+                    // alert(clickedElement);
+                }
             });
 
+            //function for sending a request to performed search
+            // function
 
         })
     </script>
